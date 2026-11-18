@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Licencias ESRN Rural Virtual</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8b400'/%3E%3Cpath d='M9 8h4v13h9v4H9z' fill='%2317191c'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233f7f14'/%3E%3Cpath d='M9 8h4v13h9v4H9z' fill='%23ffffff'/%3E%3C/svg%3E">
 <style>
 /* ============ 1. Tokens: todo valor visual sale de acá ============ */
 :root{
@@ -12,7 +12,9 @@
   --n-0:#ffffff; --n-25:#fbfaf7; --n-50:#f4f3ee; --n-100:#ebe8df; --n-200:#dcd8cd; --n-300:#c4bfb2;
   --n-500:#585e67; --n-700:#363b42; --n-900:#17191c;
   /* Acento único: el amarillo de la planilla. Sólo para la acción principal y lo seleccionado */
-  --acento:#e8b400; --acento-h:#d6a600; --acento-suave:#fff5cc; --acento-linea:#efd98a; --acento-tinta:#4a3a00;
+  /* Colores del logo ESRN Rural Virtual */
+  --marca-verde:#5a9a1c; --marca-azul:#2f7ed3; --azul:#22609f; --azul-h:#1b4f84; --azul-suave:#e8f0fa;
+  --acento:#3f7f14; --acento-h:#346a10; --acento-suave:#edf6e4; --acento-linea:#bcdca2; --acento-tinta:#2a5410;
   /* Semánticos */
   --ok:#1b6e3f; --ok-suave:#e2f2e8;
   --warn:#7a4f00; --warn-suave:#fff0d1; --warn-linea:#f0d39a; --warn-barra:#c98200;
@@ -21,7 +23,7 @@
   --trabajo:#fff3c2; --trabajo-linea:#e2b52a;
   --finde:#e4e0d5; --no-dia:#4a4f57; --feriado:#fbe9e6; --fila-hover:#fdf8e4;
   /* Barra superior */
-  --top-fondo:#17191c; --top-tinta:#d7dade; --top-tenue:#a9aeb5; --top-hover:rgba(255,255,255,.08); --top-activo:rgba(255,255,255,.14); --top-campo:rgba(255,255,255,.1); --top-borde:rgba(255,255,255,.2);
+  --top-fondo:#ffffff; --top-tinta:#363b42; --top-tenue:#6a7079; --top-hover:rgba(0,0,0,.04); --top-activo:var(--azul-suave); --top-campo:#f4f3ee; --top-borde:#dcd8cd;
   /* Grupos de artículos (categorías de datos) */
   --g-salud:#cde1f5; --g-salud-i:#0f3a63;
   --g-maternidad:#f7d2e2; --g-maternidad-i:#6d1840;
@@ -50,29 +52,34 @@ h1,h2,h3{margin:0;line-height:var(--lh-apretado);font-weight:700}
 h1{font-size:var(--t-xl);letter-spacing:-.01em} h2{font-size:var(--t-md)} h3{font-size:var(--t-md)}
 p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
-a{color:var(--n-900);text-underline-offset:3px}
+a{color:var(--azul);text-underline-offset:3px}
 .num,td.num,th.num{font-variant-numeric:tabular-nums;text-align:right}
-:focus-visible{outline:2px solid var(--n-900);outline-offset:2px}
+:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
 .ico{width:18px;height:18px;flex:none;vertical-align:-3px}
 .ico.sm{width:15px;height:15px;vertical-align:-2px}
 /* ============ 3. Layout ============ */
-.top{background:var(--top-fondo);color:var(--n-0);position:sticky;top:0;z-index:20}
+.top{background:var(--top-fondo);color:var(--n-900);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--n-200);box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .top-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:var(--s4);padding:var(--s2) var(--s4);flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:var(--s3);font-weight:700;white-space:nowrap}
 .brand small{display:block;font-weight:400;color:var(--top-tenue);font-size:var(--t-xs)}
-.logo{width:30px;height:30px;border-radius:var(--r-md);border:2px solid var(--acento);display:grid;place-items:center;color:var(--acento);font-weight:800}
+.logo-esrn{display:grid;line-height:1;font-weight:900;letter-spacing:-.02em}
+.logo-esrn .sigla{font-size:24px;font-family:"Arial Black","Segoe UI",system-ui,sans-serif}
+.logo-esrn .es{color:var(--marca-verde)} .logo-esrn .rn{color:var(--marca-azul)}
+.logo-esrn small{font-size:8.5px;font-weight:800;letter-spacing:.08em;color:var(--marca-azul);margin-top:2px}
+.brand-sep{width:1px;height:30px;background:var(--n-200)}
+.brand-tit{line-height:1.2}
 nav.tabs{display:flex;gap:2px}
 nav.tabs a{color:var(--top-tinta);text-decoration:none;padding:var(--s2) var(--s3);border-radius:var(--r-md);font-weight:500;position:relative}
-nav.tabs a[aria-current=page]{background:var(--top-activo);color:var(--n-0)}
-nav.tabs a[aria-current=page]::after{content:"";position:absolute;left:var(--s3);right:var(--s3);bottom:-9px;height:3px;border-radius:3px 3px 0 0;background:var(--acento)}
+nav.tabs a[aria-current=page]{background:var(--top-activo);color:var(--azul)}
+nav.tabs a[aria-current=page]::after{content:"";position:absolute;left:var(--s3);right:var(--s3);bottom:-9px;height:3px;border-radius:3px 3px 0 0;background:var(--marca-verde)}
 .top-tools{margin-left:auto;display:flex;gap:var(--s2);align-items:center}
-.top-tools input{background:var(--top-campo);border:1px solid var(--top-borde);color:var(--n-0);border-radius:var(--r-md);padding:var(--s2) var(--s3);width:220px;min-height:40px}
+.top-tools input{background:var(--top-campo);border:1px solid var(--top-borde);color:var(--n-900);border-radius:var(--r-md);padding:var(--s2) var(--s3);width:220px;min-height:40px}
 .top-tools input::placeholder{color:var(--top-tenue)}
-.pill{display:inline-flex;align-items:center;gap:var(--s2);border:1px solid var(--top-borde);background:transparent;color:var(--top-tinta);border-radius:var(--r-full);padding:var(--s1) var(--s3);font-size:var(--t-xs);cursor:pointer;min-height:32px;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:var(--s2);border:1px solid var(--top-borde);background:var(--n-0);color:var(--top-tinta);border-radius:var(--r-full);padding:var(--s1) var(--s3);font-size:var(--t-xs);cursor:pointer;min-height:32px;white-space:nowrap}
 .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--top-tenue);flex:none}
-.pill.ok .dot{background:#5cc98a}
-.pill.warn{border-color:var(--acento)} .pill.warn .dot{background:var(--acento)}
-.pill.err{border-color:#f08a7a} .pill.err .dot{background:#f08a7a}
+.pill.ok .dot{background:var(--acento)}
+.pill.warn{border-color:var(--warn-linea);background:var(--warn-suave)} .pill.warn .dot{background:var(--warn-barra)}
+.pill.err{border-color:var(--err-linea);background:var(--err-suave)} .pill.err .dot{background:var(--err)}
 main{max-width:1280px;margin:0 auto;padding:var(--s5) var(--s4) var(--s7)}
 .banners{max-width:1280px;margin:0 auto;padding:var(--s3) var(--s4) 0;display:grid;gap:var(--s2)}
 .banners:empty{display:none}
@@ -97,8 +104,8 @@ input.in.w-auto,select.in.w-auto,.w-auto{width:auto}
 .card-b.flush{padding:0}
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--n-200);background:var(--n-0);border-radius:var(--r-md);padding:var(--s2) var(--s4);cursor:pointer;font-weight:600;font-size:var(--t-sm);min-height:40px;white-space:nowrap;text-decoration:none;color:var(--n-900);transition:background-color 120ms ease,border-color 120ms ease,transform 140ms var(--ease)}
 .btn:active:not(:disabled){transform:scale(.97)}
-.btn.primary{background:var(--n-900);border-color:var(--n-900);color:var(--n-0)}
-.btn.accent{background:var(--acento);border-color:var(--acento);color:var(--n-900);font-weight:700}
+.btn.primary{background:var(--azul);border-color:var(--azul);color:var(--n-0)}
+.btn.accent{background:var(--acento);border-color:var(--acento);color:var(--n-0);font-weight:700}
 .btn.danger{color:var(--err);border-color:var(--err-linea)}
 .btn.ghost{border-color:transparent;background:transparent}
 .btn.sm{min-height:32px;padding:var(--s1) var(--s3);font-size:var(--t-xs)}
@@ -108,13 +115,13 @@ input.in.w-auto,select.in.w-auto,.w-auto{width:auto}
 .linkbtn{border:0;background:none;padding:0;cursor:pointer;color:var(--n-500);font-size:var(--t-xs);font-weight:600;display:inline-flex;align-items:center;gap:2px;min-height:28px}
 @media (hover:hover) and (pointer:fine){
   .btn:hover{background:var(--n-25);border-color:var(--n-300)}
-  .btn.primary:hover{background:var(--n-700);border-color:var(--n-700)}
+  .btn.primary:hover{background:var(--azul-h);border-color:var(--azul-h)}
   .btn.accent:hover{background:var(--acento-h);border-color:var(--acento-h)}
   .btn.danger:hover{background:var(--err-suave)}
   .btn.ghost:hover{background:var(--n-50)}
   .iconbtn:hover{background:var(--n-50);color:var(--n-900)}
   .linkbtn:hover{color:var(--n-900)}
-  nav.tabs a:hover{background:var(--top-hover);color:var(--n-0)}
+  nav.tabs a:hover{background:var(--top-hover);color:var(--n-900)}
   .pill:hover{background:var(--top-hover)}
   table.t tr.click:hover td,.lista li.click:hover,.semana .ent:hover,.semana .nota:hover{background:var(--fila-hover)}
   table.planilla td.d:hover{box-shadow:inset 0 0 0 2px var(--n-900)}
@@ -165,7 +172,7 @@ th.sortable{cursor:pointer;user-select:none}
 .nombre{font-weight:600}
 .sub{font-size:var(--t-sm);color:var(--n-500)}
 .bar{height:6px;background:var(--n-100);border-radius:var(--r-full);overflow:hidden;min-width:70px}
-.bar i{display:block;height:100%;background:var(--n-700)}
+.bar i{display:block;height:100%;background:var(--azul)}
 .bar.warn i{background:var(--warn-barra)}
 .bar.err i{background:var(--err)}
 /* Formularios */
@@ -173,7 +180,7 @@ label.f{display:grid;gap:var(--s1);font-size:var(--t-sm);font-weight:600;color:v
 label.f .hint{font-weight:400;color:var(--n-500);font-size:var(--t-xs)}
 input.in,select.in,textarea.in{width:100%;border:1px solid var(--n-300);border-radius:var(--r-md);padding:var(--s2) var(--s3);background:var(--n-0);min-height:42px;font-weight:400;font-size:var(--t-md)}
 textarea.in{min-height:64px;resize:vertical}
-input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--n-900);outline:3px solid var(--acento-suave);outline-offset:0}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--azul);outline:3px solid var(--azul-suave);outline-offset:0}
 input.in.bad{border-color:var(--err)}
 .err-msg{color:var(--err);font-size:var(--t-xs);font-weight:600}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--s3)}
@@ -181,10 +188,10 @@ input.in.bad{border-color:var(--err)}
 .fgrid.checks{gap:0 var(--s3)}
 .lbl{font-size:var(--t-sm);font-weight:600;color:var(--n-700);margin-bottom:var(--s1)}
 .check{display:flex;gap:var(--s2);align-items:flex-start;font-size:var(--t-sm);cursor:pointer;padding:var(--s1) 0;min-height:32px}
-.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--n-900);flex:none}
+.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--azul);flex:none}
 .seg{display:inline-flex;border:1px solid var(--n-200);border-radius:var(--r-md);overflow:hidden;background:var(--n-0)}
 .seg button{border:0;background:transparent;padding:var(--s2) var(--s3);cursor:pointer;font-weight:600;font-size:var(--t-sm);min-height:38px}
-.seg button[aria-pressed=true]{background:var(--n-900);color:var(--n-0)}
+.seg button[aria-pressed=true]{background:var(--azul);color:var(--n-0)}
 .datenav{display:flex;align-items:center;gap:var(--s1)}
 /* Modal */
 .modal-bg{position:fixed;inset:0;background:var(--velo);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:4vh var(--s3);overflow:auto;animation:fade 160ms ease-out}
@@ -210,7 +217,7 @@ input.in.bad{border-color:var(--err)}
 .ayuda-art details summary{cursor:pointer;font-weight:600;margin-top:var(--s1)}
 /* Toast */
 .toast{position:fixed;right:var(--s5);bottom:var(--s5);background:var(--n-900);color:var(--n-0);padding:var(--s3) var(--s4);border-radius:var(--r-md);display:flex;gap:var(--s3);align-items:center;z-index:60;box-shadow:var(--sh-3);font-size:var(--t-sm);max-width:min(440px,calc(100vw - 32px));animation:subir 200ms var(--ease)}
-.toast button{background:transparent;border:0;color:var(--acento);font-weight:700;cursor:pointer;padding:var(--s1);min-height:32px}
+.toast button{background:transparent;border:0;color:#9fd36f;font-weight:700;cursor:pointer;padding:var(--s1);min-height:32px}
 /* Planilla anual */
 .planilla-wrap{overflow:auto}
 table.planilla{border-collapse:collapse;font-size:var(--t-sm);font-variant-numeric:tabular-nums;width:100%;table-layout:fixed}
@@ -323,7 +330,7 @@ td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
 <body>
 <header class="top">
   <div class="top-in">
-    <div class="brand"><div class="logo" aria-hidden="true">L</div><div>Licencias ESRN Rural Virtual<small id="inst-nombre"></small></div></div>
+    <div class="brand"><div class="logo-esrn" aria-label="ESRN Rural Virtual"><span class="sigla"><span class="es">ES</span><span class="rn">RN</span></span><small>RURAL VIRTUAL</small></div><span class="brand-sep"></span><div class="brand-tit">Licencias<small id="inst-nombre"></small></div></div>
     <nav class="tabs" id="nav">
       <a href="#inicio" data-v="inicio" data-act="ir" data-ruta="inicio">Inicio</a>
       <a href="#agentes" data-v="agentes" data-act="ir" data-ruta="agentes">Agentes</a>
