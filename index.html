@@ -360,7 +360,7 @@ td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
    ========================================================================= */
 const STORAGE_KEY = 'licencias-personal';
 const SCHEMA_VERSION = 6;
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.4.1';
 const MODO_KEY = STORAGE_KEY + '-modo';
 const SNAP_PREFIX = STORAGE_KEY + '-snap-';
 const MAX_SNAPSHOTS = 8;
@@ -389,7 +389,7 @@ const TRAMITES_VIEJOS = {
   dj: 'Declaración jurada', constancia: 'Constancia / acta', disposicion: 'Disposición de dirección',
 };
 const TIPOS_DIA = { F: 'Feriado', A: 'Asueto', N: 'No laborable' };
-const CARACTERES = ['Titular', 'Interino', 'Suplente', 'Provisional', 'Otro'];
+const CARACTERES = ['Titular', 'Interino', 'Interino Condicional', 'Suplente', 'Suplente Condicional', 'Reubicado', 'Otro'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 const DIAS_C = ['dom','lun','mar','mié','jue','vie','sáb'];
@@ -1754,7 +1754,7 @@ function abrirFormAgente(id = null) {
       <label class="f">Horas<input class="in num" inputmode="numeric" data-c="hs" value="${esc(c.hs)}"></label>
       <label class="f">Curso y división<input class="in" data-c="cursoDiv" value="${esc(c.cursoDiv)}"></label>
       <label class="f">ID cargo<input class="in" data-c="idCargo" value="${esc(c.idCargo)}"></label>
-      <label class="f">Carácter<select class="in" data-c="caracter"><option value=""></option>${CARACTERES.map(x => `<option ${c.caracter === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <label class="f">Carácter<select class="in" data-c="caracter"><option value=""></option>${(c.caracter && !CARACTERES.includes(c.caracter) ? [c.caracter, ...CARACTERES] : CARACTERES).map(x => `<option ${c.caracter === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
       <label class="f">Res. / Disp.<input class="in" data-c="resDisp" value="${esc(c.resDisp)}"></label>
       <label class="f">Alta<input type="date" class="in" data-c="alta" value="${esc(c.alta)}"></label>
       <label class="f">Baja<input type="date" class="in" data-c="baja" value="${esc(c.baja)}"></label>
