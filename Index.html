@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Licencias del personal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e8b400'/%3E%3Cpath d='M9 8h4v13h9v4H9z' fill='%2317191c'/%3E%3C/svg%3E">
+<style>
+/* ============ 1. Tokens: todo valor visual sale de acá ============ */
+:root{
+  /* Neutrales cálidos (guiño al papel de la planilla) */
+  --n-0:#ffffff; --n-25:#fbfaf7; --n-50:#f4f3ee; --n-100:#ebe8df; --n-200:#dcd8cd; --n-300:#c4bfb2;
+  --n-500:#585e67; --n-700:#363b42; --n-900:#17191c;
+  /* Acento único: el amarillo de la planilla. Sólo para la acción principal y lo seleccionado */
+  --acento:#e8b400; --acento-h:#d6a600; --acento-suave:#fff5cc; --acento-linea:#efd98a; --acento-tinta:#4a3a00;
+  /* Semánticos */
+  --ok:#1b6e3f; --ok-suave:#e2f2e8;
+  --warn:#7a4f00; --warn-suave:#fff0d1; --warn-linea:#f0d39a; --warn-barra:#c98200;
+  --err:#a8200d; --err-suave:#fde7e3; --err-linea:#f0b9ae;
+  /* Planilla */
+  --finde:#e4e0d5; --no-dia:#4a4f57; --feriado:#fbe9e6; --fila-hover:#fdf8e4;
+  /* Barra superior */
+  --top-fondo:#17191c; --top-tinta:#d7dade; --top-tenue:#a9aeb5; --top-hover:rgba(255,255,255,.08); --top-activo:rgba(255,255,255,.14); --top-campo:rgba(255,255,255,.1); --top-borde:rgba(255,255,255,.2);
+  /* Grupos de artículos (categorías de datos) */
+  --g-salud:#cde1f5; --g-salud-i:#0f3a63;
+  --g-maternidad:#f7d2e2; --g-maternidad-i:#6d1840;
+  --g-familiar:#e1d6f5; --g-familiar-i:#3f2470;
+  --g-personales:#fde0bd; --g-personales-i:#6a3a00;
+  --g-capacitacion:#d3ebd2; --g-capacitacion-i:#1f5221;
+  --g-sistema:#e3e3e3; --g-sistema-i:#33373d;
+  --g-anual:#c7ebe6; --g-anual-i:#0c4f47;
+  --g-sinaviso:#f3b1ab; --g-sinaviso-i:#6b0f06;
+  /* Escalas */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --t-xs:.75rem; --t-sm:.875rem; --t-md:1rem; --t-lg:1.25rem; --t-xl:1.5rem; --t-2xl:2rem;
+  --lh-apretado:1.15; --lh-medio:1.3; --lh-comodo:1.5;
+  --r-sm:5px; --r-md:8px; --r-lg:14px; --r-full:999px;
+  --sh-1:0 1px 2px rgba(20,20,20,.06),0 2px 8px rgba(20,20,20,.05);
+  --sh-3:0 4px 8px rgba(0,0,0,.08),0 18px 48px rgba(0,0,0,.22);
+  --velo:rgba(15,17,20,.45);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+/* ============ 2. Base ============ */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;font-size:16px}
+body{margin:0;background:var(--n-50);color:var(--n-900);font:var(--t-md)/var(--lh-comodo) var(--font)}
+h1,h2,h3{margin:0;line-height:var(--lh-apretado);font-weight:700}
+h1{font-size:var(--t-xl);letter-spacing:-.01em} h2{font-size:var(--t-md)} h3{font-size:var(--t-md)}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--n-900);text-underline-offset:3px}
+.num,td.num,th.num{font-variant-numeric:tabular-nums;text-align:right}
+:focus-visible{outline:2px solid var(--n-900);outline-offset:2px}
+.ico{width:18px;height:18px;flex:none;vertical-align:-3px}
+.ico.sm{width:15px;height:15px;vertical-align:-2px}
+/* ============ 3. Layout ============ */
+.top{background:var(--top-fondo);color:var(--n-0);position:sticky;top:0;z-index:20}
+.top-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:var(--s4);padding:var(--s2) var(--s4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:var(--s3);font-weight:700;white-space:nowrap}
+.brand small{display:block;font-weight:400;color:var(--top-tenue);font-size:var(--t-xs)}
+.logo{width:30px;height:30px;border-radius:var(--r-md);border:2px solid var(--acento);display:grid;place-items:center;color:var(--acento);font-weight:800}
+nav.tabs{display:flex;gap:2px}
+nav.tabs a{color:var(--top-tinta);text-decoration:none;padding:var(--s2) var(--s3);border-radius:var(--r-md);font-weight:500;position:relative}
+nav.tabs a[aria-current=page]{background:var(--top-activo);color:var(--n-0)}
+nav.tabs a[aria-current=page]::after{content:"";position:absolute;left:var(--s3);right:var(--s3);bottom:-9px;height:3px;border-radius:3px 3px 0 0;background:var(--acento)}
+.top-tools{margin-left:auto;display:flex;gap:var(--s2);align-items:center}
+.top-tools input{background:var(--top-campo);border:1px solid var(--top-borde);color:var(--n-0);border-radius:var(--r-md);padding:var(--s2) var(--s3);width:220px;min-height:40px}
+.top-tools input::placeholder{color:var(--top-tenue)}
+.pill{display:inline-flex;align-items:center;gap:var(--s2);border:1px solid var(--top-borde);background:transparent;color:var(--top-tinta);border-radius:var(--r-full);padding:var(--s1) var(--s3);font-size:var(--t-xs);cursor:pointer;min-height:32px;white-space:nowrap}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--top-tenue);flex:none}
+.pill.ok .dot{background:#5cc98a}
+.pill.warn{border-color:var(--acento)} .pill.warn .dot{background:var(--acento)}
+.pill.err{border-color:#f08a7a} .pill.err .dot{background:#f08a7a}
+main{max-width:1280px;margin:0 auto;padding:var(--s5) var(--s4) var(--s7)}
+.banners{max-width:1280px;margin:0 auto;padding:var(--s3) var(--s4) 0;display:grid;gap:var(--s2)}
+.banners:empty{display:none}
+.grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:var(--s4);align-items:start}
+.stack{display:grid;gap:var(--s4)}
+.stack.lg{gap:var(--s5)}
+.row{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.flex1{flex:1;min-width:0}
+input.in.w-auto,select.in.w-auto,.w-auto{width:auto}
+.w-busca{max-width:340px}
+.cap::first-letter{text-transform:uppercase}
+.t-lg{font-size:var(--t-lg)}
+.span2{grid-column:span 2}
+.al-fin{align-self:end}
+.mt1{margin-top:var(--s1)}
+/* ============ 4. Componentes ============ */
+.card{background:var(--n-0);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.card.plano{box-shadow:none;border:1px solid var(--n-100);border-radius:var(--r-md)}
+.card-h{display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);border-bottom:1px solid var(--n-100);flex-wrap:wrap;min-height:52px}
+.card-b{padding:var(--s4)}
+.card-b.flush{padding:0}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--n-200);background:var(--n-0);border-radius:var(--r-md);padding:var(--s2) var(--s4);cursor:pointer;font-weight:600;font-size:var(--t-sm);min-height:40px;white-space:nowrap;text-decoration:none;color:var(--n-900);transition:background-color 120ms ease,border-color 120ms ease,transform 140ms var(--ease)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.primary{background:var(--n-900);border-color:var(--n-900);color:var(--n-0)}
+.btn.accent{background:var(--acento);border-color:var(--acento);color:var(--n-900);font-weight:700}
+.btn.danger{color:var(--err);border-color:var(--err-linea)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{min-height:32px;padding:var(--s1) var(--s3);font-size:var(--t-xs)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.iconbtn{border:0;background:transparent;cursor:pointer;width:36px;height:36px;border-radius:var(--r-md);display:inline-grid;place-items:center;color:var(--n-500);transition:background-color 120ms ease,transform 140ms var(--ease)}
+.iconbtn:active{transform:scale(.94)}
+.linkbtn{border:0;background:none;padding:0;cursor:pointer;color:var(--n-500);font-size:var(--t-xs);font-weight:600;display:inline-flex;align-items:center;gap:2px;min-height:28px}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--n-25);border-color:var(--n-300)}
+  .btn.primary:hover{background:var(--n-700);border-color:var(--n-700)}
+  .btn.accent:hover{background:var(--acento-h);border-color:var(--acento-h)}
+  .btn.danger:hover{background:var(--err-suave)}
+  .btn.ghost:hover{background:var(--n-50)}
+  .iconbtn:hover{background:var(--n-50);color:var(--n-900)}
+  .linkbtn:hover{color:var(--n-900)}
+  nav.tabs a:hover{background:var(--top-hover);color:var(--n-0)}
+  .pill:hover{background:var(--top-hover)}
+  table.t tr.click:hover td,.lista li.click:hover,.semana .ent:hover,.semana .nota:hover{background:var(--fila-hover)}
+  table.planilla td.d:hover{box-shadow:inset 0 0 0 2px var(--n-900)}
+  .opcion:hover{border-color:var(--n-900)}
+}
+.chip{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--t-xs);font-weight:600;padding:2px var(--s2);border-radius:var(--r-full);background:var(--n-100);color:var(--n-700);white-space:nowrap;line-height:var(--lh-medio)}
+.chip.doc{background:var(--n-0);box-shadow:inset 0 0 0 1px var(--n-300)}
+.chip.psa{background:var(--n-100)}
+.chip.warn{background:var(--warn-suave);color:var(--warn)}
+.chip.err{background:var(--err-suave);color:var(--err)}
+.chip.ok{background:var(--ok-suave);color:var(--ok)}
+.art{display:inline-flex;align-items:center;justify-content:center;min-width:2.6em;font-size:var(--t-xs);font-weight:700;padding:2px 6px;border-radius:var(--r-sm);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:var(--lh-medio)}
+.g-salud{background:var(--g-salud);color:var(--g-salud-i)}
+.g-maternidad{background:var(--g-maternidad);color:var(--g-maternidad-i)}
+.g-familiar{background:var(--g-familiar);color:var(--g-familiar-i)}
+.g-personales{background:var(--g-personales);color:var(--g-personales-i)}
+.g-capacitacion{background:var(--g-capacitacion);color:var(--g-capacitacion-i)}
+.g-sistema{background:var(--g-sistema);color:var(--g-sistema-i)}
+.g-anual{background:var(--g-anual);color:var(--g-anual-i)}
+.g-sinaviso{background:var(--g-sinaviso);color:var(--g-sinaviso-i)}
+.desglose{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3)}
+.desglose span{display:inline-flex;align-items:center;gap:var(--s1);font-variant-numeric:tabular-nums;font-weight:600;font-size:var(--t-sm)}
+.muted{color:var(--n-500)}
+.small{font-size:var(--t-sm)}
+.xs{font-size:var(--t-xs)}
+.big{font-size:var(--t-2xl);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.banner{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s4);border-radius:var(--r-md);border:1px solid;flex-wrap:wrap;font-size:var(--t-sm)}
+.banner.info{background:var(--n-0);border-color:var(--n-200)}
+.banner.warn{background:var(--warn-suave);border-color:var(--warn-linea)}
+.banner.err{background:var(--err-suave);border-color:var(--err-linea)}
+.banner .txt{flex:1;min-width:220px}
+main > .aviso-linea{margin-bottom:var(--s4)}
+.aviso-linea{display:flex;align-items:center;gap:var(--s2);font-size:var(--t-sm);color:var(--n-500);flex-wrap:wrap}
+/* Tablas */
+table.t{width:100%;border-collapse:collapse}
+table.t th{font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--n-500);font-weight:600;text-align:left;padding:var(--s2) var(--s3);border-bottom:1px solid var(--n-200);background:var(--n-25)}
+table.t td{padding:var(--s2) var(--s3);border-bottom:1px solid var(--n-100);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t tr.click{cursor:pointer}
+table.t tfoot td{font-weight:700;background:var(--n-25);border-top:1px solid var(--n-200)}
+th.sortable{cursor:pointer;user-select:none}
+.vacio{padding:var(--s6) var(--s4);text-align:center;color:var(--n-500)}
+.vacio b{display:block;color:var(--n-900);margin-bottom:var(--s1)}
+.lista{list-style:none;margin:0;padding:0}
+.lista li{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);border-bottom:1px solid var(--n-100)}
+.lista li:last-child{border-bottom:0}
+.lista li.click{cursor:pointer}
+.nombre{font-weight:600}
+.sub{font-size:var(--t-sm);color:var(--n-500)}
+.bar{height:6px;background:var(--n-100);border-radius:var(--r-full);overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;background:var(--n-700)}
+.bar.warn i{background:var(--warn-barra)}
+.bar.err i{background:var(--err)}
+/* Formularios */
+label.f{display:grid;gap:var(--s1);font-size:var(--t-sm);font-weight:600;color:var(--n-700)}
+label.f .hint{font-weight:400;color:var(--n-500);font-size:var(--t-xs)}
+input.in,select.in,textarea.in{width:100%;border:1px solid var(--n-300);border-radius:var(--r-md);padding:var(--s2) var(--s3);background:var(--n-0);min-height:42px;font-weight:400;font-size:var(--t-md)}
+textarea.in{min-height:64px;resize:vertical}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--n-900);outline:3px solid var(--acento-suave);outline-offset:0}
+input.in.bad{border-color:var(--err)}
+.err-msg{color:var(--err);font-size:var(--t-xs);font-weight:600}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--s3)}
+.fgrid .full{grid-column:1/-1}
+.fgrid.checks{gap:0 var(--s3)}
+.lbl{font-size:var(--t-sm);font-weight:600;color:var(--n-700);margin-bottom:var(--s1)}
+.check{display:flex;gap:var(--s2);align-items:flex-start;font-size:var(--t-sm);cursor:pointer;padding:var(--s1) 0;min-height:32px}
+.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--n-900);flex:none}
+.seg{display:inline-flex;border:1px solid var(--n-200);border-radius:var(--r-md);overflow:hidden;background:var(--n-0)}
+.seg button{border:0;background:transparent;padding:var(--s2) var(--s3);cursor:pointer;font-weight:600;font-size:var(--t-sm);min-height:38px}
+.seg button[aria-pressed=true]{background:var(--n-900);color:var(--n-0)}
+.datenav{display:flex;align-items:center;gap:var(--s1)}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:var(--velo);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:4vh var(--s3);overflow:auto;animation:fade 160ms ease-out}
+.modal{background:var(--n-0);border-radius:var(--r-lg);width:100%;max-width:780px;box-shadow:var(--sh-3);display:flex;flex-direction:column;max-height:92vh;animation:entrar 180ms var(--ease)}
+.modal.sm{max-width:480px}
+.modal-h{display:flex;align-items:center;gap:var(--s2);padding:var(--s4) var(--s5);border-bottom:1px solid var(--n-100)}
+.modal-h h2{font-size:var(--t-lg)}
+.modal-b{padding:var(--s5);overflow:auto;display:grid;gap:var(--s4)}
+.modal-f{display:flex;gap:var(--s2);align-items:center;padding:var(--s3) var(--s5);border-top:1px solid var(--n-100);background:var(--n-25);border-radius:0 0 var(--r-lg) var(--r-lg);flex-wrap:wrap}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes entrar{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes subir{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.resumen-lic{border-radius:var(--r-md);padding:var(--s3) var(--s4);background:var(--n-25);border:1px solid var(--n-100);display:grid;gap:6px}
+.computo{font-size:var(--t-md)}
+.computo b{font-size:var(--t-lg);font-variant-numeric:tabular-nums}
+.msg{display:flex;gap:var(--s2);font-size:var(--t-sm);padding:6px var(--s3);border-radius:var(--r-md);align-items:flex-start}
+.msg .ico{margin-top:1px}
+.msg.err{background:var(--err-suave);color:var(--err)}
+.msg.warn{background:var(--warn-suave);color:var(--warn)}
+.msg.ok{background:var(--ok-suave);color:var(--ok)}
+.msg.info{background:var(--n-50);color:var(--n-700)}
+.ayuda-art{font-size:var(--t-sm);background:var(--acento-suave);border:1px solid var(--acento-linea);border-radius:var(--r-md);padding:var(--s2) var(--s3);color:var(--acento-tinta)}
+.ayuda-art details summary{cursor:pointer;font-weight:600;margin-top:var(--s1)}
+/* Toast */
+.toast{position:fixed;right:var(--s5);bottom:var(--s5);background:var(--n-900);color:var(--n-0);padding:var(--s3) var(--s4);border-radius:var(--r-md);display:flex;gap:var(--s3);align-items:center;z-index:60;box-shadow:var(--sh-3);font-size:var(--t-sm);max-width:min(440px,calc(100vw - 32px));animation:subir 200ms var(--ease)}
+.toast button{background:transparent;border:0;color:var(--acento);font-weight:700;cursor:pointer;padding:var(--s1);min-height:32px}
+/* Planilla anual */
+.planilla-wrap{overflow:auto}
+table.planilla{border-collapse:collapse;font-size:var(--t-sm);font-variant-numeric:tabular-nums;width:100%;table-layout:fixed}
+table.planilla th,table.planilla td{border:1px solid var(--n-200);text-align:center;padding:0;height:32px;width:30px}
+table.planilla thead th{background:var(--n-25);font-weight:600;color:var(--n-500);font-size:var(--t-xs)}
+table.planilla th.mes{text-align:left;padding:0 var(--s2);width:112px;position:sticky;left:0;background:var(--n-25);z-index:1;font-weight:700;font-size:var(--t-xs);letter-spacing:.04em;color:var(--n-700)}
+table.planilla td.d{cursor:pointer;font-weight:700}
+table.planilla td.fs{background:var(--finde)}
+table.planilla td.nd{background:var(--no-dia);cursor:default}
+table.planilla td.fer{color:var(--err);background:var(--feriado)}
+table.planilla td.fs.fer{background:var(--finde)}
+table.planilla td.nocuenta{opacity:.5}
+table.planilla td.sup{box-shadow:inset 0 0 0 2px var(--err)}
+table.planilla td.hoy{box-shadow:inset 0 0 0 2px var(--n-900)}
+table.planilla td.obs,table.planilla th.obs{display:none}
+.planilla-pie{display:flex;gap:var(--s4);flex-wrap:wrap;align-items:flex-start;padding:var(--s3) var(--s4);border-top:1px solid var(--n-100)}
+.leyenda{display:flex;gap:var(--s3);flex-wrap:wrap;font-size:var(--t-xs);align-items:center;color:var(--n-700)}
+.leyenda .sw{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid var(--n-200);vertical-align:-2px;margin-right:var(--s1)}
+.leyenda .sw.finde{background:var(--finde)}
+.leyenda b.f{color:var(--err)}
+details.feriados{font-size:var(--t-sm)}
+details.feriados summary{cursor:pointer;font-weight:600;color:var(--n-700)}
+details.feriados ul{columns:2 260px;margin:var(--s2) 0 0;padding-left:var(--s4);color:var(--n-700)}
+/* Semana */
+.semana{display:grid;grid-template-columns:repeat(5,1fr)}
+.semana .dia{border-right:1px solid var(--n-100);min-height:140px;padding:var(--s3);display:flex;flex-direction:column;gap:var(--s1)}
+.semana .dia:last-child{border-right:0}
+.semana .dia.hoy{background:var(--acento-suave)}
+.semana .dia h4{margin:0 0 var(--s1);font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--n-500);font-weight:600}
+.semana .dia h4 b{color:var(--n-900);font-size:var(--t-md);margin-left:2px;letter-spacing:0}
+.semana .ent,.semana .nota{font-size:var(--t-sm);line-height:var(--lh-medio);display:flex;gap:6px;align-items:center;cursor:pointer;border-radius:var(--r-sm);padding:2px}
+.semana .nota{color:var(--n-700);align-items:flex-start}
+.semana .nota .ico{color:var(--n-500);margin-top:1px}
+.semana .fer{font-size:var(--t-xs);color:var(--err);font-weight:600}
+.semana .mas{margin-top:auto;padding-top:var(--s1)}
+.notas-dia li{align-items:flex-start}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:var(--s1) var(--s4);font-size:var(--t-sm)}
+.kv dt{color:var(--n-500)}
+.kv dd{margin:0;font-weight:500}
+.welcome{max-width:720px;margin:0 auto}
+.welcome .opc{display:grid;gap:var(--s3)}
+.opcion{display:flex;gap:var(--s3);align-items:flex-start;text-align:left;width:100%;border:1px solid var(--n-200);background:var(--n-0);border-radius:var(--r-md);padding:var(--s4);cursor:pointer;transition:border-color 120ms ease}
+.opcion b{display:block}
+.sec-tabs{display:flex;gap:var(--s1);border-bottom:1px solid var(--n-200);flex-wrap:wrap}
+.sec-tabs button{border:0;background:transparent;padding:var(--s3) var(--s4);cursor:pointer;font-weight:600;color:var(--n-500);border-bottom:3px solid transparent;margin-bottom:-1px;min-height:44px}
+.sec-tabs button[aria-selected=true]{color:var(--n-900);border-bottom-color:var(--acento)}
+td input.in,td select.in{min-height:36px;padding:var(--s1) var(--s2);font-size:var(--t-sm)}
+td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
+#print-area{display:none}
+/* ============ 5. Responsive ============ */
+@media (max-width:1000px){
+  .grid2{grid-template-columns:1fr}
+  .top-tools input{width:160px}
+}
+@media (max-width:720px){
+  main{padding:var(--s4) var(--s3) var(--s7)}
+  .top-in{gap:var(--s2)}
+  nav.tabs{order:3;width:100%;overflow:auto}
+  nav.tabs a[aria-current=page]::after{bottom:-8px}
+  .pill .txt{display:none}
+  .top-tools input{width:120px}
+  .semana{grid-template-columns:1fr}
+  .semana .dia{border-right:0;border-bottom:1px solid var(--n-100);min-height:0}
+  table.t.cards thead{display:none}
+  table.t.cards tr{display:grid;grid-template-columns:1fr auto;padding:var(--s2) var(--s3);border-bottom:1px solid var(--n-100)}
+  table.t.cards td{border:0;padding:2px 0}
+  table.t.cards td.hide-m{display:none}
+  table.planilla{width:auto}
+  .modal-b{padding:var(--s4)}
+  .toast{left:var(--s3);right:var(--s3);bottom:var(--s3)}
+  .span2{grid-column:auto}
+  .big{font-size:var(--t-xl)}
+}
+/* ============ 6. Movimiento e impresión ============ */
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body{background:#fff;font-size:10pt}
+  body>*:not(#print-area){display:none!important}
+  #print-area{display:block}
+  .pr h1{font-size:13pt;margin:0 0 4pt}
+  .pr table{border-collapse:collapse;width:100%}
+  .pr td,.pr th{border:1px solid #555;padding:2px 4px;font-size:8pt;vertical-align:top}
+  .pr th{background:#eee}
+  .pr .izq{text-align:left} .pr .der{text-align:right;margin-top:6pt}
+  .pr table.planilla{table-layout:auto}
+  .pr table.planilla td,.pr table.planilla th{height:16pt;width:auto;padding:0;text-align:center}
+  .pr table.planilla th.mes{text-align:left;padding:0 4px;position:static}
+  .pr table.planilla td.fs{background:#d9d9d9!important}
+  .pr table.planilla td.nd{background:#555!important}
+  .pr table.planilla th.obs{display:table-cell;text-align:left}
+  .pr table.planilla td.obs{display:table-cell;text-align:left;font-size:7pt;padding:1px 3px;width:150px}
+  .pr *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pr .salto{page-break-before:always}
+  .pr .pie{margin-top:6pt;font-size:7pt;color:#444}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="logo" aria-hidden="true">L</div><div>Licencias del personal<small id="inst-nombre"></small></div></div>
+    <nav class="tabs" id="nav">
+      <a href="#inicio" data-v="inicio" data-act="ir" data-ruta="inicio">Inicio</a>
+      <a href="#agentes" data-v="agentes" data-act="ir" data-ruta="agentes">Agentes</a>
+      <a href="#reportes" data-v="reportes" data-act="ir" data-ruta="reportes">Reportes</a>
+      <a href="#ajustes" data-v="ajustes" data-act="ir" data-ruta="ajustes">Ajustes</a>
+    </nav>
+    <div class="top-tools">
+      <button class="pill" id="pill-respaldo" data-act="respaldo"><span class="dot"></span><span class="txt"></span></button>
+      <input id="buscar-global" list="dl-agentes" placeholder="Buscar agente…" autocomplete="off" aria-label="Buscar agente">
+      <button class="btn accent" data-act="nueva-licencia" id="btn-nueva"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Licencia</button>
+    </div>
+  </div>
+</header>
+<div class="banners" id="banners"></div>
+<main id="main"></main>
+<datalist id="dl-agentes"></datalist>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<div id="print-area"></div>
+<input type="file" id="file-import" accept=".json,application/json" hidden>
+<input type="file" id="file-consulta" accept=".json,application/json" hidden>
+
+<script>
+'use strict';
+/* =========================================================================
+   1. CONSTANTES
+   ========================================================================= */
+const STORAGE_KEY = 'licencias-personal';
+const SCHEMA_VERSION = 2;
+const APP_VERSION = '1.1.0';
+const MODO_KEY = STORAGE_KEY + '-modo';
+const SNAP_PREFIX = STORAGE_KEY + '-snap-';
+const MAX_SNAPSHOTS = 8;
+
+const SEED_ARTICULOS = [{"id": "233-1", "regimen": "233", "codigo": "1°", "nombre": "Afecciones comunes, intervenciones quirúrgicas menores y accidentes fuera del servicio", "tiempo": "20 días hábiles, continuos o discontinuos, con goce de haberes.", "reglamentacion": "Art. 32. Solicitud, certificado médico, disposición de dirección.", "grupo": "salud", "capitulo": "Capítulo 1° — Enfermedad del trabajador de la educación", "unidad": "habiles", "topeAnual": 20, "topeMensual": null, "maxPorLicencia": null, "tramites": ["aviso", "comunicarnos", "auditoria", "solicitud", "certificado", "disposicion"], "revisar": false, "corto": "Enfermedad"}, {"id": "233-2", "regimen": "233", "codigo": "2°", "nombre": "Afecciones de largo tratamiento", "tiempo": "Hasta 1 año con goce de haberes; 1 año más con el 75% de los haberes y otro año sin goce de sueldo.", "reglamentacion": "Otorgada y levantada por Junta Médica; comprende todos los cargos. El alta es automática si no se determina nuevo reconocimiento médico. Solicitud, certificado médico, historia clínica.", "grupo": "salud", "capitulo": "Capítulo 1° — Enfermedad del trabajador de la educación", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Largo tratamiento"}, {"id": "233-3", "regimen": "233", "codigo": "3°", "nombre": "Enfermedad contagiosa", "tiempo": "Hasta que se determine el estado de salud del docente.", "reglamentacion": "Junta Médica.", "grupo": "salud", "capitulo": "Capítulo 1° — Enfermedad del trabajador de la educación", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["certificado"], "revisar": false, "corto": "Enfermedad contagiosa"}, {"id": "233-4", "regimen": "233", "codigo": "4°", "nombre": "Enfermedad profesional y, en caso de incapacidad total, parcial, transitoria y/o permanente", "tiempo": "Ídem art. 2°. Se tiene en cuenta la Ley 24.557 y modificatorias.", "reglamentacion": "Otorgada y levantada por Junta Médica (arts. 2, 3, 5, 15, 16 y 17 de Res. 146/94). Solicitud, certificado médico. Ley 24557 (ART), Res. 893/06, 216/03 y 1300/04 SRT, Dec. Nac. 54/17, Ley 27348, Ley prov. 5253, Dec. Prov. 243/18.", "grupo": "salud", "capitulo": "Capítulo 2° — Accidente de trabajo y enfermedades profesionales", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Enfermedad profesional"}, {"id": "233-5", "regimen": "233", "codigo": "5°", "nombre": "Accidente de trabajo", "tiempo": "Ídem art. 4°. Corre desde el ingreso al cargo.", "reglamentacion": "Ídem art. 4°. Solicitud, certificado médico. Res. 315/12 (reserva de cargos).", "grupo": "salud", "capitulo": "Capítulo 2° — Accidente de trabajo y enfermedades profesionales", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Accidente de trabajo"}, {"id": "233-6", "regimen": "233", "codigo": "6°", "nombre": "Relacionado con el art. 2°. Disminución de la capacidad laboral no imputable al docente", "tiempo": "Se otorga con 10 años de servicio; sin la antigüedad, en forma excepcional.", "reglamentacion": "Se cumple en la misma localidad; lo determina la Junta Médica hasta que lo levante. La Supervisión reubica según el orden de prioridades del art. 3° (Res. 3247/14). Solicitud, certificado médico. Res. 231/14, 2497/14, 3247/14, 5362/18.", "grupo": "salud", "capitulo": "Capítulo 3° — Cambio de tareas", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Cambio de tareas (art. 2°)"}, {"id": "233-7", "regimen": "233", "codigo": "7°", "nombre": "Relacionado con los arts. 4° y 5°; determina el cambio de tareas", "tiempo": "—", "reglamentacion": "Ídem art. 6°. Ver Res. 2497/14 (Anexo).", "grupo": "salud", "capitulo": "Capítulo 3° — Cambio de tareas", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Cambio de tareas (arts. 4° y 5°)"}, {"id": "233-8", "regimen": "233", "codigo": "8°", "nombre": "Embarazo de alto riesgo", "tiempo": "No se requiere antigüedad.", "reglamentacion": "Ídem art. 6°. Solicitud, certificado médico. Res. 4082/14 (percepción de haberes).", "grupo": "salud", "capitulo": "Capítulo 3° — Cambio de tareas", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Cambio de tareas (embarazo)"}, {"id": "233-9", "regimen": "233", "codigo": "9°", "nombre": "Maternidad y adopción", "tiempo": "180 días corridos por embarazo. 180 por nacimiento múltiple. Hasta 180 por niño discapacitado. 120 por adopción. 150 por tenencia múltiple. 150 por tenencia de niño discapacitado.", "reglamentacion": "En todos los casos de alumbramiento deben cumplirse los días de licencia. Si coincide con la licencia anual, se acumula. Limita otras licencias. Solicitud, certificado médico, disposición de dirección, acta de nacimiento, certificación de discapacidad o acta de adopción. Ley 5244, Dec. Prov. 325/03, Ley 4192, Res. 2499/12 y 1077/15, Ley 5348.", "grupo": "maternidad", "capitulo": "Capítulo 4° — Maternidad y adopción (ver Ley 5348)", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 180, "tramites": ["solicitud", "certificado", "constancia", "disposicion"], "revisar": false, "corto": "Maternidad / adopción"}, {"id": "233-9bis", "regimen": "233", "codigo": "9° bis", "nombre": "Madres lactantes, o a quienes se les entregó la guarda de un lactante con fines de adopción", "tiempo": "30/60 días (60 en parto o guarda múltiple). Se suma a los 180 días de maternidad.", "reglamentacion": "Res. 2499/12.", "grupo": "maternidad", "capitulo": "Capítulo 4° — Maternidad y adopción (ver Ley 5348)", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 60, "tramites": [], "revisar": false, "corto": "Lactancia"}, {"id": "233-10", "regimen": "233", "codigo": "10°", "nombre": "Interrupción de embarazo por aborto espontáneo o razones terapéuticas", "tiempo": "20 días corridos.", "reglamentacion": "Solicitud, certificado médico, disposición de dirección.", "grupo": "maternidad", "capitulo": "Capítulo 4° — Maternidad y adopción (ver Ley 5348)", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 20, "tramites": ["solicitud", "certificado", "disposicion"], "revisar": false, "corto": "Interrupción de embarazo"}, {"id": "233-11", "regimen": "233", "codigo": "11°", "nombre": "Embarazo de alto riesgo", "tiempo": "El período lo determina la autoridad médica.", "reglamentacion": "Solicitud, certificado médico, historia clínica. Res. 4082/14.", "grupo": "maternidad", "capitulo": "Capítulo 4° — Maternidad y adopción (ver Ley 5348)", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "certificado"], "revisar": false, "corto": "Embarazo de alto riesgo"}, {"id": "233-12", "regimen": "233", "codigo": "12°", "nombre": "Fallecimiento del hijo. Fallecimiento de la madre", "tiempo": "Fallecimiento de la madre: el docente varón tiene 45 días. Fallecimiento del hijo: se limita a 45 días del nacimiento si ocurre en ese término; si ocurre luego, rige la fecha del fallecimiento.", "reglamentacion": "Solicitud, certificado médico, acta de defunción.", "grupo": "maternidad", "capitulo": "Capítulo 4° — Maternidad y adopción (ver Ley 5348)", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 45, "tramites": ["solicitud", "certificado", "constancia"], "revisar": false, "corto": "Fallecimiento de hijo o madre"}, {"id": "233-13", "regimen": "233", "codigo": "13°", "nombre": "Atención de familiar enfermo", "tiempo": "Hasta 20 días hábiles, continuos o discontinuos, con goce de haberes. Agotado, puede concederse sin goce o, por excepción, con goce.", "reglamentacion": "Declaración jurada del agente (relación familiar, convivencia, necesidad de su atención). Solicitud, disposición de dirección, certificado médico, declaración de parentesco. Res. 3305/17, 1750/18, 4566/18 y 4628/19.", "grupo": "familiar", "capitulo": "Capítulo 5° — Familiar enfermo", "unidad": "habiles", "topeAnual": 20, "topeMensual": null, "maxPorLicencia": null, "tramites": ["aviso", "comunicarnos", "auditoria", "solicitud", "certificado", "dj", "disposicion"], "revisar": false, "corto": "Familiar enfermo"}, {"id": "233-14", "regimen": "233", "codigo": "14°", "nombre": "Candidato a cargo político, o elegido o designado funcionario político de los poderes ejecutivo o legislativo", "tiempo": "Mientras dure su mandato o candidatura, sin goce de haberes.", "reglamentacion": "Presentar certificación de candidato o designación. Finalizado el mandato, reintegrarse dentro de los 30 días. Solicitud, declaración jurada, copia de designación. Res. 1480/20.", "grupo": "sistema", "capitulo": "Capítulo 1° — Cargo político", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "dj"], "revisar": false, "corto": "Cargo político"}, {"id": "233-15", "regimen": "233", "codigo": "15°", "nombre": "Mayor jerarquía funcional o presupuestaria en jurisdicción del CPE (personal titular, interino o suplente en cargos interinos o suplentes), en situación de incompatibilidad horaria o exceso de cargos en horas cátedra", "tiempo": "Mientras dure el cargo de mayor jerarquía, sin goce de haberes.", "reglamentacion": "Entre distintos escalafones, sólo para cargos directivos y de supervisión. La concede por disposición el organismo regional y ratifica Dirección de Personal. Solicitud, formulario de 3 cuerpos, declaración jurada, recibo de haberes, copia de designación. Res. 4241/03, 2004/08, Disp. 1/18, Res. 1301/20.", "grupo": "sistema", "capitulo": "Capítulo 1° — Mayor jerarquía", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "dj", "disposicion"], "revisar": false, "corto": "Mayor jerarquía"}, {"id": "233-16", "regimen": "233", "codigo": "16°", "nombre": "Del docente y de sus hijos", "tiempo": "Docente: 10 días hábiles. Hijos: 1 día; 2 a más de 500 km; 3 a más de 1000 km. Se otorga desde el día del ingreso al cargo.", "reglamentacion": "Con goce de haberes cuando cuenta con 4 meses de antigüedad en el cargo. Solicitud, disposición de dirección, acta de matrimonio.", "grupo": "personales", "capitulo": "Capítulo 1° — Matrimonio", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 10, "tramites": ["solicitud", "constancia", "disposicion"], "revisar": false, "corto": "Matrimonio"}, {"id": "233-17", "regimen": "233", "codigo": "17°", "nombre": "Nacimiento de hijo del docente varón", "tiempo": "2 días laborables con goce de haberes.", "reglamentacion": "Desde el día del nacimiento o el siguiente, a opción. Solicitud, disposición de dirección, acta de nacimiento. Ley 5348 y Res. 1077/15 (15 días).", "grupo": "personales", "capitulo": "Capítulo 2° — Nacimiento", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 2, "tramites": ["solicitud", "constancia", "disposicion"], "revisar": false, "corto": "Nacimiento de hijo"}, {"id": "233-18", "regimen": "233", "codigo": "18°", "nombre": "Por fallecimiento", "tiempo": "5 días corridos: madre, padre, cónyuge, concubino/a, hijo, hermano, padrastro, madrastra, hermanastro o hijastro. 2 días corridos: abuelo, nieto, bisabuelo, tío carnal, sobrino, primo hermano, padres, hermanos e hijos políticos.", "reglamentacion": "Declaración jurada de parentesco. Puede ser desde el día del fallecimiento o el siguiente. Se reconocen 2 días más con goce a más de 500 km. Solicitud, acta de fallecimiento. Res. 3305/17, 1750/18 y 4628/19.", "grupo": "personales", "capitulo": "Capítulo 3° — Fallecimiento", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 5, "tramites": ["solicitud", "dj", "constancia"], "revisar": false, "corto": "Fallecimiento de familiar"}, {"id": "233-19", "regimen": "233", "codigo": "19°", "nombre": "Por donar sangre", "tiempo": "El mismo día de la donación.", "reglamentacion": "Con goce de haberes, presentando constancia. Solicitud, disposición de dirección, constancia de donación.", "grupo": "personales", "capitulo": "Capítulo 4° — Donación de sangre", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 1, "tramites": ["solicitud", "constancia", "disposicion"], "revisar": false, "corto": "Donación de sangre"}, {"id": "233-20", "regimen": "233", "codigo": "20°", "nombre": "Catástrofe o fenómenos meteorológicos y causas fundadas", "tiempo": "Catástrofe o fenómenos: todas las veces. Otras causas fundadas: hasta 6 días por año y 2 por mes.", "reglamentacion": "Para otras causas se requieren 4 meses de antigüedad en la docencia. Solicitud de justificación de inasistencias o llegadas tarde. Res. 1688/13 y 2012/13; Nota 184/17 (DGP); Nota 3080/19.", "grupo": "personales", "capitulo": "Capítulo 5° — Razones personales", "unidad": "habiles", "topeAnual": 6, "topeMensual": 2, "maxPorLicencia": null, "tramites": ["solicitud"], "revisar": false, "corto": "Causas fundadas"}, {"id": "233-21", "regimen": "233", "codigo": "21°", "nombre": "Sin goce de haberes en cada decenio", "tiempo": "12 meses continuos o discontinuos en cada decenio. Mínimo 15 días corridos.", "reglamentacion": "Antigüedad ininterrumpida de 2 años en la Provincia; la otorga el organismo regional. Solicitud, formulario de 3 cuerpos, declaración jurada, nota del docente. Acta Paritaria 22/4/13 (Res. 901/13), Res. 1688/13 art. 8°, Res. 240/12.", "grupo": "personales", "capitulo": "Capítulo 5° — Razones personales", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "dj", "constancia"], "revisar": false, "corto": "Sin goce (decenio)"}, {"id": "233-22", "regimen": "233", "codigo": "22°", "nombre": "Por razones de estudio: a) carreras universitarias oficiales o privadas o estudios terciarios no universitarios, para rendir examen; b) prácticas obligatorias en institutos de formación docente y/o universidad, siempre que medie superposición horaria", "tiempo": "Hasta 15 días hábiles por año calendario, en períodos de hasta 3 días hábiles. A más de 500 km se reconoce un día de viaje.", "reglamentacion": "Antigüedad de 4 meses en la docencia. Solicitud, constancia de examen. Res. 2536/05 y 1483/07.", "grupo": "capacitacion", "capitulo": "Capítulo 6° — Capacitación", "unidad": "habiles", "topeAnual": 15, "topeMensual": null, "maxPorLicencia": 3, "tramites": ["solicitud", "constancia"], "revisar": false, "corto": "Exámenes / estudio"}, {"id": "233-23", "regimen": "233", "codigo": "23°", "nombre": "Por estudio, investigaciones o trabajos científicos, sin goce de haberes", "tiempo": "1 año, con prórroga por otro más.", "reglamentacion": "Antigüedad de 2 años en el CPE; no se acumula al art. 21. Solicitud, nota del docente, documentación por estudios.", "grupo": "capacitacion", "capitulo": "Capítulo 6° — Capacitación", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud"], "revisar": false, "corto": "Estudio sin goce"}, {"id": "233-24", "regimen": "233", "codigo": "24°", "nombre": "Por estudio con goce de haberes", "tiempo": "Hasta 2 años.", "reglamentacion": "Antigüedad de 3 años en el CPE. Solicitud, nota del docente, documentación.", "grupo": "capacitacion", "capitulo": "Capítulo 6° — Capacitación", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud"], "revisar": false, "corto": "Estudio con goce"}, {"id": "233-25", "regimen": "233", "codigo": "25°", "nombre": "Por dictar o participar en cursos de perfeccionamiento", "tiempo": "Hasta 10 días hábiles por año calendario.", "reglamentacion": "No debe percibir remuneración; es por docente, a través de disposición de Supervisión. Solicitud, nota del docente con programa o folleto, fecha y horario; declaración jurada si es fuera de la localidad (días de traslado); constancia de asistencia; control de días utilizados. Res. 1688/13, 2012/13, 4133/15; Nota 2424/19.", "grupo": "capacitacion", "capitulo": "Capítulo 6° — Capacitación", "unidad": "habiles", "topeAnual": 10, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "dj", "constancia", "disposicion"], "revisar": false, "corto": "Cursos de perfeccionamiento"}, {"id": "233-26", "regimen": "233", "codigo": "26°", "nombre": "Competencias deportivas regionales, provinciales, nacionales e internacionales", "tiempo": "Hasta 10 días hábiles, continuos o discontinuos.", "reglamentacion": "Debe contar con el aval de la institución que representa. Solicitud, nota del docente, constancia de participación. Res. 839/04; Leyes Nac. 20596, 27197 y 27202.", "grupo": "capacitacion", "capitulo": "Capítulo 7° — Actividades deportivas", "unidad": "habiles", "topeAnual": 10, "topeMensual": null, "maxPorLicencia": null, "tramites": ["solicitud", "constancia"], "revisar": false, "corto": "Competencias deportivas"}, {"id": "233-27", "regimen": "233", "codigo": "27°", "nombre": "Receso funcional anual", "tiempo": "El tiempo lo establece el calendario escolar.", "reglamentacion": "Hay derecho a compensación.", "grupo": "anual", "capitulo": "TÍTULO QUINTO — Disposiciones generales", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Receso"}, {"id": "233-28", "regimen": "233", "codigo": "28°", "nombre": "Licencia anual por descanso", "tiempo": "30 días corridos.", "reglamentacion": "Directivos y docentes: uso en un solo lapso. Juntas de clasificación y disciplina: en uno o más lapsos. Res. 3244/03 y 3657/03.", "grupo": "anual", "capitulo": "TÍTULO QUINTO — Disposiciones generales", "unidad": "corridos", "topeAnual": 30, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Licencia anual"}, {"id": "233-35", "regimen": "233", "codigo": "35°", "nombre": "Trabajadora víctima de violencia de género que debe ausentarse de su puesto: la inasistencia total o parcial se considera justificada", "tiempo": "Acumulable; no debe superar los 180 días por año. Puede ampliarse mediante evaluación.", "reglamentacion": "Entra en vigencia con la mera invocación ante la autoridad. Certificado de radicación de la denuncia y de autoridades de asistencia a la víctima. Res. 471/16, 133/17 (IPROSS), 4618/17, 5362/18; Leyes 5086, 26485, 4650 y 27410; Dec. Nac. 1011/10; Protocolo de actuación (21-3-19).", "grupo": "familiar", "capitulo": "Capítulo 8° — Violencia de género", "unidad": "corridos", "topeAnual": 180, "topeMensual": null, "maxPorLicencia": null, "tramites": ["certificado"], "revisar": false, "corto": "Violencia de género"}, {"id": "233-sa", "regimen": "233", "codigo": "S/A", "nombre": "Falta sin aviso", "tiempo": "—", "reglamentacion": "", "grupo": "sinaviso", "capitulo": "Inasistencias", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Falta sin aviso"}, {"id": "3487-28", "regimen": "3487", "codigo": "28°", "nombre": "Licencia anual", "tiempo": "—", "reglamentacion": "", "grupo": "anual", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["sage"], "revisar": true, "corto": "Licencia anual"}, {"id": "3487-32", "regimen": "3487", "codigo": "32°", "nombre": "Licencia por enfermedad", "tiempo": "—", "reglamentacion": "", "grupo": "salud", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["aviso", "comunicarnos", "auditoria", "certificado", "solicitud", "ug"], "revisar": true, "corto": "Enfermedad"}, {"id": "3487-33", "regimen": "3487", "codigo": "33°", "nombre": "Licencia por tratamiento prolongado", "tiempo": "—", "reglamentacion": "", "grupo": "salud", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["certificado", "ug"], "revisar": false, "corto": "Tratamiento prolongado"}, {"id": "3487-34", "regimen": "3487", "codigo": "34°", "nombre": "Licencia por accidente de trabajo", "tiempo": "—", "reglamentacion": "", "grupo": "salud", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["certificado"], "revisar": false, "corto": "Accidente de trabajo"}, {"id": "3487-37", "regimen": "3487", "codigo": "37°", "nombre": "Licencia por maternidad", "tiempo": "—", "reglamentacion": "", "grupo": "maternidad", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["certificado"], "revisar": false, "corto": "Maternidad"}, {"id": "3487-41", "regimen": "3487", "codigo": "41°", "nombre": "Fallecimiento de esposa/o con hijo menor de 7 años", "tiempo": "—", "reglamentacion": "", "grupo": "familiar", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["comunicarnos", "ug", "constancia"], "revisar": true, "corto": "Fallecimiento de cónyuge (hijo menor de 7)"}, {"id": "3487-42a", "regimen": "3487", "codigo": "42° A", "nombre": "Licencia por matrimonio", "tiempo": "10 días laborables", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 10, "tramites": ["constancia"], "revisar": false, "corto": "Matrimonio"}, {"id": "3487-42b", "regimen": "3487", "codigo": "42° B", "nombre": "Licencia por matrimonio de hijos", "tiempo": "2 días corridos", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 2, "tramites": ["constancia"], "revisar": false, "corto": "Matrimonio de hijos"}, {"id": "3487-42c", "regimen": "3487", "codigo": "42° C", "nombre": "Licencia por nacimiento de hijos", "tiempo": "15 días corridos", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 15, "tramites": ["constancia"], "revisar": false, "corto": "Nacimiento de hijo"}, {"id": "3487-42d", "regimen": "3487", "codigo": "42° D", "nombre": "Fallecimiento de 1.er grado (cónyuge o pariente consanguíneo, adoptivo, hermanos)", "tiempo": "5 días corridos", "reglamentacion": "", "grupo": "familiar", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 5, "tramites": ["comunicarnos", "ug", "constancia"], "revisar": false, "corto": "Fallecimiento 1.er grado"}, {"id": "3487-42e", "regimen": "3487", "codigo": "42° E", "nombre": "Fallecimiento de 2.º grado", "tiempo": "2 días laborables", "reglamentacion": "", "grupo": "familiar", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 2, "tramites": ["comunicarnos", "ug", "constancia"], "revisar": false, "corto": "Fallecimiento 2.º grado"}, {"id": "3487-42f", "regimen": "3487", "codigo": "42° F", "nombre": "Licencia por atención familiar", "tiempo": "—", "reglamentacion": "", "grupo": "familiar", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["comunicarnos", "ug", "certificado", "dj"], "revisar": true, "corto": "Atención familiar"}, {"id": "3487-43", "regimen": "3487", "codigo": "43°", "nombre": "Licencia por razones particulares", "tiempo": "4 días anuales", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": 4, "topeMensual": null, "maxPorLicencia": null, "tramites": ["sage"], "revisar": false, "corto": "Razones particulares"}, {"id": "3487-45", "regimen": "3487", "codigo": "45°", "nombre": "Licencia por estudios", "tiempo": "—", "reglamentacion": "", "grupo": "capacitacion", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": ["constancia"], "revisar": true, "corto": "Estudios"}, {"id": "3487-52", "regimen": "3487", "codigo": "52°", "nombre": "Licencia gremial", "tiempo": "—", "reglamentacion": "", "grupo": "sistema", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": true, "corto": "Gremial"}, {"id": "3487-53", "regimen": "3487", "codigo": "53°", "nombre": "Licencia sin goce de haberes (6 meses)", "tiempo": "Por 6 meses", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "corridos", "topeAnual": null, "topeMensual": null, "maxPorLicencia": 183, "tramites": [], "revisar": true, "corto": "Sin goce (6 meses)"}, {"id": "3487-60", "regimen": "3487", "codigo": "60°", "nombre": "Licencia sin goce de haberes (días sueltos)", "tiempo": "Máximo 4 días por año y no más de 2 por mes", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": 4, "topeMensual": 2, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Sin goce (días sueltos)"}, {"id": "3487-62", "regimen": "3487", "codigo": "62°", "nombre": "Licencia compensatoria (horas trabajadas más allá de la jornada)", "tiempo": "—", "reglamentacion": "", "grupo": "personales", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": true, "corto": "Compensatoria"}, {"id": "3487-sa", "regimen": "3487", "codigo": "S/A", "nombre": "Falta sin aviso", "tiempo": "—", "reglamentacion": "", "grupo": "sinaviso", "capitulo": "Ley 3487", "unidad": "habiles", "topeAnual": null, "topeMensual": null, "maxPorLicencia": null, "tramites": [], "revisar": false, "corto": "Falta sin aviso"}];
+const SEED_CALENDARIO = [{"id": "cal-2026-01-01", "fecha": "2026-01-01", "tipo": "F", "desc": "Año Nuevo"}, {"id": "cal-2026-02-16", "fecha": "2026-02-16", "tipo": "F", "desc": "Carnaval"}, {"id": "cal-2026-02-17", "fecha": "2026-02-17", "tipo": "F", "desc": "Carnaval"}, {"id": "cal-2026-03-23", "fecha": "2026-03-23", "tipo": "N", "desc": "Día no laborable con fines turísticos"}, {"id": "cal-2026-03-24", "fecha": "2026-03-24", "tipo": "F", "desc": "Día de la Memoria por la Verdad y la Justicia"}, {"id": "cal-2026-04-02", "fecha": "2026-04-02", "tipo": "F", "desc": "Malvinas / Jueves Santo"}, {"id": "cal-2026-04-03", "fecha": "2026-04-03", "tipo": "F", "desc": "Viernes Santo"}, {"id": "cal-2026-04-22", "fecha": "2026-04-22", "tipo": "A", "desc": "Asueto Día de Viedma"}, {"id": "cal-2026-05-01", "fecha": "2026-05-01", "tipo": "F", "desc": "Día del Trabajador"}, {"id": "cal-2026-05-25", "fecha": "2026-05-25", "tipo": "F", "desc": "Revolución de Mayo"}, {"id": "cal-2026-06-15", "fecha": "2026-06-15", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. Güemes (trasladado)"}, {"id": "cal-2026-06-20", "fecha": "2026-06-20", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. Belgrano"}, {"id": "cal-2026-07-09", "fecha": "2026-07-09", "tipo": "F", "desc": "Día de la Independencia"}, {"id": "cal-2026-07-10", "fecha": "2026-07-10", "tipo": "N", "desc": "Día no laborable con fines turísticos"}, {"id": "cal-2026-08-17", "fecha": "2026-08-17", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. San Martín"}, {"id": "cal-2026-10-12", "fecha": "2026-10-12", "tipo": "F", "desc": "Día del Respeto a la Diversidad Cultural"}, {"id": "cal-2026-11-23", "fecha": "2026-11-23", "tipo": "F", "desc": "Día de la Soberanía Nacional (trasladado)"}, {"id": "cal-2026-12-07", "fecha": "2026-12-07", "tipo": "N", "desc": "Día no laborable con fines turísticos"}, {"id": "cal-2026-12-08", "fecha": "2026-12-08", "tipo": "F", "desc": "Inmaculada Concepción de María"}, {"id": "cal-2026-12-24", "fecha": "2026-12-24", "tipo": "F", "desc": "Nochebuena"}, {"id": "cal-2026-12-25", "fecha": "2026-12-25", "tipo": "F", "desc": "Navidad"}, {"id": "cal-2026-12-31", "fecha": "2026-12-31", "tipo": "F", "desc": "Fin de año"}, {"id": "cal-2027-01-01", "fecha": "2027-01-01", "tipo": "F", "desc": "Año Nuevo"}, {"id": "cal-2027-02-08", "fecha": "2027-02-08", "tipo": "F", "desc": "Carnaval"}, {"id": "cal-2027-02-09", "fecha": "2027-02-09", "tipo": "F", "desc": "Carnaval"}, {"id": "cal-2027-03-24", "fecha": "2027-03-24", "tipo": "F", "desc": "Día de la Memoria por la Verdad y la Justicia"}, {"id": "cal-2027-03-25", "fecha": "2027-03-25", "tipo": "F", "desc": "Jueves Santo"}, {"id": "cal-2027-03-26", "fecha": "2027-03-26", "tipo": "F", "desc": "Viernes Santo"}, {"id": "cal-2027-04-02", "fecha": "2027-04-02", "tipo": "F", "desc": "Día del Veterano y de los Caídos en Malvinas"}, {"id": "cal-2027-04-22", "fecha": "2027-04-22", "tipo": "A", "desc": "Asueto Día de Viedma"}, {"id": "cal-2027-05-01", "fecha": "2027-05-01", "tipo": "F", "desc": "Día del Trabajador"}, {"id": "cal-2027-05-25", "fecha": "2027-05-25", "tipo": "F", "desc": "Revolución de Mayo"}, {"id": "cal-2027-06-20", "fecha": "2027-06-20", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. Belgrano"}, {"id": "cal-2027-06-21", "fecha": "2027-06-21", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. Güemes (trasladado del 17/06)"}, {"id": "cal-2027-07-09", "fecha": "2027-07-09", "tipo": "F", "desc": "Día de la Independencia"}, {"id": "cal-2027-08-16", "fecha": "2027-08-16", "tipo": "F", "desc": "Paso a la Inmortalidad del Gral. San Martín"}, {"id": "cal-2027-10-11", "fecha": "2027-10-11", "tipo": "F", "desc": "Día del Respeto a la Diversidad Cultural (trasladado del 12/10)"}, {"id": "cal-2027-11-20", "fecha": "2027-11-20", "tipo": "F", "desc": "Día de la Soberanía Nacional"}, {"id": "cal-2027-12-08", "fecha": "2027-12-08", "tipo": "F", "desc": "Inmaculada Concepción de María"}, {"id": "cal-2027-12-24", "fecha": "2027-12-24", "tipo": "F", "desc": "Nochebuena"}, {"id": "cal-2027-12-25", "fecha": "2027-12-25", "tipo": "F", "desc": "Navidad"}, {"id": "cal-2027-12-31", "fecha": "2027-12-31", "tipo": "F", "desc": "Fin de año"}];
+
+
+const REGIMENES = {
+  '233':  { corto: 'Docente', largo: 'Docentes — Res. 233/98', cls: 'doc', titulo: 'DOCENTE' },
+  '3487': { corto: 'PSA',     largo: 'Personal PSA — Ley 3487', cls: 'psa', titulo: 'AGENTE' },
+};
+const GRUPOS = {
+  salud: 'Salud', maternidad: 'Maternidad', familiar: 'Familia', personales: 'Personales',
+  capacitacion: 'Capacitación', sistema: 'Política / sistema', anual: 'Anual / receso', sinaviso: 'Sin aviso',
+};
+const TRAMITES = {
+  aviso: 'Aviso previo antes del turno',
+  comunicarnos: 'Informado en "Comunicarnos"',
+  auditoria: 'Auditoría médica cargada (Ministerio)',
+  certificado: 'Certificado médico',
+  dj: 'Declaración jurada',
+  constancia: 'Constancia / acta presentada',
+  solicitud: 'Solicitud de licencia presentada',
+  disposicion: 'Disposición de dirección',
+  sage: 'Cargada en el SAGE',
+  ug: 'Informada a la Unidad de Gestión',
+};
+const TIPOS_DIA = { F: 'Feriado', A: 'Asueto', N: 'No laborable' };
+const CARACTERES = ['Titular', 'Interino', 'Suplente', 'Provisional', 'Otro'];
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const DIAS_C = ['dom','lun','mar','mié','jue','vie','sáb'];
+/* Artículos con plazo de solicitud ("dentro de los primeros 5 días si la licencia es de 10 o más") */
+const CON_PLAZO_SOLICITUD = new Set(['233-1', '233-13', '3487-32', '3487-42f']);
+
+/* Acceso a localStorage tolerante: en vistas previas aisladas (iframes) puede no existir */
+const LS = (() => {
+  try { const k = '__prueba__'; window.localStorage.setItem(k, '1'); window.localStorage.removeItem(k); return window.localStorage; }
+  catch (e) {
+    const m = new Map();
+    return { disponible: false, getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k),
+      key: i => [...m.keys()][i] ?? null, get length() { return m.size; }, clear: () => m.clear() };
+  }
+})();
+const LS_OK = LS.disponible !== false;
+
+/* Íconos SVG (trazo, heredan el color del texto) */
+const ICOS = {
+  izq: '<path d="M15 6l-6 6 6 6"/>', der: '<path d="M9 6l6 6-6 6"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  mas: '<path d="M12 5v14M5 12h14"/>', alerta: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', check: '<path d="M5 12l5 5L20 7"/>',
+  nota: '<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h5"/>', imprimir: '<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  lapiz: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>', archivo: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+};
+const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICOS[n] || ''}</svg>`;
+
+/* =========================================================================
+   2. UTILIDADES (puras)
+   ========================================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const ahora = () => new Date().toISOString();
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+const nf = new Intl.NumberFormat('es-AR');
+const n0 = n => nf.format(n);
+
+function isoToDate(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); }
+function dateToIso(dt) { return dt.toISOString().slice(0, 10); }
+function sumarDias(iso, n) { const d = isoToDate(iso); d.setUTCDate(d.getUTCDate() + n); return dateToIso(d); }
+function hoyISO() { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function dow(iso) { return isoToDate(iso).getUTCDay(); }
+function fmt(iso) { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+function fmtC(iso) { if (!iso) return '—'; const [, m, d] = iso.split('-'); return `${d}/${m}`; }
+function fmtLargo(iso) { const d = isoToDate(iso); return `${DIAS[d.getUTCDay()]} ${fmt(iso)}`; }
+function esISO(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return false; return dateToIso(isoToDate(s)) === s; }
+function diasEnMes(y, m) { return new Date(Date.UTC(y, m + 1, 0)).getUTCDate(); } // m 0-11
+function lunesDe(iso) { const w = dow(iso); return sumarDias(iso, w === 0 ? -6 : 1 - w); }
+function anioDe(iso) { return Number(iso.slice(0, 4)); }
+function plural(n, s, p) { return `${n0(n)} ${n === 1 ? s : (p || s + 's')}`; }
+function vivos(arr) { return (arr || []).filter(x => !x.borrado); }
+function nombreAgente(a) { return a ? `${(a.apellido || '').toUpperCase()}, ${a.nombre || ''}`.trim() : '—'; }
+function titulo(t) { return String(t || '').toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()); }
+function nombreBreve(a) { if (!a) return '—'; const i = (a.nombre || '').trim()[0]; return `${titulo(a.apellido)}${i ? ' ' + i.toUpperCase() + '.' : ''}`; }
+function artNombre(art) { return art ? (art.corto || art.nombre) : '—'; }
+function etiquetaAgente(a) { return nombreAgente(a) + (a.dni ? ` · DNI ${a.dni}` : ''); }
+function normalizar(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+function codigoCorto(art) { return art ? art.codigo.replace('°', '').replace(/\s+/g, '').replace('bis', 'b').replace('S/A', 'SA') : '?'; }
+function unidadTxt(u, n) { return u === 'corridos' ? (n === 1 ? 'día corrido' : 'días corridos') : (n === 1 ? 'día hábil' : 'días hábiles'); }
+function parseEntero(v) { const s = String(v ?? '').trim(); if (s === '') return null; const n = Number(s.replace(',', '.')); return Number.isFinite(n) && n >= 0 ? Math.round(n) : NaN; }
+
+/* =========================================================================
+   3. ESTADO Y PERSISTENCIA
+   -------------------------------------------------------------------------
+   Capa de datos pensada para pasar a online sin reescribir la app:
+   - Toda modificación pasa por mutar() → un único punto para mandar cambios a un servidor.
+   - Cada registro tiene id (UUID), creado, modificado y borrado (borrado lógico),
+     que es lo que necesita una sincronización por registro.
+   - El almacenamiento está separado en "adaptadores": localStorage (siempre) y
+     Archivo (JSON en una carpeta, por ej. Google Drive / OneDrive de escritorio).
+     Un adaptador futuro "Servidor" sólo tiene que implementar leer() / escribir().
+   ========================================================================= */
+function sellar(obj) { const t = ahora(); return { id: uid(), creado: t, modificado: t, borrado: false, ...obj }; }
+
+function estadoInicial() {
+  const t = ahora();
+  return {
+    version: SCHEMA_VERSION,
+    meta: { institucion: '', creado: t, modificado: t, rev: 0, ultimoBackup: null, semillaArticulos: 1 },
+    config: { feriadosCuentanHabiles: false },
+    articulos: SEED_ARTICULOS.map(a => ({ ...a, creado: t, modificado: t, borrado: false })),
+    calendario: SEED_CALENDARIO.map(c => ({ ...c, creado: t, modificado: t, borrado: false })),
+    agentes: [],
+    licencias: [],
+    notas: [],
+  };
+}
+
+function esEstadoValido(d) {
+  return d && typeof d === 'object' && Array.isArray(d.agentes) && Array.isArray(d.licencias)
+    && Array.isArray(d.articulos) && Array.isArray(d.calendario);
+}
+
+function migrar(datos, { persistir = true } = {}) {
+  const version = datos.version ?? 1;
+  if (version > SCHEMA_VERSION) throw new Error('Los datos son de una versión más nueva de la app. Actualizá la app antes de abrirlos.');
+  let d = datos;
+  if (version < SCHEMA_VERSION && persistir) {
+    try { LS.setItem(`${STORAGE_KEY}-backup-v${version}`, JSON.stringify(datos)); } catch (e) { /* sin espacio: seguimos */ }
+  }
+  if (version < 2) d = migrarA2(d);
+  // (futuras migraciones en cascada: if (version < 3) d = migrarA3(d); …)
+  d.meta = { institucion: '', rev: 0, ultimoBackup: null, semillaArticulos: 1, ...d.meta };
+  d.config = { feriadosCuentanHabiles: false, ...d.config };
+  d.version = SCHEMA_VERSION;
+  return d;
+}
+
+/* v2: nombre corto de cada artículo y notas libres por día */
+function migrarA2(d) {
+  const cortos = new Map(SEED_ARTICULOS.map(a => [a.id, a.corto]));
+  (d.articulos || []).forEach(a => { if (a.corto == null) a.corto = cortos.get(a.id) || a.nombre; });
+  if (!Array.isArray(d.notas)) d.notas = [];
+  return d;
+}
+
+function cargarLocal() {
+  const crudo = LS.getItem(STORAGE_KEY);
+  if (!crudo) return estadoInicial();
+  let datos;
+  try { datos = JSON.parse(crudo); }
+  catch (e) {
+    LS.setItem(STORAGE_KEY + '-corrupto-' + Date.now(), crudo);
+    alert('No se pudieron leer los datos guardados en este navegador. Se preservó una copia y se empezó de cero. Si tenés el archivo de datos, abrilo desde Ajustes.');
+    return estadoInicial();
+  }
+  if (!esEstadoValido(datos)) return estadoInicial();
+  return migrar(datos);
+}
+
+let estado = null;
+let modoLectura = false;
+let errorGuardado = '';
+
+function guardarLocal() {
+  if (modoLectura) return;
+  try { LS.setItem(STORAGE_KEY, JSON.stringify(estado)); errorGuardado = ''; }
+  catch (e) { errorGuardado = 'No se pudo guardar en este navegador (' + (e.name || 'error') + '). Exportá una copia ya mismo desde Ajustes.'; }
+}
+
+function guardar() {
+  guardarLocal();
+  snapshotDiario();
+  programarArchivo();
+  pintarEstadoGuardado();
+}
+
+/* Copias automáticas: una por día en el navegador (las últimas 8) */
+function listarSnapshots() {
+  const out = [];
+  for (let i = 0; i < LS.length; i++) {
+    const k = LS.key(i);
+    if (k && k.startsWith(SNAP_PREFIX)) out.push(k);
+  }
+  return out.sort().reverse();
+}
+function snapshot(sufijo) {
+  if (modoLectura) return;
+  try {
+    LS.setItem(SNAP_PREFIX + sufijo, JSON.stringify(estado));
+    const todas = listarSnapshots();
+    todas.slice(MAX_SNAPSHOTS).forEach(k => LS.removeItem(k));
+  } catch (e) { /* sin espacio para copias: no bloquear */ }
+}
+function snapshotDiario() {
+  const k = SNAP_PREFIX + hoyISO();
+  if (!LS.getItem(k)) snapshot(hoyISO());
+}
+
+/* ---------- IndexedDB (sólo para recordar el archivo vinculado) ---------- */
+function idb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(STORAGE_KEY, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function idbGet(k) { if (typeof indexedDB === 'undefined') return null; const db = await idb(); return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+async function idbSet(k, v) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+async function idbDel(k) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+
+/* ---------- Adaptador Archivo (File System Access API: Chrome / Edge) ---------- */
+const Archivo = {
+  soportado: typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function',
+  handle: null, nombre: '', estado: 'sin-archivo', // sin-archivo | requiere-permiso | conectado | conflicto | error
+  revConocida: null, ultimaEscritura: null, error: '', enDiscoConflicto: null,
+  tipos: [{ description: 'Datos de licencias (.json)', accept: { 'application/json': ['.json'] } }],
+  async permiso(h, modo, pedir) {
+    const o = { mode: modo };
+    if ((await h.queryPermission(o)) === 'granted') return true;
+    if (pedir) return (await h.requestPermission(o)) === 'granted';
+    return false;
+  },
+  async leer(h = this.handle) { const f = await h.getFile(); const txt = await f.text(); if (!txt.trim()) return null; return JSON.parse(txt); },
+  async escribir(datos, h = this.handle) { const w = await h.createWritable(); await w.write(JSON.stringify(datos)); await w.close(); },
+};
+let timerArchivo = null;
+function programarArchivo() {
+  if (modoLectura || !Archivo.handle || Archivo.estado !== 'conectado') return;
+  clearTimeout(timerArchivo);
+  timerArchivo = setTimeout(sincronizarArchivo, 600);
+}
+async function sincronizarArchivo(forzar = false) {
+  if (modoLectura || !Archivo.handle) return;
+  try {
+    let enDisco = null;
+    try { enDisco = await Archivo.leer(); } catch (e) { enDisco = null; }
+    const revDisco = enDisco?.meta?.rev ?? null;
+    if (!forzar && enDisco && Archivo.revConocida != null && revDisco !== Archivo.revConocida) {
+      Archivo.estado = 'conflicto'; Archivo.enDiscoConflicto = enDisco; renderBanners(); pintarEstadoGuardado(); return;
+    }
+    await Archivo.escribir(estado);
+    Archivo.revConocida = estado.meta.rev; Archivo.ultimaEscritura = new Date(); Archivo.estado = 'conectado'; Archivo.error = '';
+  } catch (e) {
+    Archivo.estado = 'error'; Archivo.error = e.message || String(e);
+  }
+  renderBanners(); pintarEstadoGuardado();
+}
+async function vincularArchivoNuevo() {
+  if (!Archivo.soportado) return toast('Este navegador no permite guardar en un archivo. Usá Chrome o Edge en la compu.');
+  try {
+    const h = await window.showSaveFilePicker({ suggestedName: 'licencias-datos.json', types: Archivo.tipos });
+    Archivo.handle = h; Archivo.nombre = h.name; Archivo.estado = 'conectado'; Archivo.revConocida = null;
+    await idbSet('archivo', h);
+    await sincronizarArchivo(true);
+    toast('Listo: cada cambio se guarda también en "' + h.name + '".');
+    render();
+  } catch (e) { if (e.name !== 'AbortError') toast('No se pudo vincular el archivo: ' + e.message); }
+}
+async function abrirArchivoExistente() {
+  if (!Archivo.soportado) return toast('Este navegador no permite abrir el archivo vinculado. Usá Chrome o Edge, o "Importar copia".');
+  try {
+    const [h] = await window.showOpenFilePicker({ types: Archivo.tipos, multiple: false });
+    const d = await Archivo.leer(h);
+    if (!esEstadoValido(d)) return toast('Ese archivo no tiene el formato de datos de esta app.');
+    const ok = await confirmar({
+      titulo: 'Abrir "' + h.name + '"',
+      html: `<p>El archivo tiene <b>${plural(vivos(d.agentes).length, 'agente')}</b> y <b>${plural(vivos(d.licencias).length, 'licencia')}</b> (última modificación ${fmtFechaHora(d.meta?.modificado)}).</p>
+             <p>Va a reemplazar lo que hay ahora en este navegador (${plural(vivos(estado.agentes).length, 'agente')}, ${plural(vivos(estado.licencias).length, 'licencia')}). Antes se guarda una copia automática.</p>`,
+      ok: 'Abrir y usar este archivo',
+    });
+    if (!ok) return;
+    if (!(await Archivo.permiso(h, 'readwrite', true))) return toast('Sin permiso de escritura no se puede vincular el archivo.');
+    snapshot('antes-de-abrir-' + Date.now());
+    estado = migrar(d);
+    Archivo.handle = h; Archivo.nombre = h.name; Archivo.estado = 'conectado'; Archivo.revConocida = d.meta?.rev ?? 0;
+    await idbSet('archivo', h);
+    guardarLocal(); render(); toast('Archivo abierto y vinculado.');
+  } catch (e) { if (e.name !== 'AbortError') toast('No se pudo abrir: ' + e.message); }
+}
+async function reconectarArchivo(pedir) {
+  let h = null;
+  try { h = await idbGet('archivo'); } catch (e) { return; }
+  if (!h) return;
+  Archivo.handle = h; Archivo.nombre = h.name;
+  try {
+    if (!(await Archivo.permiso(h, 'readwrite', pedir))) { Archivo.estado = 'requiere-permiso'; renderBanners(); pintarEstadoGuardado(); return; }
+    const d = await Archivo.leer(h);
+    if (d && esEstadoValido(d)) {
+      const local = estado.meta.modificado || '', disco = d.meta?.modificado || '';
+      if (disco > local) { snapshot('antes-de-cargar-archivo-' + Date.now()); estado = migrar(d); guardarLocal(); }
+      Archivo.revConocida = d.meta?.rev ?? 0; Archivo.estado = 'conectado';
+      if (local > disco) await sincronizarArchivo(true);
+    } else { Archivo.estado = 'conectado'; await sincronizarArchivo(true); }
+  } catch (e) { Archivo.estado = 'error'; Archivo.error = e.message; }
+  render();
+}
+async function desvincularArchivo() {
+  const ok = await confirmar({ titulo: 'Desvincular el archivo', html: '<p>Los datos siguen en este navegador, pero los cambios dejan de guardarse en <b>' + esc(Archivo.nombre) + '</b>. El archivo no se borra.</p>', ok: 'Desvincular' });
+  if (!ok) return;
+  await idbDel('archivo'); Archivo.handle = null; Archivo.nombre = ''; Archivo.estado = 'sin-archivo'; render();
+}
+async function resolverConflicto(usar) {
+  const d = Archivo.enDiscoConflicto;
+  if (usar === 'archivo' && d) {
+    snapshot('conflicto-' + Date.now());
+    estado = migrar(d); Archivo.revConocida = d.meta?.rev ?? 0; Archivo.estado = 'conectado'; Archivo.enDiscoConflicto = null;
+    guardarLocal(); render(); toast('Se cargaron los datos del archivo. Tus cambios anteriores quedaron en una copia automática.');
+  } else if (usar === 'mios') {
+    Archivo.enDiscoConflicto = null; Archivo.estado = 'conectado'; await sincronizarArchivo(true); toast('Se sobrescribió el archivo con tus datos.');
+  }
+}
+
+/* ---------- Modo consulta (directora / vicedirector): sólo lectura ---------- */
+const Consulta = { handle: null, cargado: null, estado: '' };
+async function entrarConsulta() {
+  if (!Archivo.soportado) { $('#file-consulta').click(); return; }
+  try {
+    const [h] = await window.showOpenFilePicker({ types: Archivo.tipos, multiple: false });
+    await idbSet('consulta', h);
+    LS.setItem(MODO_KEY, 'consulta');
+    Consulta.handle = h;
+    await cargarConsulta(true);
+  } catch (e) { if (e.name !== 'AbortError') toast('No se pudo abrir: ' + e.message); }
+}
+async function cargarConsulta(pedir) {
+  const h = Consulta.handle;
+  if (!h) return;
+  try {
+    if (!(await Archivo.permiso(h, 'read', pedir))) { Consulta.estado = 'requiere-permiso'; modoLectura = true; estado = estadoInicial(); render(); return; }
+    const d = await Archivo.leer(h);
+    if (!esEstadoValido(d)) throw new Error('El archivo no tiene el formato esperado.');
+    estado = migrar(d, { persistir: false }); modoLectura = true; Consulta.cargado = new Date(); Consulta.estado = 'ok';
+  } catch (e) { Consulta.estado = 'error: ' + e.message; modoLectura = true; if (!estado) estado = estadoInicial(); }
+  render();
+}
+function consultaDesInput(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!esEstadoValido(d)) throw new Error('formato inválido');
+      estado = migrar(d, { persistir: false }); modoLectura = true; Consulta.cargado = new Date(); Consulta.estado = 'ok-archivo';
+      render();
+    } catch (e) { toast('No se pudo leer el archivo: ' + e.message); }
+  };
+  r.readAsText(file);
+}
+async function salirConsulta() {
+  LS.removeItem(MODO_KEY);
+  try { await idbDel('consulta'); } catch (e) { /* nada */ }
+  ir('#inicio'); location.reload();
+}
+
+/* ---------- Backup manual ---------- */
+function descargar(nombre, contenido, tipo) {
+  const blob = new Blob([contenido], { type: tipo });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function exportarJSON() {
+  if (!modoLectura) { estado.meta.ultimoBackup = ahora(); guardarLocal(); }
+  descargar(`licencias-${hoyISO()}.json`, JSON.stringify(estado, null, 1), 'application/json');
+  renderBanners();
+}
+function importarJSON(file) {
+  const r = new FileReader();
+  r.onload = async () => {
+    let d;
+    try { d = JSON.parse(r.result); } catch (e) { return toast('El archivo no es un JSON válido.'); }
+    if (!esEstadoValido(d)) return toast('El archivo no tiene el formato de datos de esta app.');
+    let m;
+    try { m = migrar(structuredClone(d), { persistir: false }); } catch (e) { return toast(e.message); }
+    const ok = await confirmar({
+      titulo: 'Importar copia "' + file.name + '"',
+      html: `<p>La copia tiene <b>${plural(vivos(m.agentes).length, 'agente')}</b> y <b>${plural(vivos(m.licencias).length, 'licencia')}</b> (guardada el ${fmtFechaHora(m.meta?.modificado)}).</p>
+             <p><b>Reemplaza todo</b> lo que hay ahora (${plural(vivos(estado.agentes).length, 'agente')}, ${plural(vivos(estado.licencias).length, 'licencia')}). Antes se guarda una copia automática por si hace falta volver.</p>`,
+      ok: 'Reemplazar con la copia', peligro: true,
+    });
+    if (!ok) return;
+    snapshot('antes-de-importar-' + Date.now());
+    estado = m; estado.meta.modificado = ahora(); estado.meta.rev = (estado.meta.rev || 0) + 1;
+    if (Archivo.estado === 'conectado') Archivo.revConocida = null;
+    guardar(); render(); toast('Copia importada.');
+  };
+  r.readAsText(file);
+}
+async function restaurarSnapshot(k) {
+  let d;
+  try { d = JSON.parse(LS.getItem(k)); } catch (e) { return toast('La copia está dañada.'); }
+  if (!esEstadoValido(d)) return toast('La copia está dañada.');
+  const ok = await confirmar({
+    titulo: 'Restaurar copia automática',
+    html: `<p>Copia <b>${esc(k.replace(SNAP_PREFIX, ''))}</b>: ${plural(vivos(d.agentes).length, 'agente')}, ${plural(vivos(d.licencias).length, 'licencia')}.</p><p>Reemplaza los datos actuales (${plural(vivos(estado.agentes).length, 'agente')}, ${plural(vivos(estado.licencias).length, 'licencia')}). Los actuales quedan guardados como otra copia.</p>`,
+    ok: 'Restaurar', peligro: true,
+  });
+  if (!ok) return;
+  snapshot('antes-de-restaurar-' + Date.now());
+  estado = migrar(d); estado.meta.modificado = ahora(); estado.meta.rev = (estado.meta.rev || 0) + 1;
+  if (Archivo.estado === 'conectado') Archivo.revConocida = null;
+  guardar(); render(); toast('Copia restaurada.');
+}
+
+/* Único punto de modificación del estado */
+function mutar(fn, { msg = '', redibujar = true, deshacer = null } = {}) {
+  if (modoLectura) { toast('Modo consulta: no se pueden hacer cambios.'); return false; }
+  fn(estado);
+  estado.meta.modificado = ahora();
+  estado.meta.rev = (estado.meta.rev || 0) + 1;
+  guardar();
+  if (redibujar) render();
+  if (msg) toast(msg, deshacer);
+  return true;
+}
+function tocar(reg) { reg.modificado = ahora(); return reg; }
+
+/* =========================================================================
+   4. LÓGICA DE DOMINIO (funciones puras)
+   ========================================================================= */
+function contexto(e = estado) {
+  const arts = new Map(e.articulos.filter(a => !a.borrado).map(a => [a.id, a]));
+  const calIdx = new Map(vivos(e.calendario).map(c => [c.fecha, c]));
+  const agentes = vivos(e.agentes);
+  const agIdx = new Map(agentes.map(a => [a.id, a]));
+  const licencias = vivos(e.licencias).filter(l => agIdx.has(l.agenteId));
+  const notas = vivos(e.notas);
+  return { arts, calIdx, cfg: e.config, agentes, agIdx, licencias, notas };
+}
+function esHabil(iso, ctx) {
+  const w = dow(iso);
+  if (w === 0 || w === 6) return false;
+  if (!ctx.cfg.feriadosCuentanHabiles && ctx.calIdx.has(iso)) return false;
+  return true;
+}
+function cuentaDia(iso, art, ctx) { return (art?.unidad === 'corridos') ? true : esHabil(iso, ctx); }
+/* Días computables de una licencia, opcionalmente recortada a [desde, hasta] */
+function diasLicencia(lic, art, ctx, desde = null, hasta = null) {
+  let a = lic.desde, b = lic.hasta;
+  if (desde && a < desde) a = desde;
+  if (hasta && b > hasta) b = hasta;
+  if (!a || !b || a > b) return 0;
+  let n = 0;
+  for (let d = a; d <= b; d = sumarDias(d, 1)) if (cuentaDia(d, art, ctx)) n++;
+  return n;
+}
+/* Fecha final para "cantidad" días computables desde 'desde' */
+function calcularHasta(desde, cant, art, ctx) {
+  if (!esISO(desde) || !(cant >= 1)) return null;
+  let n = 0, d = desde;
+  for (let i = 0; i < 2000; i++) {
+    if (cuentaDia(d, art, ctx)) { n++; if (n === cant) return d; }
+    d = sumarDias(d, 1);
+  }
+  return null;
+}
+/* Uso de un artículo por un agente en un año: total y por mes */
+function usoArticulo(agenteId, artId, anio, ctx, { hastaFecha = null, excluirId = null } = {}) {
+  const art = ctx.arts.get(artId);
+  const ini = `${anio}-01-01`; let fin = `${anio}-12-31`;
+  if (hastaFecha && hastaFecha < fin) fin = hastaFecha;
+  const porMes = Array(12).fill(0); let total = 0, cantidad = 0;
+  for (const l of ctx.licencias) {
+    if (l.agenteId !== agenteId || l.articuloId !== artId || l.id === excluirId) continue;
+    if (l.hasta < ini || l.desde > fin) continue;
+    cantidad++;
+    const a = l.desde < ini ? ini : l.desde, b = l.hasta > fin ? fin : l.hasta;
+    for (let d = a; d <= b; d = sumarDias(d, 1)) if (cuentaDia(d, art, ctx)) { total++; porMes[Number(d.slice(5, 7)) - 1]++; }
+  }
+  return { total, porMes, cantidad };
+}
+/* Días hábiles distintos en que el agente estuvo ausente (cualquier artículo) */
+function diasAusencia(agenteId, desde, hasta, ctx) {
+  const set = new Set();
+  for (const l of ctx.licencias) {
+    if (l.agenteId !== agenteId || l.hasta < desde || l.desde > hasta) continue;
+    const a = l.desde < desde ? desde : l.desde, b = l.hasta > hasta ? hasta : l.hasta;
+    for (let d = a; d <= b; d = sumarDias(d, 1)) if (esHabil(d, ctx)) set.add(d);
+  }
+  return set.size;
+}
+function resumenAgente(ag, anio, aFecha, ctx) {
+  const filas = [];
+  for (const art of ctx.arts.values()) {
+    if (art.regimen !== ag.regimen) continue;
+    const u = usoArticulo(ag.id, art.id, anio, ctx, { hastaFecha: aFecha });
+    const tieneTope = art.topeAnual != null;
+    if (u.cantidad === 0 && !tieneTope) continue;
+    filas.push({ art, ...u, tope: art.topeAnual, disponibles: tieneTope ? art.topeAnual - u.total : null });
+  }
+  filas.sort((x, y) => (y.total > 0) - (x.total > 0) || ordenArt(x.art, y.art));
+  return filas;
+}
+function ordenArt(a, b) {
+  const n = s => { const m = String(s.codigo).match(/\d+/); return m ? Number(m[0]) : 999; };
+  return n(a) - n(b) || String(a.codigo).localeCompare(String(b.codigo));
+}
+function licenciasDelDia(iso, ctx) { return ctx.licencias.filter(l => l.desde <= iso && l.hasta >= iso); }
+function vencimientoSolicitud(lic, art, ctx) {
+  if (!CON_PLAZO_SOLICITUD.has(art.id)) return null;
+  const total = diasLicencia(lic, art, ctx);
+  if (total >= 10) return { fecha: calcularHasta(lic.desde, 5, art, ctx), texto: 'Dentro de los primeros 5 días de ausencia' };
+  return { fecha: sumarDias(lic.hasta, 1), texto: 'Al retornar a las tareas' };
+}
+function tramitesPendientes(lic, art) { return (art?.tramites || []).filter(k => !(lic.tramites || {})[k]); }
+
+/* Validación completa de una licencia antes de guardar */
+function validarLicencia(b, ctx) {
+  const errores = [], avisos = [], info = [];
+  const ag = ctx.agIdx.get(b.agenteId);
+  const art = ctx.arts.get(b.articuloId);
+  if (!ag) errores.push('Elegí el agente.');
+  if (!art) errores.push('Elegí el artículo.');
+  if (!esISO(b.desde)) errores.push('Falta la fecha de inicio.');
+  if (!esISO(b.hasta)) errores.push('Falta la fecha de fin (o la cantidad de días).');
+  if (errores.length) return { errores, avisos, info, dias: 0 };
+  if (b.hasta < b.desde) { errores.push('La fecha de fin es anterior a la de inicio.'); return { errores, avisos, info, dias: 0 }; }
+  if (isoToDate(b.hasta) - isoToDate(b.desde) > 3 * 366 * 864e5) errores.push('El rango supera los 3 años: revisá las fechas.');
+  if (art.regimen !== ag.regimen) errores.push(`El art. ${art.codigo} es de ${REGIMENES[art.regimen].largo} y el agente es ${REGIMENES[ag.regimen].corto}.`);
+  const dias = diasLicencia(b, art, ctx);
+  if (dias === 0) avisos.push('El rango no tiene días computables (sólo fines de semana o feriados).');
+  if (art.maxPorLicencia != null && dias > art.maxPorLicencia) avisos.push(`El art. ${art.codigo} admite hasta ${art.maxPorLicencia} ${unidadTxt(art.unidad, art.maxPorLicencia)} por licencia; esta tiene ${dias}.`);
+  // Topes anuales y mensuales, por cada año que toca la licencia
+  for (let y = anioDe(b.desde); y <= anioDe(b.hasta); y++) {
+    const u = usoArticulo(ag.id, art.id, y, ctx, { excluirId: b.id });
+    const estaAnio = diasLicencia(b, art, ctx, `${y}-01-01`, `${y}-12-31`);
+    if (art.topeAnual != null) {
+      const quedan = art.topeAnual - u.total;
+      const despues = u.total + estaAnio;
+      if (despues > art.topeAnual) avisos.push(`Supera el tope anual del art. ${art.codigo} en ${y}: ya lleva ${u.total} de ${art.topeAnual}; con esta quedaría en ${despues} (${despues - art.topeAnual} de más).`);
+      else info.push(`Art. ${art.codigo} en ${y}: lleva ${u.total} de ${art.topeAnual}. Con esta: ${despues}. Le quedarían ${quedan - estaAnio}.`);
+    }
+    if (art.topeMensual != null) {
+      const porMesEsta = Array(12).fill(0);
+      const a = b.desde < `${y}-01-01` ? `${y}-01-01` : b.desde, z = b.hasta > `${y}-12-31` ? `${y}-12-31` : b.hasta;
+      for (let d = a; d <= z; d = sumarDias(d, 1)) if (cuentaDia(d, art, ctx)) porMesEsta[Number(d.slice(5, 7)) - 1]++;
+      porMesEsta.forEach((n, m) => {
+        if (n && u.porMes[m] + n > art.topeMensual) avisos.push(`Supera el máximo mensual del art. ${art.codigo} en ${MESES[m].toLowerCase()} ${y}: ${u.porMes[m] + n} de ${art.topeMensual}.`);
+      });
+    }
+  }
+  // Superposición con otras licencias del mismo agente
+  const sup = ctx.licencias.filter(l => l.agenteId === ag.id && l.id !== b.id && l.desde <= b.hasta && l.hasta >= b.desde);
+  sup.forEach(l => { const a2 = ctx.arts.get(l.articuloId); avisos.push(`Se superpone con otra licencia del agente: art. ${a2 ? a2.codigo : '?'} del ${fmt(l.desde)} al ${fmt(l.hasta)}.`); });
+  // Alta / baja de los cargos
+  const cargos = vivos(ag.cargos);
+  const elegidos = (b.cargos && b.cargos.length) ? cargos.filter(c => b.cargos.includes(c.id)) : cargos;
+  elegidos.forEach(c => {
+    if (c.alta && b.desde < c.alta) avisos.push(`Empieza antes del alta del cargo "${c.catedra || c.idCargo || 'sin nombre'}" (${fmt(c.alta)}).`);
+    if (c.baja && b.desde > c.baja) avisos.push(`Empieza después de la baja del cargo "${c.catedra || c.idCargo || 'sin nombre'}" (${fmt(c.baja)}).`);
+  });
+  return { errores, avisos, info, dias, art, ag };
+}
+
+/* Alertas de topes para el panel de inicio */
+function alertasTopes(anio, ctx) {
+  const out = [];
+  for (const ag of ctx.agentes) {
+    for (const art of ctx.arts.values()) {
+      if (art.regimen !== ag.regimen || art.topeAnual == null) continue;
+      const u = usoArticulo(ag.id, art.id, anio, ctx);
+      if (u.total === 0) continue;
+      const p = u.total / art.topeAnual;
+      if (p >= 0.75) out.push({ ag, art, total: u.total, tope: art.topeAnual, p });
+    }
+  }
+  return out.sort((a, b) => b.p - a.p);
+}
+
+/* =========================================================================
+   5. RENDER
+   ========================================================================= */
+const ui = {
+  vista: 'inicio', agenteId: null, fecha: hoyISO(), anio: new Date().getFullYear(), aFecha: null,
+  busqueda: '', filtroReg: '', verInactivos: false, orden: 'nombre',
+  rep: { desde: null, hasta: null, reg: '', art: '' },
+  ajustesTab: 'datos', artReg: '233', calAnio: new Date().getFullYear(),
+};
+
+function artBadge(art, conNombre = false) {
+  if (!art) return '<span class="art g-sistema">?</span>';
+  return `<span class="art g-${esc(art.grupo)}" title="${esc('Art. ' + art.codigo + ' — ' + art.nombre)}">${esc(art.codigo)}</span>${conNombre ? ` <span class="small">${esc(artNombre(art))}</span>` : ''}`;
+}
+function regChip(reg) { const r = REGIMENES[reg]; return r ? `<span class="chip ${r.cls}">${r.corto}</span>` : ''; }
+function fmtFechaHora(iso) { if (!iso) return '—'; const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function barra(total, tope) {
+  if (tope == null) return '';
+  const p = tope ? Math.min(1, total / tope) : 1;
+  const cls = total > tope ? 'err' : p >= 0.75 ? 'warn' : '';
+  return `<div class="bar ${cls}" title="${total} de ${tope}"><i style="width:${Math.round(p * 100)}%"></i></div>`;
+}
+
+/* Navegación: no depende de que el navegador procese los links con # (en algunas vistas previas no lo hace) */
+let rutaActual = (location.hash || '#inicio').slice(1);
+function ir(ruta) {
+  rutaActual = String(ruta || 'inicio').replace(/^#/, '');
+  try { history.replaceState(null, '', '#' + rutaActual); } catch (e) { /* vista aislada: seguimos igual */ }
+  window.scrollTo(0, 0);
+  render();
+}
+function render() {
+  const h = rutaActual || 'inicio';
+  const [v, id] = h.split('/');
+  ui.vista = ['inicio', 'agentes', 'agente', 'reportes', 'ajustes'].includes(v) ? v : 'inicio';
+  ui.agenteId = v === 'agente' ? decodeURIComponent(id || '') : null;
+  $$('#nav a').forEach(a => a.toggleAttribute('aria-current', false));
+  const navV = ui.vista === 'agente' ? 'agentes' : ui.vista;
+  const act = $(`#nav a[data-v="${navV}"]`); if (act) act.setAttribute('aria-current', 'page');
+  $('#inst-nombre').textContent = estado.meta.institucion || (modoLectura ? 'Modo consulta' : '');
+  $('#btn-nueva').hidden = modoLectura;
+  const ctx = contexto();
+  $('#dl-agentes').innerHTML = ctx.agentes.map(a => `<option value="${esc(etiquetaAgente(a))}">`).join('');
+  let html = '';
+  if (modoLectura && Consulta.estado === 'requiere-permiso') html = vistaPermisoConsulta();
+  else if (ui.vista === 'inicio') html = (!modoLectura && ctx.agentes.length === 0 && !ctx.notas.length) ? vistaBienvenida() : vistaInicio(ctx);
+  else if (ui.vista === 'agentes') html = vistaAgentes(ctx);
+  else if (ui.vista === 'agente') html = vistaFicha(ctx);
+  else if (ui.vista === 'reportes') html = vistaReportes(ctx);
+  else if (ui.vista === 'ajustes') html = vistaAjustes(ctx);
+  $('#main').innerHTML = (ui.vista !== 'inicio' ? avisoEjemplo(ctx) : '') + html;
+  renderBanners();
+  pintarEstadoGuardado();
+}
+
+function pintarEstadoGuardado() {
+  const el = $('#pill-respaldo'); if (!el || !estado) return;
+  const hh = d => d ? ` · ${pad(d.getHours())}:${pad(d.getMinutes())}` : '';
+  let cls = '', txt = '';
+  if (modoLectura) { cls = ''; txt = 'Modo consulta' + hh(Consulta.cargado); }
+  else if (Archivo.estado === 'conectado') { cls = 'ok'; txt = 'Guardado en archivo' + hh(Archivo.ultimaEscritura); }
+  else if (['requiere-permiso', 'error', 'conflicto'].includes(Archivo.estado)) { cls = 'err'; txt = 'Archivo desconectado'; }
+  else {
+    const hay = vivos(estado.agentes).length > 0;
+    const ult = estado.meta.ultimoBackup;
+    const dias = ult ? Math.floor((Date.now() - new Date(ult)) / 864e5) : null;
+    if (hay && (dias == null || dias >= 7)) { cls = 'warn'; txt = 'Sin respaldo'; } else { txt = 'Guardado en este navegador'; }
+  }
+  el.className = 'pill ' + cls;
+  el.title = txt + ' — tocá para ver las opciones de respaldo';
+  el.querySelector('.txt').textContent = txt;
+}
+function abrirRespaldo() {
+  if (modoLectura) { if (Consulta.handle) cargarConsulta(true).then(() => toast('Datos actualizados.')); else $('#file-consulta').click(); return; }
+  const conectado = Archivo.estado === 'conectado';
+  const ult = estado.meta.ultimoBackup;
+  const m = abrirModal(`<div class="modal-h"><h2>Respaldo de los datos</h2><span class="spacer"></span><button class="iconbtn" data-x="no" aria-label="Cerrar">${ico('x')}</button></div>
+    <div class="modal-b">
+      ${conectado ? `<div class="msg ok">${ico('check', 'sm')}<span>Cada cambio se guarda en <b>${esc(Archivo.nombre)}</b>. Si está en una carpeta de Google Drive u OneDrive, queda respaldado en la nube.</span></div>`
+        : `<div class="msg warn">${ico('alerta', 'sm')}<span>Los datos están <b>sólo en este navegador</b>. Si se borra el historial, se pierden. ${ult ? 'Última copia exportada: ' + fmtFechaHora(ult) + '.' : 'Nunca se exportó una copia.'}</span></div>`}
+      <div class="row">
+        ${Archivo.soportado && !conectado ? `<button class="btn primary" data-x="vincular">${ico('archivo')}Guardar en un archivo</button>` : ''}
+        <button class="btn" data-x="exportar">Exportar copia (.json)</button>
+        <button class="btn ghost" data-x="ajustes">Más opciones</button>
+      </div></div>`, { chico: true });
+  m.querySelector('[data-x=no]').onclick = () => cerrarModal();
+  const v = m.querySelector('[data-x=vincular]'); if (v) v.onclick = () => { cerrarModal(); vincularArchivoNuevo(); };
+  m.querySelector('[data-x=exportar]').onclick = () => { cerrarModal(); exportarJSON(); toast('Copia descargada.'); };
+  m.querySelector('[data-x=ajustes]').onclick = () => { cerrarModal(); ui.ajustesTab = 'datos'; ir('ajustes'); };
+}
+function renderBanners() {
+  const b = [];
+  if (!LS_OK && !modoLectura) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Esta vista no puede guardar datos.</b> Es una vista previa aislada: lo que cargues se pierde al cerrarla. Abrí la app desde su dirección (GitHub Pages) o con doble clic en la compu.</div></div>`);
+  if (errorGuardado) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Error al guardar.</b> ${esc(errorGuardado)}</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
+  if (modoLectura) {
+    if (Consulta.estado.startsWith('error')) b.push(`<div class="banner err">${ico('alerta')}<div class="txt">No se pudo leer el archivo de datos: ${esc(Consulta.estado.slice(7))}</div><button class="btn sm" data-act="entrar-consulta">Elegir el archivo</button><button class="btn sm ghost" data-act="salir-consulta">Salir del modo consulta</button></div>`);
+    else b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Modo consulta:</b> se ven los datos del archivo compartido, sin poder modificarlos.</div>${Consulta.handle ? '<button class="btn sm primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn sm ghost" data-act="salir-consulta">Salir</button></div>`);
+  } else {
+    if (Archivo.estado === 'requiere-permiso') b.push(`<div class="banner warn">${ico('archivo')}<div class="txt">Para seguir guardando en <b>${esc(Archivo.nombre)}</b>, el navegador pide permiso cada vez que se abre la app.</div><button class="btn sm primary" data-act="reconectar">Reconectar</button></div>`);
+    if (Archivo.estado === 'conflicto') b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>El archivo de datos cambió desde otra computadora</b> mientras trabajabas acá. Elegí qué datos quedan.</div><button class="btn sm" data-act="conflicto-archivo">Usar los del archivo</button><button class="btn sm danger" data-act="conflicto-mios">Sobrescribir con los míos</button></div>`);
+    if (Archivo.estado === 'error') b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>No se pudo guardar en el archivo.</b> ${esc(Archivo.error)} Los datos siguen guardados en este navegador.</div><button class="btn sm" data-act="reconectar">Reintentar</button></div>`);
+  }
+  $('#banners').innerHTML = b.join('');
+}
+function avisoEjemplo(ctx) {
+  if (modoLectura || !ctx.agentes.some(a => a.ejemplo)) return '';
+  return `<div class="aviso-linea">${ico('info', 'sm')}<span>Hay datos de ejemplo cargados para probar.</span><button class="linkbtn" data-act="borrar-ejemplo">Borrarlos</button></div>`;
+}
+/* ---------- Bienvenida ---------- */
+function vistaBienvenida() {
+  return `<div class="welcome stack">
+    <div><h1>Control de licencias del personal</h1>
+    <p class="muted">Fichas de cada agente, sus cargos y todas las licencias del año, con el cómputo de días y los topes de cada artículo (Res. 233/98 para docentes y Ley 3487 para PSA).</p></div>
+    <div class="opc">
+      ${Archivo.soportado ? `<button class="opcion" data-act="vincular"><span class="art g-anual">1</span><span><b>Empezar y guardar los datos en un archivo (recomendado)</b><span class="muted small">Elegí una carpeta de Google Drive u OneDrive de la compu: queda respaldado y la directora lo puede consultar.</span></span></button>
+      <button class="opcion" data-act="abrir-archivo"><span class="art g-salud">2</span><span><b>Abrir un archivo de datos que ya existe</b><span class="muted small">Para seguir trabajando en otra compu con los mismos datos.</span></span></button>` :
+      `<div class="banner warn"><div class="txt">Este navegador no permite guardar directo en un archivo. En la compu de trabajo conviene usar <b>Google Chrome</b> o <b>Microsoft Edge</b>. Igual podés usar la app y exportar copias.</div></div>`}
+      <button class="opcion" data-act="entrar-consulta"><span class="art g-familiar">3</span><span><b>Sólo consultar (directora / vicedirector)</b><span class="muted small">Abre el archivo compartido en modo lectura, sin poder modificar nada.</span></span></button>
+      <button class="opcion" data-act="nuevo-agente"><span class="art g-personales">4</span><span><b>Cargar el primer agente</b><span class="muted small">Los datos quedan en este navegador; después los podés guardar en un archivo.</span></span></button>
+      <button class="opcion" data-act="cargar-ejemplo"><span class="art g-sistema">5</span><span><b>Probar con datos de ejemplo</b><span class="muted small">Carga agentes y licencias inventados para ver cómo funciona. Se borran con un botón.</span></span></button>
+    </div></div>`;
+}
+function vistaPermisoConsulta() {
+  return `<div class="welcome card card-b stack"><h2>Modo consulta</h2><p>El navegador necesita permiso para leer el archivo de datos compartido.</p>
+    <div class="row"><button class="btn primary" data-act="permiso-consulta">Dar permiso y ver los datos</button><button class="btn" data-act="entrar-consulta">Elegir otro archivo</button><button class="btn ghost" data-act="salir-consulta">Salir del modo consulta</button></div></div>`;
+}
+
+/* ---------- Inicio ---------- */
+function vistaInicio(ctx) {
+  const f = ui.fecha;
+  const fer = ctx.calIdx.get(f);
+  const hoyL = licenciasDelDia(f, ctx).sort((a, b) => nombreAgente(ctx.agIdx.get(a.agenteId)).localeCompare(nombreAgente(ctx.agIdx.get(b.agenteId)), 'es'));
+  const ausentes = hoyL.map(l => {
+    const ag = ctx.agIdx.get(l.agenteId), art = ctx.arts.get(l.articuloId);
+    const total = diasLicencia(l, art, ctx), hasta = diasLicencia(l, art, ctx, null, f);
+    return `<li class="click" data-act="ver-agente" data-id="${ag.id}">${artBadge(art)}
+      <div class="flex1"><div class="nombre">${esc(nombreAgente(ag))} ${regChip(ag.regimen)}</div><div class="sub">${esc(artNombre(art))}</div></div>
+      <div class="small num">${cuentaDia(f, art, ctx) ? `día <b>${hasta}</b> de ${total}` : '<span class="muted">no computa</span>'}<div class="muted">hasta ${fmtC(l.hasta)}</div></div></li>`;
+  }).join('');
+  const notasHoy = ctx.notas.filter(n => n.fecha === f).sort((a, b) => a.creado.localeCompare(b.creado));
+
+  const lun = lunesDe(f);
+  const semana = [0, 1, 2, 3, 4].map(i => {
+    const d = sumarDias(lun, i);
+    const c = ctx.calIdx.get(d);
+    const ls = licenciasDelDia(d, ctx).sort((a, b) => nombreAgente(ctx.agIdx.get(a.agenteId)).localeCompare(nombreAgente(ctx.agIdx.get(b.agenteId)), 'es'));
+    const ns = ctx.notas.filter(n => n.fecha === d).sort((a, b) => a.creado.localeCompare(b.creado));
+    return `<div class="dia ${d === hoyISO() ? 'hoy' : ''}"><h4>${DIAS_C[dow(d)]} <b>${fmtC(d)}</b></h4>
+      ${c ? `<div class="fer">${esc(TIPOS_DIA[c.tipo])}: ${esc(c.desc)}</div>` : ''}
+      ${ls.map(l => { const ag = ctx.agIdx.get(l.agenteId), art = ctx.arts.get(l.articuloId); return `<div class="ent" data-act="ver-agente" data-id="${ag.id}" title="${esc(nombreAgente(ag) + ' · Art. ' + (art?.codigo || '') + ' ' + artNombre(art))}">${artBadge(art)}<span>${esc(nombreBreve(ag))}</span></div>`; }).join('')}
+      ${ns.map(n => `<div class="nota" ${modoLectura ? '' : `data-act="editar-nota" data-id="${n.id}"`} title="Nota">${ico('nota', 'sm')}<span>${esc(n.texto)}</span></div>`).join('')}
+      ${!ls.length && !ns.length && !c ? '<span class="xs muted">Sin licencias</span>' : ''}
+      ${modoLectura ? '' : `<div class="mas"><button class="linkbtn" data-act="nueva-nota" data-fecha="${d}">${ico('mas', 'sm')}Nota</button></div>`}
+    </div>`;
+  }).join('');
+
+  const pend = ctx.licencias.map(l => {
+    const art = ctx.arts.get(l.articuloId); const faltan = tramitesPendientes(l, art);
+    return { l, art, faltan, venc: art ? vencimientoSolicitud(l, art, ctx) : null };
+  }).filter(x => x.faltan.length).sort((a, b) => b.l.desde.localeCompare(a.l.desde));
+  const pendHtml = pend.slice(0, 8).map(({ l, art, faltan, venc }) => {
+    const ag = ctx.agIdx.get(l.agenteId);
+    const total = (art?.tramites || []).length;
+    const vencido = venc && faltan.includes('solicitud') && venc.fecha && venc.fecha < hoyISO();
+    return `<li class="click" data-act="editar-licencia" data-id="${l.id}" title="Falta: ${esc(faltan.map(k => TRAMITES[k] || k).join(', '))}">${artBadge(art)}
+      <div class="flex1"><div class="nombre">${esc(nombreAgente(ag))}</div><div class="sub">${esc(artNombre(art))} · ${fmtC(l.desde)} al ${fmtC(l.hasta)}</div></div>
+      <div class="num small">${vencido ? `<span class="chip err">Solicitud vencida</span>` : `<span class="chip warn">${total - faltan.length} de ${total}</span>`}</div></li>`;
+  }).join('');
+
+  const anio = anioDe(f);
+  const alertas = alertasTopes(anio, ctx).slice(0, 8).map(a => `<li class="click" data-act="ver-agente" data-id="${a.ag.id}">${artBadge(a.art)}
+      <div class="flex1"><div class="nombre">${esc(nombreAgente(a.ag))}</div><div class="sub">${esc(artNombre(a.art))}</div>${barra(a.total, a.tope)}</div>
+      <div class="num small"><b>${a.total}</b> de ${a.tope}${a.total > a.tope ? '<div><span class="chip err">excedido</span></div>' : ''}</div></li>`).join('');
+
+  return `<div class="stack lg">
+    <div class="row"><h1 class="cap">${fmtLargo(f)}</h1><span class="spacer"></span>
+      <div class="datenav"><button class="iconbtn" data-act="dia" data-n="-1" aria-label="Día anterior">${ico('izq')}</button>
+      <input type="date" class="in w-auto" value="${f}" data-on="fecha-inicio" aria-label="Fecha">
+      <button class="iconbtn" data-act="dia" data-n="1" aria-label="Día siguiente">${ico('der')}</button>
+      <button class="btn sm" data-act="dia" data-n="0">Hoy</button></div></div>
+    ${avisoEjemplo(ctx)}
+    ${fer ? `<div class="msg warn">${ico('info', 'sm')}<span><b>${esc(TIPOS_DIA[fer.tipo])}:</b> ${esc(fer.desc)}</span></div>` : ''}
+    <div class="grid2">
+      <div class="stack">
+        <section class="card"><div class="card-h"><h2>Con licencia este día</h2><span class="spacer"></span><span class="big">${hoyL.length}</span></div>
+          ${hoyL.length ? `<ul class="lista">${ausentes}</ul>` : `<div class="vacio"><b>Nadie con licencia este día.</b>${modoLectura ? '' : 'Para cargar una, tocá "Licencia" arriba.'}</div>`}</section>
+        <section class="card"><div class="card-h"><h2>Notas del día</h2><span class="spacer"></span>${modoLectura ? '' : `<button class="btn sm" data-act="nueva-nota" data-fecha="${f}">${ico('mas', 'sm')}Nota</button>`}</div>
+          ${notasHoy.length ? `<ul class="lista notas-dia">${notasHoy.map(n => `<li class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-nota" data-id="${n.id}"`}>${ico('nota')}<span class="flex1">${esc(n.texto)}</span></li>`).join('')}</ul>`
+            : `<div class="vacio">Sin notas para este día.</div>`}</section>
+      </div>
+      <div class="stack">
+        <section class="card"><div class="card-h"><h2>Trámites pendientes</h2><span class="spacer"></span><span class="chip ${pend.length ? 'warn' : 'ok'}">${pend.length}</span></div>
+          ${pend.length ? `<ul class="lista">${pendHtml}</ul>${pend.length > 8 ? `<div class="card-b small muted">Y ${pend.length - 8} más: están en Reportes.</div>` : ''}` : '<div class="vacio"><b>Todo al día.</b>Ninguna licencia tiene trámites sin marcar.</div>'}</section>
+        <section class="card"><div class="card-h"><h2>Topes anuales ${anio}</h2><span class="xs muted">75% o más usado</span></div>
+          ${alertas ? `<ul class="lista">${alertas}</ul>` : '<div class="vacio"><b>Sin alertas.</b>Nadie está cerca de un tope.</div>'}</section>
+      </div>
+    </div>
+    <section class="card"><div class="card-h"><h2>Semana del ${fmtC(lun)} al ${fmtC(sumarDias(lun, 4))}</h2><span class="spacer"></span>
+      <button class="iconbtn" data-act="dia" data-n="-7" aria-label="Semana anterior">${ico('izq')}</button><button class="iconbtn" data-act="dia" data-n="7" aria-label="Semana siguiente">${ico('der')}</button></div>
+      <div class="semana">${semana}</div></section>
+  </div>`;
+}
+/* ---------- Agentes ---------- */
+function vistaAgentes(ctx) {
+  return `<div class="stack">
+    <div class="row"><h1>Agentes</h1><span class="muted" id="cuenta-agentes"></span><span class="spacer"></span>
+      ${modoLectura ? '' : `<button class="btn primary" data-act="nuevo-agente">${ico('mas')}Nuevo agente</button>`}</div>
+    <div class="row">
+      <input class="in w-busca" placeholder="Buscar por apellido, nombre, DNI o cargo…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" autofocus>
+      <div class="seg" role="group" aria-label="Régimen">
+        <button data-act="filtro-reg" data-v="" aria-pressed="${ui.filtroReg === ''}">Todos</button>
+        <button data-act="filtro-reg" data-v="233" aria-pressed="${ui.filtroReg === '233'}">Docentes</button>
+        <button data-act="filtro-reg" data-v="3487" aria-pressed="${ui.filtroReg === '3487'}">PSA</button></div>
+      <label class="check"><input type="checkbox" data-on="ver-inactivos" ${ui.verInactivos ? 'checked' : ''}> Mostrar dados de baja</label>
+      <span class="spacer"></span>
+      <div class="datenav"><span class="small muted">Año</span><button class="iconbtn" data-act="anio" data-n="-1">${ico('izq')}</button><b class="num">${ui.anio}</b><button class="iconbtn" data-act="anio" data-n="1">${ico('der')}</button></div>
+    </div>
+    <div class="card card-b flush" id="lista-agentes">${listaAgentes(ctx)}</div></div>`;
+}
+function listaAgentes(ctx) {
+  const q = normalizar(ui.busqueda);
+  const hoy = hoyISO();
+  const ausentesHoy = new Set(licenciasDelDia(hoy, ctx).map(l => l.agenteId));
+  const ini = `${ui.anio}-01-01`, fin = `${ui.anio}-12-31` < hoy || anioDe(hoy) !== ui.anio ? `${ui.anio}-12-31` : hoy;
+  let ags = ctx.agentes.filter(a => (ui.verInactivos || !a.inactivo) && (!ui.filtroReg || a.regimen === ui.filtroReg));
+  if (q) ags = ags.filter(a => normalizar([a.apellido, a.nombre, a.dni, a.cuil, ...vivos(a.cargos).map(c => c.catedra + ' ' + c.idCargo + ' ' + c.cursoDiv)].join(' ')).includes(q));
+  const filas = ags.map(a => {
+    const aus = diasAusencia(a.id, ini, fin, ctx);
+    const usados = new Set(ctx.licencias.filter(l => l.agenteId === a.id && l.hasta >= ini && l.desde <= fin).map(l => l.articuloId));
+    const det = [...usados].map(id => ctx.arts.get(id)).filter(Boolean).sort(ordenArt)
+      .map(art => ({ art, n: usoArticulo(a.id, art.id, ui.anio, ctx, { hastaFecha: fin }).total })).filter(x => x.n > 0);
+    const exced = [...ctx.arts.values()].some(art => art.regimen === a.regimen && art.topeAnual != null && usoArticulo(a.id, art.id, ui.anio, ctx).total > art.topeAnual);
+    return { a, det, aus, exced };
+  });
+  if (ui.orden === 'dias') filas.sort((x, y) => y.aus - x.aus || nombreAgente(x.a).localeCompare(nombreAgente(y.a)));
+  else filas.sort((x, y) => nombreAgente(x.a).localeCompare(nombreAgente(y.a), 'es'));
+  setTimeout(() => { const c = $('#cuenta-agentes'); if (c) c.textContent = plural(filas.length, 'agente'); });
+  if (!ctx.agentes.length) return `<div class="vacio"><b>Todavía no hay agentes cargados.</b>${modoLectura ? '' : 'Tocá "Nuevo agente" para cargar el primero.'}</div>`;
+  if (!filas.length) return `<div class="vacio"><b>Ningún agente coincide con la búsqueda.</b>Probá con otro apellido o sacá los filtros.</div>`;
+  return `<table class="t cards"><thead><tr>
+    <th class="sortable" data-act="orden" data-v="nombre">Apellido y nombre ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m">Régimen</th><th class="hide-m">Cargo / cátedra</th>
+    <th class="num sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo (${ui.anio}${fin < `${ui.anio}-12-31` ? ', al ' + fmtC(fin) : ''})</th><th class="hide-m">Estado</th></tr></thead><tbody>
+    ${filas.map(({ a, det, aus, exced }) => {
+      const c = vivos(a.cargos);
+      return `<tr class="click" data-act="ver-agente" data-id="${a.id}">
+        <td><span class="nombre">${esc(nombreAgente(a))}</span>${a.dni ? `<div class="small muted">DNI ${esc(a.dni)}</div>` : ''}</td>
+        <td class="hide-m">${regChip(a.regimen)}</td>
+        <td class="hide-m small">${esc(c.map(x => x.catedra || x.idCargo).filter(Boolean).join(' · ') || '—')}</td>
+        <td class="num"><b>${aus}</b></td>
+        <td>${det.length ? `<div class="desglose">${det.map(x => `<span title="${esc(artNombre(x.art) + ': ' + x.n + ' ' + unidadTxt(x.art.unidad, x.n))}">${artBadge(x.art)}${x.n}</span>`).join('')}</div>` : '<span class="muted">—</span>'}</td>
+        <td class="hide-m">${ausentesHoy.has(a.id) ? '<span class="chip warn">De licencia hoy</span> ' : ''}${exced ? '<span class="chip err">Tope excedido</span> ' : ''}${a.inactivo ? '<span class="chip">Baja</span>' : ''}</td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+/* ---------- Ficha del agente ---------- */
+function vistaFicha(ctx) {
+  const ag = ctx.agIdx.get(ui.agenteId);
+  if (!ag) return `<div class="vacio"><b>No se encontró el agente.</b><a href="#agentes" data-act="ir" data-ruta="agentes">Volver a la lista</a></div>`;
+  const anio = ui.anio;
+  const hoy = hoyISO();
+  const aFecha = ui.aFecha && anioDe(ui.aFecha) === anio ? ui.aFecha : (anioDe(hoy) === anio ? hoy : `${anio}-12-31`);
+  const ini = `${anio}-01-01`;
+  const aus = diasAusencia(ag.id, ini, aFecha, ctx);
+  const res = resumenAgente(ag, anio, aFecha, ctx);
+  const lics = ctx.licencias.filter(l => l.agenteId === ag.id && l.hasta >= ini && l.desde <= `${anio}-12-31`).sort((a, b) => a.desde.localeCompare(b.desde));
+  const cargos = vivos(ag.cargos);
+  const usados = res.filter(r => r.total > 0);
+  return `<div class="stack">
+    <div><a href="#agentes" class="small" data-act="ir" data-ruta="agentes">← Agentes</a></div>
+    <div class="row"><h1>${esc(nombreAgente(ag))}</h1>${regChip(ag.regimen)}${ag.inactivo ? '<span class="chip">Dado de baja</span>' : ''}${ag.ejemplo ? '<span class="chip">Ejemplo</span>' : ''}
+      <span class="spacer"></span>
+      ${modoLectura ? '' : `<button class="btn" data-act="editar-agente" data-id="${ag.id}">${ico('lapiz')}Editar datos</button>`}
+      <button class="btn" data-act="imprimir-planilla" data-id="${ag.id}">${ico('imprimir')}Imprimir planilla</button>
+      ${modoLectura ? '' : `<button class="btn accent" data-act="nueva-licencia" data-agente="${ag.id}">${ico('mas')}Licencia</button>`}</div>
+    <div class="row">
+      <div class="datenav"><span class="small muted">Año</span><button class="iconbtn" data-act="anio" data-n="-1" aria-label="Año anterior">${ico('izq')}</button><b class="num t-lg">${anio}</b><button class="iconbtn" data-act="anio" data-n="1" aria-label="Año siguiente">${ico('der')}</button></div>
+      <label class="row small"><span class="muted">Resumen a la fecha</span><input type="date" class="in w-auto" value="${aFecha}" min="${ini}" max="${anio}-12-31" data-on="a-fecha"></label>
+    </div>
+    <div class="grid2">
+      <section class="card"><div class="card-h"><h2>Resumen al ${fmt(aFecha)}</h2></div>
+        <div class="card-b stack">
+          <div class="row"><span class="big">${aus}</span><span class="muted">${aus === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.filter(l => l.desde <= aFecha).length, 'licencia')}</span></div>
+          ${usados.length ? `<table class="t"><thead><tr><th>Art.</th><th>Licencia</th><th class="num">Usados</th><th class="num">Tope</th><th class="num">Quedan</th><th></th></tr></thead><tbody>
+          ${usados.map(r => `<tr><td>${artBadge(r.art)}</td><td class="small" title="${esc(r.art.nombre)}"><b>${esc(artNombre(r.art))}</b><div class="muted">${unidadTxt(r.art.unidad, 2)}${r.art.topeMensual ? ' · máx. ' + r.art.topeMensual + ' por mes' : ''}</div></td>
+            <td class="num"><b>${r.total}</b></td><td class="num">${r.tope ?? '—'}</td>
+            <td class="num">${r.disponibles == null ? '—' : r.disponibles < 0 ? `<span class="chip err">−${-r.disponibles}</span>` : r.disponibles}</td><td>${barra(r.total, r.tope)}</td></tr>`).join('')}
+          </tbody></table>` : ''}
+          ${usados.length ? '' : '<p class="muted small">Sin licencias en el período.</p>'}
+          ${res.some(r => !r.total) ? `<div class="small"><span class="muted">Con tope y sin usar:</span> ${res.filter(r => !r.total).map(r => `${artBadge(r.art)} <span class="num">${r.tope}</span>`).join(' &nbsp;')}</div>` : ''}
+        </div></section>
+      <section class="card"><div class="card-h"><h2>Datos</h2></div><div class="card-b stack">
+        <dl class="kv">
+          ${[['DNI', ag.dni], ['CUIL', ag.cuil], ['Domicilio', ag.domicilio], ['Teléfono', ag.telefono], ['Email', ag.email], ['Legajo personal', ag.legajoPersonal], ['Legajo de junta', ag.legajoJunta], ['Título', ag.titulo], ['Nacimiento', ag.fechaNac ? fmt(ag.fechaNac) : '']]
+            .filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('') || '<dt class="muted">Sin datos personales cargados</dt><dd></dd>'}
+        </dl>
+        ${cargos.length ? `<table class="t"><thead><tr><th>Cargo / cátedra</th><th class="num">Hs</th><th>Curso</th><th>ID</th><th>Carácter</th><th>Alta</th><th>Baja</th></tr></thead><tbody>
+          ${cargos.map(c => `<tr><td>${esc(c.catedra || '—')}${c.resDisp ? `<div class="small muted">Res./Disp. ${esc(c.resDisp)}</div>` : ''}</td><td class="num">${esc(c.hs ?? '')}</td><td>${esc(c.cursoDiv || '')}</td><td>${esc(c.idCargo || '')}</td><td>${esc(c.caracter || '')}</td><td>${fmt(c.alta)}</td><td>${c.baja ? fmt(c.baja) : '—'}</td></tr>`).join('')}</tbody></table>` : '<p class="muted small">Sin cargos cargados.</p>'}
+        ${ag.obs ? `<div class="small"><b>Observaciones:</b> ${esc(ag.obs)}</div>` : ''}
+      </div></section>
+    </div>
+    <section class="card"><div class="card-h"><h2>Planilla de licencias ${anio}</h2><span class="spacer"></span>${modoLectura ? '' : '<span class="xs muted">Tocá un día vacío para cargar desde esa fecha, o una licencia para editarla.</span>'}</div>
+      <div class="planilla-wrap">${planillaAnual(ag, anio, ctx, { interactiva: !modoLectura })}</div>
+      <div class="planilla-pie">${leyenda(ag, lics, ctx)}<span class="spacer"></span>${listaFeriados(anio, ctx)}</div></section>
+    <section class="card"><div class="card-h"><h2>Licencias ${anio}</h2><span class="chip">${lics.length}</span></div>
+      ${lics.length ? `<table class="t cards"><thead><tr><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días</th><th>Trámite</th><th class="hide-m">Observaciones</th><th></th></tr></thead><tbody>
+      ${lics.map(l => { const art = ctx.arts.get(l.articuloId); const f = tramitesPendientes(l, art); const d = diasLicencia(l, art, ctx);
+        return `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${l.id}"`}><td>${artBadge(art)} <span class="small hide-m">${esc(artNombre(art))}</span></td><td>${fmt(l.desde)}</td><td>${fmt(l.hasta)}</td>
+          <td class="num"><b>${d}</b> <span class="small muted">${art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
+          <td>${(art?.tramites || []).length ? (f.length ? `<span class="chip warn">Faltan ${f.length}</span>` : '<span class="chip ok">Completo</span>') : '<span class="muted">—</span>'}</td>
+          <td class="small hide-m">${esc(l.obs || '')}</td><td class="hide-m">${modoLectura ? '' : `<span class="muted">${ico('lapiz', 'sm')}</span>`}</td></tr>`; }).join('')}
+      </tbody></table>` : `<div class="vacio"><b>Sin licencias en ${anio}.</b></div>`}</section>
+  </div>`;
+}
+function leyenda(ag, lics, ctx) {
+  const grupos = [...new Set(lics.map(l => ctx.arts.get(l.articuloId)?.grupo).filter(Boolean))];
+  return `<div class="leyenda">${grupos.map(g => `<span><i class="sw g-${g}"></i>${GRUPOS[g]}</span>`).join('')}
+    <span><i class="sw finde"></i>Fin de semana</span><span><b class="f">F</b> feriado · <b class="f">A</b> asueto · <b class="f">N</b> no laborable</span></div>`;
+}
+function listaFeriados(anio, ctx) {
+  const fs = [...ctx.calIdx.values()].filter(c => anioDe(c.fecha) === anio).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  if (!fs.length) return `<span class="xs muted">Sin feriados cargados para ${anio} (se agregan en Ajustes).</span>`;
+  return `<details class="feriados"><summary>Feriados y asuetos ${anio} (${fs.length})</summary><ul>${fs.map(c => `<li><b class="num">${fmtC(c.fecha)}</b> ${esc(TIPOS_DIA[c.tipo])}: ${esc(c.desc)}</li>`).join('')}</ul></details>`;
+}
+function planillaAnual(ag, anio, ctx, { interactiva = true, imprimir = false } = {}) {
+  const lics = ctx.licencias.filter(l => l.agenteId === ag.id && l.hasta >= `${anio}-01-01` && l.desde <= `${anio}-12-31`);
+  const porDia = new Map();
+  for (const l of lics) {
+    const a = l.desde < `${anio}-01-01` ? `${anio}-01-01` : l.desde, b = l.hasta > `${anio}-12-31` ? `${anio}-12-31` : l.hasta;
+    for (let d = a; d <= b; d = sumarDias(d, 1)) { const prev = porDia.get(d); porDia.set(d, prev ? { l, sup: true } : { l, sup: false }); }
+  }
+  const hoy = hoyISO();
+  let h = `<table class="planilla"><thead><tr><th class="mes">${imprimir ? '' : 'Mes'}</th>${Array.from({ length: 31 }, (_, i) => `<th>${pad(i + 1)}</th>`).join('')}<th class="obs izq">Observaciones</th></tr></thead><tbody>`;
+  for (let m = 0; m < 12; m++) {
+    const dm = diasEnMes(anio, m);
+    h += `<tr><th class="mes">${MESES[m].toUpperCase()}</th>`;
+    const obs = [];
+    for (let d = 1; d <= 31; d++) {
+      if (d > dm) { h += '<td class="nd"></td>'; continue; }
+      const iso = `${anio}-${pad(m + 1)}-${pad(d)}`;
+      const w = dow(iso); const fs = w === 0 || w === 6;
+      const c = ctx.calIdx.get(iso);
+      if (c) obs.push(`${c.tipo} ${d}: ${c.desc}`);
+      const x = porDia.get(iso);
+      const cls = ['d']; let txt = '', title = `${DIAS_C[w]} ${fmt(iso)}`;
+      if (fs) cls.push('fs');
+      if (iso === hoy && !imprimir) cls.push('hoy');
+      if (x) {
+        const art = ctx.arts.get(x.l.articuloId);
+        cls.push('g-' + (art?.grupo || 'sistema'));
+        if (!cuentaDia(iso, art, ctx)) cls.push('nocuenta');
+        if (x.sup) cls.push('sup');
+        txt = codigoCorto(art);
+        title += ` · Art. ${art?.codigo} ${artNombre(art)} (${fmt(x.l.desde)} al ${fmt(x.l.hasta)})${x.sup ? ' · SUPERPUESTA con otra licencia' : ''}`;
+      } else if (c) { cls.push('fer'); txt = c.tipo; title += ` · ${TIPOS_DIA[c.tipo]}: ${c.desc}`; }
+      const data = interactiva ? (x ? `data-act="editar-licencia" data-id="${x.l.id}"` : `data-act="licencia-desde" data-fecha="${iso}" data-agente="${ag.id}"`) : '';
+      h += `<td class="${cls.join(' ')}" title="${esc(title)}" ${data}>${esc(txt)}</td>`;
+    }
+    h += `<td class="obs">${esc(obs.join(' · '))}</td></tr>`;
+  }
+  return h + '</tbody></table>';
+}
+
+/* ---------- Reportes ---------- */
+function vistaReportes(ctx) {
+  const hoy = hoyISO();
+  if (!ui.rep.desde) { ui.rep.desde = hoy.slice(0, 8) + '01'; ui.rep.hasta = `${hoy.slice(0, 7)}-${pad(diasEnMes(anioDe(hoy), Number(hoy.slice(5, 7)) - 1))}`; }
+  const { desde, hasta, reg, art } = ui.rep;
+  const valido = esISO(desde) && esISO(hasta) && desde <= hasta;
+  const datos = valido ? datosReporte(ctx) : null;
+  const artsReg = [...ctx.arts.values()].filter(a => !reg || a.regimen === reg).sort((a, b) => a.regimen.localeCompare(b.regimen) || ordenArt(a, b));
+  return `<div class="stack">
+    <div class="row"><h1>Reportes</h1><span class="spacer"></span>
+      <button class="btn" data-act="rep-preset" data-v="mes">Este mes</button><button class="btn" data-act="rep-preset" data-v="mes-ant">Mes anterior</button><button class="btn" data-act="rep-preset" data-v="anio">Este año</button></div>
+    <div class="card card-b"><div class="fgrid">
+      <label class="f">Desde<input type="date" class="in" value="${esc(desde)}" data-on="rep-desde"></label>
+      <label class="f">Hasta<input type="date" class="in" value="${esc(hasta)}" data-on="rep-hasta"></label>
+      <label class="f">Régimen<select class="in" data-on="rep-reg"><option value="">Todos</option>${Object.entries(REGIMENES).map(([k, r]) => `<option value="${k}" ${reg === k ? 'selected' : ''}>${r.largo}</option>`).join('')}</select></label>
+      <label class="f">Artículo<select class="in" data-on="rep-art"><option value="">Todos</option>${artsReg.map(a => `<option value="${a.id}" ${art === a.id ? 'selected' : ''}>${REGIMENES[a.regimen].corto} · ${esc(a.codigo)} ${esc(artNombre(a))}</option>`).join('')}</select></label>
+    </div>${valido ? '' : '<p class="err-msg">Revisá las fechas: "desde" tiene que ser anterior a "hasta".</p>'}</div>
+    ${datos ? `
+    <section class="card"><div class="card-h"><h2>Por agente · ${fmt(desde)} al ${fmt(hasta)}</h2><span class="spacer"></span><button class="btn sm" data-act="csv-agentes">Descargar Excel (CSV)</button><button class="btn sm" data-act="imprimir-reporte">${ico('imprimir', 'sm')}Imprimir</button></div>
+      ${datos.porAgente.length ? `<table class="t"><thead><tr><th>Agente</th><th class="hide-m">Régimen</th><th class="num">Licencias</th><th class="num">Días hábiles ausente</th><th>Detalle por artículo</th></tr></thead><tbody>
+        ${datos.porAgente.map(r => `<tr class="click" data-act="ver-agente" data-id="${r.ag.id}"><td class="nombre">${esc(nombreAgente(r.ag))}</td><td class="hide-m">${regChip(r.ag.regimen)}</td><td class="num">${r.n}</td><td class="num"><b>${r.aus}</b></td>
+          <td>${r.det.map(d => `${artBadge(d.art)} <span class="num small">${d.dias}</span>`).join(' &nbsp;')}</td></tr>`).join('')}
+        </tbody><tfoot><tr><td>Total</td><td class="hide-m"></td><td class="num">${datos.porAgente.reduce((s, r) => s + r.n, 0)}</td><td class="num">${datos.porAgente.reduce((s, r) => s + r.aus, 0)}</td><td></td></tr></tfoot></table>`
+        : '<div class="vacio"><b>No hay licencias en el período.</b>Cambiá las fechas o los filtros.</div>'}</section>
+    <section class="card"><div class="card-h"><h2>Listado de licencias</h2><span class="chip">${datos.lista.length}</span><span class="spacer"></span><button class="btn sm" data-act="csv-licencias">Descargar Excel (CSV)</button></div>
+      ${datos.lista.length ? `<table class="t cards"><thead><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días en el período</th><th>Trámite</th></tr></thead><tbody>
+        ${datos.lista.map(x => `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${x.l.id}"`}><td class="nombre">${esc(nombreAgente(x.ag))}</td><td>${artBadge(x.art)}</td><td>${fmt(x.l.desde)}</td><td>${fmt(x.l.hasta)}</td><td class="num">${x.dias} <span class="small muted">${x.art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
+          <td>${x.faltan.length ? `<span class="chip warn" title="${esc(x.faltan.map(k => TRAMITES[k]).join(', '))}">Faltan ${x.faltan.length}</span>` : (x.art?.tramites?.length ? '<span class="chip ok">Completo</span>' : '—')}</td></tr>`).join('')}
+        </tbody></table>` : '<div class="vacio"><b>Sin licencias en el período.</b></div>'}</section>` : ''}
+  </div>`;
+}
+function datosReporte(ctx) {
+  const { desde, hasta, reg, art } = ui.rep;
+  const lista = ctx.licencias.filter(l => l.hasta >= desde && l.desde <= hasta && (!art || l.articuloId === art))
+    .map(l => { const ag = ctx.agIdx.get(l.agenteId); const a = ctx.arts.get(l.articuloId); return { l, ag, art: a, dias: diasLicencia(l, a, ctx, desde, hasta), faltan: tramitesPendientes(l, a) }; })
+    .filter(x => !reg || x.ag.regimen === reg)
+    .sort((a, b) => nombreAgente(a.ag).localeCompare(nombreAgente(b.ag), 'es') || a.l.desde.localeCompare(b.l.desde));
+  const m = new Map();
+  for (const x of lista) {
+    if (!m.has(x.ag.id)) m.set(x.ag.id, { ag: x.ag, n: 0, det: new Map() });
+    const r = m.get(x.ag.id); r.n++;
+    const d = r.det.get(x.art.id) || { art: x.art, dias: 0 }; d.dias += x.dias; r.det.set(x.art.id, d);
+  }
+  const porAgente = [...m.values()].map(r => ({ ...r, det: [...r.det.values()].sort((a, b) => ordenArt(a.art, b.art)), aus: art ? r.det.get(art)?.dias || 0 : diasAusencia(r.ag.id, desde, hasta, ctx) }))
+    .sort((a, b) => nombreAgente(a.ag).localeCompare(nombreAgente(b.ag), 'es'));
+  return { lista, porAgente };
+}
+function csv(filas) {
+  const q = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return '﻿' + filas.map(f => f.map(q).join(';')).join('\r\n');
+}
+
+/* ---------- Ajustes ---------- */
+function vistaAjustes(ctx) {
+  const t = ui.ajustesTab;
+  const tabs = [['datos', 'Datos y respaldo'], ['calendario', 'Feriados y asuetos'], ['articulos', 'Artículos y topes'], ['general', 'General']];
+  let cuerpo = '';
+  if (t === 'datos') cuerpo = ajustesDatos(ctx);
+  if (t === 'calendario') cuerpo = ajustesCalendario(ctx);
+  if (t === 'articulos') cuerpo = ajustesArticulos(ctx);
+  if (t === 'general') cuerpo = ajustesGeneral(ctx);
+  return `<div class="stack"><h1>Ajustes</h1>
+    <div class="sec-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${t === k}" data-act="ajustes-tab" data-v="${k}">${n}</button>`).join('')}</div>${cuerpo}</div>`;
+}
+function ajustesDatos(ctx) {
+  const snaps = listarSnapshots();
+  if (modoLectura) return `<div class="card card-b stack"><p>Estás en <b>modo consulta</b>: se leen los datos del archivo compartido y no se pueden modificar.</p>
+    <div class="row">${Consulta.handle ? '<button class="btn primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn" data-act="entrar-consulta">Abrir otro archivo</button><button class="btn" data-act="exportar">Descargar copia</button><button class="btn ghost" data-act="salir-consulta">Salir del modo consulta</button></div></div>`;
+  return `<div class="stack">
+    <section class="card"><div class="card-h"><h2>Archivo de datos</h2></div><div class="card-b stack">
+      ${Archivo.soportado ? (Archivo.handle ? `<p>Cada cambio se guarda en <b>${esc(Archivo.nombre)}</b> ${Archivo.estado === 'conectado' ? '<span class="chip ok">Conectado</span>' : '<span class="chip warn">' + esc(Archivo.estado) + '</span>'}.
+        Si el archivo está en una carpeta de Google Drive u OneDrive de la compu, queda respaldado en la nube y la directora lo puede abrir en modo consulta.</p>
+        <div class="row"><button class="btn" data-act="vincular">Guardar en otro archivo</button><button class="btn" data-act="abrir-archivo">Abrir otro archivo</button><button class="btn danger" data-act="desvincular">Desvincular</button></div>`
+        : `<p>Ahora los datos están <b>sólo en este navegador</b>. Vinculá un archivo para que cada cambio se guarde también ahí (ideal: una carpeta de Google Drive u OneDrive de la compu).</p>
+        <div class="row"><button class="btn primary" data-act="vincular">Guardar en un archivo nuevo</button><button class="btn" data-act="abrir-archivo">Abrir un archivo existente</button></div>`)
+      : '<p class="msg warn">Este navegador no permite guardar directo en un archivo. Usá Google Chrome o Microsoft Edge en la compu, o exportá copias a mano.</p>'}
+    </div></section>
+    <section class="card"><div class="card-h"><h2>Copias manuales</h2></div><div class="card-b stack">
+      <p class="small muted">Última copia exportada: ${estado.meta.ultimoBackup ? fmtFechaHora(estado.meta.ultimoBackup) : 'nunca'}.</p>
+      <div class="row"><button class="btn" data-act="exportar">Exportar copia (.json)</button><button class="btn" data-act="importar">Importar copia…</button></div>
+    </div></section>
+    <section class="card"><div class="card-h"><h2>Copias automáticas de este navegador</h2></div>
+      ${snaps.length ? `<ul class="lista">${snaps.map(k => `<li><span class="flex1">${esc(k.replace(SNAP_PREFIX, '').replace(/-(\d{13})$/, (m, t) => ' ' + fmtFechaHora(new Date(Number(t)).toISOString())))}</span><button class="btn sm" data-act="restaurar" data-k="${esc(k)}">Restaurar</button></li>`).join('')}</ul>`
+        : '<div class="vacio">Todavía no hay copias automáticas.</div>'}</section>
+    <section class="card"><div class="card-h"><h2>Directora y vicedirector</h2></div><div class="card-b stack">
+      <p class="small">Para que puedan ver todo sin modificar nada: compartí con ellos la carpeta de Drive donde está el archivo de datos. En su compu abren esta misma app y eligen <b>"Sólo consultar"</b>. Cada vez que tocan "Actualizar datos" ven lo último que cargaste.</p>
+      <div class="row"><button class="btn" data-act="entrar-consulta">Probar el modo consulta</button></div></div></section>
+    <section class="card"><div class="card-h"><h2>Zona peligrosa</h2></div><div class="card-b row">
+      <button class="btn danger" data-act="borrar-todo">Borrar todos los datos de este navegador</button></div></section>
+  </div>`;
+}
+function ajustesCalendario(ctx) {
+  const y = ui.calAnio;
+  const dias = vivos(estado.calendario).filter(c => anioDe(c.fecha) === y).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  return `<div class="stack">
+    <div class="card card-b stack">
+      <label class="check"><input type="checkbox" data-on="cfg-feriados" ${estado.config.feriadosCuentanHabiles ? 'checked' : ''} ${modoLectura ? 'disabled' : ''}>
+        <span>Contar feriados, asuetos y días no laborables como días hábiles<br><span class="small muted">Desmarcado (recomendado): los días hábiles son de lunes a viernes sin contar estos días.</span></span></label>
+    </div>
+    <section class="card"><div class="card-h"><h2>Calendario ${y}</h2><button class="iconbtn" data-act="cal-anio" data-n="-1">${ico('izq')}</button><button class="iconbtn" data-act="cal-anio" data-n="1">${ico('der')}</button><span class="spacer"></span><span class="small muted">${plural(dias.length, 'día')}</span></div>
+      ${modoLectura ? '' : `<div class="card-b"><form class="row" data-form="cal-nuevo">
+        <input type="date" class="in w-auto" name="fecha" required min="${y}-01-01" max="${y}-12-31">
+        <select class="in w-auto" name="tipo">${Object.entries(TIPOS_DIA).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+        <input class="in flex1" name="desc" placeholder="Descripción (ej.: Asueto Día de Viedma)" required>
+        <button class="btn primary">Agregar</button></form></div>`}
+      ${dias.length ? `<table class="t"><thead><tr><th>Fecha</th><th>Día</th><th>Tipo</th><th>Descripción</th><th></th></tr></thead><tbody>
+        ${dias.map(c => `<tr><td class="num">${fmt(c.fecha)}</td><td>${DIAS[dow(c.fecha)]}</td><td><span class="chip ${c.tipo === 'A' ? 'warn' : 'err'}">${TIPOS_DIA[c.tipo]}</span></td><td>${esc(c.desc)}</td>
+          <td>${modoLectura ? '' : `<button class="btn sm danger" data-act="cal-borrar" data-id="${c.id}">Quitar</button>`}</td></tr>`).join('')}</tbody></table>`
+        : `<div class="vacio"><b>No hay feriados cargados para ${y}.</b>Agregalos arriba para que no se cuenten como días hábiles.</div>`}</section></div>`;
+}
+function ajustesArticulos(ctx) {
+  const r = ui.artReg;
+  const arts = estado.articulos.filter(a => !a.borrado && a.regimen === r).sort(ordenArt);
+  const enUso = new Set(ctx.licencias.map(l => l.articuloId));
+  const dis = modoLectura ? 'disabled' : '';
+  return `<div class="stack">
+    <div class="row"><div class="seg" role="group">${Object.entries(REGIMENES).map(([k, v]) => `<button data-act="art-reg" data-v="${k}" aria-pressed="${r === k}">${v.largo}</button>`).join('')}</div>
+      <span class="spacer"></span>${modoLectura ? '' : `<button class="btn" data-act="art-nuevo">${ico('mas')}Agregar artículo</button>`}</div>
+    <p class="small muted">Los topes se controlan por agente y por año calendario. Si la normativa cambia, ajustalo acá: los cálculos se actualizan solos. <span class="chip warn">Revisar</span> marca valores que no figuraban en el cuadro resumen y conviene confirmar.</p>
+    <div class="card card-b flush planilla-wrap"><table class="t"><thead><tr><th>Art.</th><th>Licencia (nombre corto y completo)</th><th>Cuenta</th><th class="num">Tope anual</th><th class="num">Máx. por mes</th><th class="num">Máx. por licencia</th><th>Trámites</th><th></th></tr></thead><tbody>
+      ${arts.map(a => `<tr data-art="${a.id}">
+        <td class="art-cod"><input class="in" value="${esc(a.codigo)}" data-on="art-campo" data-campo="codigo" ${dis}></td>
+        <td class="art-nom"><input class="in" value="${esc(a.corto || '')}" data-on="art-campo" data-campo="corto" aria-label="Nombre corto" ${dis}><input class="in mt1" value="${esc(a.nombre)}" data-on="art-campo" data-campo="nombre" aria-label="Nombre completo" ${dis}>${a.tiempo && a.tiempo !== '—' ? `<div class="xs muted mt1">${esc(a.tiempo)}</div>` : ''}${a.revisar ? '<span class="chip warn">Revisar</span>' : ''}</td>
+        <td><select class="in" data-on="art-campo" data-campo="unidad" ${dis}><option value="habiles" ${a.unidad === 'habiles' ? 'selected' : ''}>Días hábiles</option><option value="corridos" ${a.unidad === 'corridos' ? 'selected' : ''}>Días corridos</option></select></td>
+        ${['topeAnual', 'topeMensual', 'maxPorLicencia'].map(k => `<td class="art-num"><input class="in num" inputmode="numeric" value="${a[k] ?? ''}" placeholder="—" data-on="art-campo" data-campo="${k}" ${dis}></td>`).join('')}
+        <td class="small">${(a.tramites || []).map(k => esc(TRAMITES[k] || k)).join(', ') || '—'} ${modoLectura ? '' : `<button class="btn sm ghost" data-act="art-tramites" data-id="${a.id}">Editar</button>`}</td>
+        <td>${modoLectura || enUso.has(a.id) ? '' : `<button class="iconbtn" title="Quitar artículo" data-act="art-borrar" data-id="${a.id}">${ico('x')}</button>`}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+function ajustesGeneral() {
+  return `<div class="card card-b stack welcome">
+    <label class="f">Nombre de la institución<input class="in" value="${esc(estado.meta.institucion)}" data-on="institucion" placeholder="Ej.: ESRN Rural Virtual" ${modoLectura ? 'disabled' : ''}></label>
+    <p class="small muted">Versión de la app ${APP_VERSION} · datos versión ${estado.version} · ${plural(vivos(estado.agentes).length, 'agente')} · ${plural(vivos(estado.licencias).length, 'licencia')}.</p></div>`;
+}
+
+/* =========================================================================
+   5b. MODALES Y FORMULARIOS
+   ========================================================================= */
+let modalCerrar = null;
+function abrirModal(html, { chico = false, alCerrar = null } = {}) {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="modal-bg"><div class="modal ${chico ? 'sm' : ''}" role="dialog" aria-modal="true">${html}</div></div>`;
+  modalCerrar = alCerrar;
+  const bg = root.firstElementChild;
+  bg.addEventListener('mousedown', e => { if (e.target === bg) cerrarModal(); });
+  setTimeout(() => { const f = root.querySelector('[autofocus]') || root.querySelector('input,select,textarea,button'); if (f) f.focus(); }, 30);
+  return root.querySelector('.modal');
+}
+function cerrarModal(valor) { const cb = modalCerrar; modalCerrar = null; $('#modal-root').innerHTML = ''; if (cb) cb(valor); }
+function confirmar({ titulo, html, ok = 'Aceptar', peligro = false }) {
+  return new Promise(res => {
+    const m = abrirModal(`<div class="modal-h"><h2>${esc(titulo)}</h2></div><div class="modal-b">${html}</div>
+      <div class="modal-f"><span class="spacer"></span><button class="btn" data-x="no">Cancelar</button><button class="btn ${peligro ? 'danger' : 'primary'}" data-x="si" autofocus>${esc(ok)}</button></div>`, { chico: true, alCerrar: v => res(!!v) });
+    m.querySelector('[data-x=no]').onclick = () => cerrarModal(false);
+    m.querySelector('[data-x=si]').onclick = () => cerrarModal(true);
+  });
+}
+let toastTimer = null;
+function toast(texto, deshacer = null) {
+  const r = $('#toast-root');
+  r.innerHTML = `<div class="toast" role="status"><span>${esc(texto)}</span>${deshacer ? '<button data-x="undo">Deshacer</button>' : ''}</div>`;
+  if (deshacer) r.querySelector('[data-x=undo]').onclick = () => { r.innerHTML = ''; deshacer(); };
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { r.innerHTML = ''; }, deshacer ? 7000 : 3500);
+}
+
+/* ---------- Formulario de licencia ---------- */
+function formLicencia({ id = null, agenteId = '', desde = '' } = {}) {
+  if (modoLectura) return;
+  const ctx = contexto();
+  if (!ctx.agentes.length) { toast('Primero cargá al menos un agente.'); return abrirFormAgente(); }
+  const existente = id ? estado.licencias.find(l => l.id === id && !l.borrado) : null;
+  const b = existente ? structuredClone(existente) : { id: null, agenteId, articuloId: '', desde: desde || hoyISO(), hasta: '', cargos: [], tramites: {}, obs: '' };
+  if (!existente && b.agenteId) {
+    // por defecto, el último artículo usado para ese agente no: arrancar vacío obliga a elegir conscientemente
+  }
+  const m = abrirModal(`<div class="modal-h"><h2>${existente ? 'Editar licencia' : 'Nueva licencia'}</h2><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
+    <div class="modal-b">
+      <div class="fgrid">
+        <label class="f full">Agente<input class="in" list="dl-agentes" data-f="agente" placeholder="Escribí el apellido…" autocomplete="off" ${b.agenteId ? '' : 'autofocus'} enterkeyhint="next"></label>
+        <label class="f full">Artículo<select class="in" data-f="articulo" ${b.agenteId && !existente ? 'autofocus' : ''}></select></label>
+        <div class="full ayuda-art" data-f="ayuda" hidden></div>
+        <label class="f">Desde<input type="date" class="in" data-f="desde" value="${esc(b.desde)}"></label>
+        <label class="f"><span>Cantidad de <span data-f="unidad">días</span></span><input class="in num" inputmode="numeric" data-f="cant" placeholder="ej.: 3" enterkeyhint="next"></label>
+        <label class="f">Hasta<input type="date" class="in" data-f="hasta" value="${esc(b.hasta)}"></label>
+        <div class="full resumen-lic" data-f="resumen" aria-live="polite"></div>
+        <div class="full" data-f="cargos-wrap" hidden><div class="lbl">Cargos afectados</div><div data-f="cargos"></div></div>
+        <div class="full" data-f="tram-wrap" hidden><div class="lbl">Trámite <span class="xs muted" data-f="plazo"></span></div><div data-f="tramites" class="fgrid checks"></div></div>
+        <label class="f full">Observaciones<textarea class="in" data-f="obs" placeholder="Opcional">${esc(b.obs)}</textarea></label>
+      </div>
+    </div>
+    <div class="modal-f">
+      ${existente ? '<button class="btn danger" data-x="borrar">Borrar</button>' : ''}<span class="small" data-f="pie"></span><span class="spacer"></span>
+      <button class="btn" data-x="cerrar">Cancelar</button>
+      ${existente ? '' : '<button class="btn" data-x="otra">Guardar y cargar otra</button>'}
+      <button class="btn primary" data-x="guardar">Guardar</button></div>`);
+  const F = k => m.querySelector(`[data-f="${k}"]`);
+  const agInput = F('agente'), artSel = F('articulo');
+  const agPorEtiqueta = new Map(ctx.agentes.map(a => [etiquetaAgente(a), a]));
+  if (b.agenteId) { const a = ctx.agIdx.get(b.agenteId); if (a) agInput.value = etiquetaAgente(a); }
+  let ultimaCant = null;
+
+  function agenteActual() {
+    const v = agInput.value.trim();
+    if (agPorEtiqueta.has(v)) return agPorEtiqueta.get(v);
+    const q = normalizar(v); if (!q) return null;
+    const cands = ctx.agentes.filter(a => normalizar(etiquetaAgente(a)).includes(q));
+    return cands.length === 1 ? cands[0] : null;
+  }
+  function llenarArticulos() {
+    const ag = agenteActual();
+    const prev = artSel.value || b.articuloId;
+    if (!ag) { artSel.innerHTML = '<option value="">Primero elegí el agente</option>'; artSel.disabled = true; return; }
+    artSel.disabled = false;
+    const arts = [...ctx.arts.values()].filter(a => a.regimen === ag.regimen).sort(ordenArt);
+    const grupos = new Map();
+    arts.forEach(a => { const g = a.capitulo || GRUPOS[a.grupo]; if (!grupos.has(g)) grupos.set(g, []); grupos.get(g).push(a); });
+    // los usados por este agente este año, primero
+    const usados = [...new Set(ctx.licencias.filter(l => l.agenteId === ag.id).sort((x, y) => y.desde.localeCompare(x.desde)).map(l => l.articuloId))].slice(0, 4).map(i => ctx.arts.get(i)).filter(a => a && a.regimen === ag.regimen);
+    artSel.innerHTML = '<option value="">Elegí el artículo…</option>' +
+      (usados.length ? `<optgroup label="Usados últimamente por este agente">${usados.map(a => `<option value="${a.id}">${esc(a.codigo)} — ${esc(artNombre(a))}</option>`).join('')}</optgroup>` : '') +
+      [...grupos.entries()].map(([g, as]) => `<optgroup label="${esc(g)}">${as.map(a => `<option value="${a.id}">${esc(a.codigo)} — ${esc(artNombre(a))}</option>`).join('')}</optgroup>`).join('');
+    if (prev && arts.some(a => a.id === prev)) artSel.value = prev;
+  }
+  function llenarCargos() {
+    const ag = agenteActual(); const cs = ag ? vivos(ag.cargos) : [];
+    F('cargos-wrap').hidden = cs.length < 2;
+    const sel = b.cargos && b.cargos.length ? b.cargos : cs.map(c => c.id);
+    F('cargos').innerHTML = cs.map(c => `<label class="check"><input type="checkbox" value="${c.id}" ${sel.includes(c.id) ? 'checked' : ''}> ${esc(c.catedra || c.idCargo || 'Cargo')} ${c.cursoDiv ? '· ' + esc(c.cursoDiv) : ''} ${c.hs ? '· ' + esc(c.hs) + ' hs' : ''}</label>`).join('');
+  }
+  function llenarTramites() {
+    const art = ctx.arts.get(artSel.value);
+    const ks = art?.tramites || [];
+    F('tram-wrap').hidden = !ks.length;
+    const marcados = {}; $$('input', F('tramites')).forEach(i => { marcados[i.value] = i.checked; });
+    F('tramites').innerHTML = ks.map(k => `<label class="check"><input type="checkbox" value="${k}" ${(marcados[k] ?? b.tramites?.[k]) ? 'checked' : ''}> ${esc(TRAMITES[k] || k)}</label>`).join('');
+  }
+  function leer() {
+    const ag = agenteActual();
+    const cs = $$('input', F('cargos')).filter(i => i.checked).map(i => i.value);
+    const tr = {}; $$('input', F('tramites')).forEach(i => { if (i.checked) tr[i.value] = true; });
+    return { ...b, agenteId: ag ? ag.id : '', articuloId: artSel.value, desde: F('desde').value, hasta: F('hasta').value, cargos: ag && vivos(ag.cargos).length > 1 ? cs : [], tramites: tr, obs: F('obs').value.trim() };
+  }
+  function actualizar(origen) {
+    const ctx2 = contexto();
+    const art = ctx2.arts.get(artSel.value);
+    F('unidad').textContent = art ? unidadTxt(art.unidad, 2) : 'días';
+    const ay = F('ayuda');
+    if (art) {
+      ay.hidden = false;
+      ay.innerHTML = `<b>Art. ${esc(art.codigo)} — ${esc(artNombre(art))}.</b> ${art.tiempo && art.tiempo !== '—' ? esc(art.tiempo) : ''}
+        <div class="mt1">Cuenta en ${unidadTxt(art.unidad, 2)}${art.topeAnual != null ? ` · tope ${art.topeAnual} por año` : ''}${art.topeMensual != null ? ` · máx. ${art.topeMensual} por mes` : ''}${art.maxPorLicencia != null ? ` · hasta ${art.maxPorLicencia} por licencia` : ''}.</div>
+        ${art.nombre !== artNombre(art) || art.reglamentacion ? `<details><summary>Texto completo y trámite</summary><div class="mt1">${esc(art.nombre)}.</div>${art.reglamentacion ? `<div class="mt1">${esc(art.reglamentacion)}</div>` : ''}</details>` : ''}`;
+    } else ay.hidden = true;
+    // cantidad ↔ hasta
+    const desde = F('desde').value;
+    if (origen === 'cant') {
+      const n = parseEntero(F('cant').value);
+      if (art && n >= 1 && esISO(desde)) { const h = calcularHasta(desde, n, art, ctx2); if (h) F('hasta').value = h; }
+    } else if (art && esISO(desde) && esISO(F('hasta').value) && F('hasta').value >= desde) {
+      if (origen === 'desde' && ultimaCant) { const h = calcularHasta(desde, ultimaCant, art, ctx2); if (h) F('hasta').value = h; }
+      F('cant').value = diasLicencia({ desde, hasta: F('hasta').value }, art, ctx2);
+    }
+    const nCant = parseEntero(F('cant').value); ultimaCant = nCant >= 1 ? nCant : ultimaCant;
+    const v = validarLicencia(leer(), ctx2);
+    const ag = agenteActual();
+    // plazo de la solicitud
+    const lic = leer();
+    const venc = art && esISO(lic.desde) && esISO(lic.hasta) ? vencimientoSolicitud(lic, art, ctx2) : null;
+    F('plazo').textContent = venc ? `· Solicitud: ${venc.texto.toLowerCase()} (hasta el ${fmt(venc.fecha)})` : '';
+    let h = '';
+    if (!ag && agInput.value.trim()) h += `<div class="msg err">No encuentro ese agente. Elegilo de la lista que aparece al escribir.</div>`;
+    if (art && esISO(lic.desde) && esISO(lic.hasta) && lic.hasta >= lic.desde) {
+      h += `<div class="computo"><b>${v.dias}</b> ${unidadTxt(art.unidad, v.dias)} · del ${fmtLargo(lic.desde)} al ${fmtLargo(lic.hasta)}</div>`;
+      const fer = []; for (let d = lic.desde; d <= lic.hasta && fer.length < 6; d = sumarDias(d, 1)) { const c = ctx2.calIdx.get(d); if (c) fer.push(`${fmtC(d)} ${c.desc}`); }
+      if (fer.length && art.unidad === 'habiles') h += `<div class="small muted">No se cuentan: ${esc(fer.join(' · '))}.</div>`;
+    }
+    h += v.errores.map(e => `<div class="msg err">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('');
+    h += v.avisos.map(e => `<div class="msg warn">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('');
+    h += v.info.map(e => `<div class="msg info">${ico('info', 'sm')}<span>${esc(e)}</span></div>`).join('');
+    F('resumen').innerHTML = h || '<span class="muted small">Completá agente, artículo y fechas para ver el cómputo de días.</span>';
+    const nA = v.avisos.length, nE = v.errores.length;
+    F('pie').innerHTML = (v.dias && art ? `<b class="num">${v.dias}</b> ${unidadTxt(art.unidad, v.dias)} ` : '') + (nE ? `<span class="chip err">${plural(nE, 'error', 'errores')}</span> ` : '') + (nA ? `<span class="chip warn">${plural(nA, 'aviso')}</span>` : '');
+    return v;
+  }
+  llenarArticulos(); llenarCargos(); llenarTramites();
+  if (b.articuloId) artSel.value = b.articuloId;
+  llenarTramites();
+  actualizar('init');
+
+  agInput.addEventListener('change', () => { llenarArticulos(); llenarCargos(); llenarTramites(); actualizar('ag'); });
+  agInput.addEventListener('input', () => { if (agPorEtiqueta.has(agInput.value)) { llenarArticulos(); llenarCargos(); llenarTramites(); actualizar('ag'); artSel.focus(); } });
+  artSel.addEventListener('change', () => { llenarTramites(); actualizar('art'); F('cant').focus(); });
+  F('desde').addEventListener('change', () => actualizar('desde'));
+  F('hasta').addEventListener('change', () => { ultimaCant = null; actualizar('hasta'); });
+  F('cant').addEventListener('input', () => actualizar('cant'));
+  F('cargos').addEventListener('change', () => actualizar('cargos'));
+
+  function guardarLic(otra) {
+    const v = actualizar('guardar');
+    if (v.errores.length) { toast('Revisá los datos marcados en rojo.'); return; }
+    const datos = leer();
+    let guardada;
+    mutar(e => {
+      if (existente) {
+        const l = e.licencias.find(x => x.id === existente.id);
+        Object.assign(l, { agenteId: datos.agenteId, articuloId: datos.articuloId, desde: datos.desde, hasta: datos.hasta, cargos: datos.cargos, tramites: datos.tramites, obs: datos.obs });
+        tocar(l); guardada = l;
+      } else {
+        guardada = sellar({ agenteId: datos.agenteId, articuloId: datos.articuloId, desde: datos.desde, hasta: datos.hasta, cargos: datos.cargos, tramites: datos.tramites, obs: datos.obs });
+        e.licencias.push(guardada);
+      }
+    }, { msg: existente ? 'Licencia actualizada.' : `Licencia guardada: ${v.dias} ${unidadTxt(v.art.unidad, v.dias)}.` });
+    if (otra) formLicencia({ agenteId: datos.agenteId, desde: sumarDias(datos.hasta, 1) });
+    else cerrarModal();
+  }
+  m.querySelectorAll('[data-x=cerrar]').forEach(x => x.onclick = () => cerrarModal());
+  m.querySelector('[data-x=guardar]').onclick = () => guardarLic(false);
+  const otraBtn = m.querySelector('[data-x=otra]'); if (otraBtn) otraBtn.onclick = () => guardarLic(true);
+  const borrarBtn = m.querySelector('[data-x=borrar]');
+  if (borrarBtn) borrarBtn.onclick = async () => {
+    const ctx3 = contexto(); const art = ctx3.arts.get(existente.articuloId); const ag = ctx3.agIdx.get(existente.agenteId);
+    const d = diasLicencia(existente, art, ctx3);
+    const ok = await confirmar({ titulo: 'Borrar licencia', html: `<p>Se borra la licencia <b>art. ${esc(art?.codigo)}</b> de <b>${esc(nombreAgente(ag))}</b> del ${fmt(existente.desde)} al ${fmt(existente.hasta)} (${d} ${unidadTxt(art?.unidad, d)}).</p>`, ok: 'Borrar licencia', peligro: true });
+    if (!ok) return;
+    mutar(e => { tocar(e.licencias.find(x => x.id === existente.id)).borrado = true; }, {
+      msg: 'Licencia borrada.', deshacer: () => mutar(e => { tocar(e.licencias.find(x => x.id === existente.id)).borrado = false; }, { msg: 'Licencia recuperada.' }),
+    });
+  };
+  m.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) guardarLic(false); });
+}
+
+/* ---------- Notas por día (como el planificador semanal) ---------- */
+function abrirNota({ id = null, fecha = null } = {}) {
+  if (modoLectura) return;
+  const ex = id ? estado.notas.find(n => n.id === id && !n.borrado) : null;
+  const f = ex ? ex.fecha : (fecha || ui.fecha);
+  const m = abrirModal(`<div class="modal-h"><h2>${ex ? 'Editar nota' : 'Nueva nota'}</h2><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
+    <div class="modal-b">
+      <label class="f">Día<input type="date" class="in" data-f="fecha" value="${esc(f)}"></label>
+      <label class="f">Nota<textarea class="in" data-f="texto" rows="4" placeholder="Ej.: Reunión de personal 10 hs · Avisar a Pérez que traiga el certificado" autofocus>${esc(ex ? ex.texto : '')}</textarea></label>
+      <div data-f="err"></div></div>
+    <div class="modal-f">${ex ? '<button class="btn danger" data-x="borrar">Borrar</button>' : ''}<span class="spacer"></span><button class="btn" data-x="cerrar">Cancelar</button><button class="btn primary" data-x="guardar">Guardar nota</button></div>`, { chico: true });
+  m.querySelectorAll('[data-x=cerrar]').forEach(b => b.onclick = () => cerrarModal());
+  const guardarNota = () => {
+    const fecha2 = m.querySelector('[data-f=fecha]').value, texto = m.querySelector('[data-f=texto]').value.trim();
+    if (!esISO(fecha2) || !texto) { m.querySelector('[data-f=err]').innerHTML = `<div class="msg err">${ico('alerta', 'sm')}<span>Completá el día y el texto de la nota.</span></div>`; return; }
+    cerrarModal();
+    mutar(e => {
+      if (!Array.isArray(e.notas)) e.notas = [];
+      if (ex) { const n = e.notas.find(x => x.id === ex.id); n.fecha = fecha2; n.texto = texto; tocar(n); }
+      else e.notas.push(sellar({ fecha: fecha2, texto }));
+    }, { msg: ex ? 'Nota actualizada.' : 'Nota guardada.' });
+  };
+  m.querySelector('[data-x=guardar]').onclick = guardarNota;
+  m.querySelector('[data-f=texto]').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) guardarNota(); });
+  const bb = m.querySelector('[data-x=borrar]');
+  if (bb) bb.onclick = () => {
+    cerrarModal();
+    mutar(e => { tocar(e.notas.find(x => x.id === ex.id)).borrado = true; }, { msg: 'Nota borrada.', deshacer: () => mutar(e => { tocar(e.notas.find(x => x.id === ex.id)).borrado = false; }, { msg: 'Nota recuperada.' }) });
+  };
+}
+
+/* ---------- Formulario de agente ---------- */
+function abrirFormAgente(id = null) {
+  if (modoLectura) return;
+  const existente = id ? estado.agentes.find(a => a.id === id && !a.borrado) : null;
+  const a = existente ? structuredClone(existente) : { apellido: '', nombre: '', regimen: '233', cargos: [] };
+  const cargos = vivos(a.cargos);
+  if (!cargos.length) cargos.push({ id: uid(), catedra: '', hs: '', cursoDiv: '', idCargo: '', caracter: '', resDisp: '', alta: '', baja: '', obs: '' });
+  const nLics = existente ? vivos(estado.licencias).filter(l => l.agenteId === id).length : 0;
+  const campo = (k, label, extra = '') => `<label class="f">${label}<input class="in" data-a="${k}" value="${esc(a[k] || '')}" ${extra}></label>`;
+  const filaCargo = c => `<div class="card plano card-b fgrid" data-cargo="${c.id}">
+      <label class="f span2">Cargo / cátedra<input class="in" data-c="catedra" value="${esc(c.catedra)}" placeholder="Ej.: Ciencias de la Tierra I y II"></label>
+      <label class="f">Horas<input class="in num" inputmode="numeric" data-c="hs" value="${esc(c.hs)}"></label>
+      <label class="f">Curso y división<input class="in" data-c="cursoDiv" value="${esc(c.cursoDiv)}"></label>
+      <label class="f">ID cargo<input class="in" data-c="idCargo" value="${esc(c.idCargo)}"></label>
+      <label class="f">Carácter<select class="in" data-c="caracter"><option value=""></option>${CARACTERES.map(x => `<option ${c.caracter === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <label class="f">Res. / Disp.<input class="in" data-c="resDisp" value="${esc(c.resDisp)}"></label>
+      <label class="f">Alta<input type="date" class="in" data-c="alta" value="${esc(c.alta)}"></label>
+      <label class="f">Baja<input type="date" class="in" data-c="baja" value="${esc(c.baja)}"></label>
+      <label class="f span2">Observaciones<input class="in" data-c="obs" value="${esc(c.obs)}"></label>
+      <div class="row al-fin"><button class="btn sm danger" type="button" data-x="quitar-cargo">Quitar cargo</button></div></div>`;
+  const m = abrirModal(`<div class="modal-h"><h2>${existente ? 'Editar agente' : 'Nuevo agente'}</h2><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
+    <div class="modal-b">
+      <div class="fgrid">
+        <label class="f">Apellido<input class="in" data-a="apellido" value="${esc(a.apellido)}" autofocus enterkeyhint="next"></label>
+        <label class="f">Nombre<input class="in" data-a="nombre" value="${esc(a.nombre)}" enterkeyhint="next"></label>
+        <label class="f">Régimen<select class="in" data-a="regimen" ${nLics ? 'disabled title="Tiene licencias cargadas: no se puede cambiar el régimen"' : ''}>${Object.entries(REGIMENES).map(([k, r]) => `<option value="${k}" ${a.regimen === k ? 'selected' : ''}>${r.largo}</option>`).join('')}</select></label>
+        ${campo('dni', 'DNI', 'inputmode="numeric"')}${campo('cuil', 'CUIL', 'placeholder="20-12345678-9"')}
+        ${campo('fechaNac', 'Fecha de nacimiento', 'type="date"')}
+        ${campo('domicilio', 'Domicilio')}${campo('telefono', 'Teléfono', 'inputmode="tel"')}${campo('email', 'Email', 'type="email"')}
+        ${campo('legajoPersonal', 'Legajo personal')}${campo('legajoJunta', 'Legajo de junta')}${campo('titulo', 'Título')}
+        <label class="f full">Observaciones<textarea class="in" data-a="obs">${esc(a.obs || '')}</textarea></label>
+        <label class="check full"><input type="checkbox" data-a="inactivo" ${a.inactivo ? 'checked' : ''}> Dado de baja / ya no trabaja en la institución (se oculta de la lista, pero conserva su historial)</label>
+      </div>
+      <div class="row"><h3>Cargos</h3><span class="spacer"></span><button class="btn sm" type="button" data-x="agregar-cargo">${ico('mas', 'sm')}Agregar cargo</button></div>
+      <div class="stack" data-f="cargos">${cargos.map(filaCargo).join('')}</div>
+      <div data-f="msgs"></div>
+    </div>
+    <div class="modal-f">${existente ? '<button class="btn danger" data-x="borrar">Borrar agente</button>' : ''}<span class="spacer"></span>
+      <button class="btn" data-x="cerrar">Cancelar</button><button class="btn primary" data-x="guardar">${existente ? 'Guardar cambios' : 'Guardar agente'}</button></div>`);
+  m.querySelectorAll('[data-x=cerrar]').forEach(x => x.onclick = () => cerrarModal());
+  m.querySelector('[data-x=agregar-cargo]').onclick = () => {
+    const div = document.createElement('div'); div.innerHTML = filaCargo({ id: uid(), catedra: '', hs: '', cursoDiv: '', idCargo: '', caracter: '', resDisp: '', alta: '', baja: '', obs: '' });
+    m.querySelector('[data-f=cargos]').appendChild(div.firstElementChild);
+  };
+  m.querySelector('[data-f=cargos]').addEventListener('click', e => { if (e.target.dataset.x === 'quitar-cargo') e.target.closest('[data-cargo]').remove(); });
+  const leer = () => {
+    const o = {}; $$('[data-a]', m).forEach(i => { o[i.dataset.a] = i.type === 'checkbox' ? i.checked : i.value.trim(); });
+    o.cargos = $$('[data-cargo]', m).map(div => { const c = { id: div.dataset.cargo }; $$('[data-c]', div).forEach(i => { c[i.dataset.c] = i.value.trim(); }); return c; })
+      .filter(c => c.catedra || c.idCargo || c.hs || c.cursoDiv || c.alta || c.resDisp);
+    return o;
+  };
+  m.querySelector('[data-x=guardar]').onclick = () => {
+    const o = leer();
+    const err = [], av = [];
+    if (!o.apellido) err.push('Falta el apellido.');
+    if (!o.nombre) err.push('Falta el nombre.');
+    if (o.dni && !/^\d{7,8}$/.test(o.dni.replace(/\./g, ''))) av.push('El DNI debería tener 7 u 8 números.');
+    if (o.cuil && !/^\d{2}-?\d{7,8}-?\d$/.test(o.cuil)) av.push('El CUIL no tiene el formato 20-12345678-9.');
+    const dni = o.dni.replace(/\./g, '');
+    const dup = dni && vivos(estado.agentes).find(x => x.id !== id && (x.dni || '').replace(/\./g, '') === dni);
+    if (dup) err.push(`Ya hay un agente con DNI ${dni}: ${nombreAgente(dup)}.`);
+    o.cargos.forEach(c => { if (c.alta && c.baja && c.baja < c.alta) err.push(`En el cargo "${c.catedra || c.idCargo}", la baja es anterior al alta.`); });
+    const msgs = m.querySelector('[data-f=msgs]');
+    msgs.innerHTML = err.map(e => `<div class="msg err">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('') + av.map(e => `<div class="msg warn">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('');
+    if (err.length) { msgs.scrollIntoView({ block: 'nearest' }); return; }
+    if (av.length && !m.dataset.avisado) { m.dataset.avisado = '1'; msgs.insertAdjacentHTML('beforeend', '<div class="msg info">Si está bien así, tocá Guardar de nuevo.</div>'); return; }
+    o.dni = dni;
+    let nuevoId = id;
+    mutar(e => {
+      if (existente) {
+        const ag = e.agentes.find(x => x.id === id);
+        const viejos = new Map((ag.cargos || []).map(c => [c.id, c]));
+        const nuevos = o.cargos.map(c => viejos.has(c.id) ? tocar(Object.assign(viejos.get(c.id), c)) : sellar(c));
+        const quitados = (ag.cargos || []).filter(c => !o.cargos.some(n => n.id === c.id)).map(c => ({ ...c, borrado: true, modificado: ahora() }));
+        Object.assign(ag, { ...o, regimen: nLics ? ag.regimen : o.regimen, cargos: [...nuevos, ...quitados] }); tocar(ag);
+      } else {
+        const ag = sellar({ ...o, cargos: o.cargos.map(c => sellar(c)) }); nuevoId = ag.id; e.agentes.push(ag);
+      }
+    }, { msg: existente ? 'Datos actualizados.' : 'Agente guardado.', redibujar: false });
+    cerrarModal();
+    if (!existente) ir('#agente/' + nuevoId); else render();
+  };
+  const bb = m.querySelector('[data-x=borrar]');
+  if (bb) bb.onclick = async () => {
+    const ok = await confirmar({ titulo: 'Borrar agente', html: `<p>Se borra a <b>${esc(nombreAgente(existente))}</b>${nLics ? ` y sus <b>${plural(nLics, 'licencia')}</b>` : ''}.</p><p class="small muted">Si dejó de trabajar en la institución, conviene marcarlo como "dado de baja" en lugar de borrarlo, así conserva el historial.</p>`, ok: 'Borrar agente', peligro: true });
+    if (!ok) return;
+    const t = ahora();
+    mutar(e => { const ag = e.agentes.find(x => x.id === id); ag.borrado = true; ag.modificado = t; e.licencias.forEach(l => { if (l.agenteId === id && !l.borrado) { l.borrado = true; l.borradoCon = id; l.modificado = t; } }); }, {
+      msg: 'Agente borrado.', redibujar: false,
+      deshacer: () => mutar(e => { const ag = e.agentes.find(x => x.id === id); ag.borrado = false; tocar(ag); e.licencias.forEach(l => { if (l.borradoCon === id) { l.borrado = false; delete l.borradoCon; tocar(l); } }); }, { msg: 'Agente recuperado.' }),
+    });
+    ir('#agentes'); render();
+  };
+}
+
+function editarTramitesArticulo(id) {
+  const art = estado.articulos.find(a => a.id === id);
+  const m = abrirModal(`<div class="modal-h"><h2>Trámites del art. ${esc(art.codigo)}</h2></div><div class="modal-b">
+    <p class="small muted">${esc(art.nombre)}. Lo que marques aparece como checklist al cargar una licencia de este artículo.</p>
+    ${Object.entries(TRAMITES).map(([k, v]) => `<label class="check"><input type="checkbox" value="${k}" ${(art.tramites || []).includes(k) ? 'checked' : ''}> ${esc(v)}</label>`).join('')}</div>
+    <div class="modal-f"><span class="spacer"></span><button class="btn" data-x="no">Cancelar</button><button class="btn primary" data-x="si">Guardar</button></div>`, { chico: true });
+  m.querySelector('[data-x=no]').onclick = () => cerrarModal();
+  m.querySelector('[data-x=si]').onclick = () => {
+    const ks = $$('input:checked', m).map(i => i.value);
+    cerrarModal();
+    mutar(e => { const a = e.articulos.find(x => x.id === id); a.tramites = ks; tocar(a); }, { msg: 'Trámites actualizados.' });
+  };
+}
+
+/* ---------- Impresión ---------- */
+function imprimirPlanilla(id) {
+  const ctx = contexto(); const ag = ctx.agIdx.get(id); if (!ag) return;
+  const anio = ui.anio; const cargos = vivos(ag.cargos);
+  const hoy = hoyISO(); const aFecha = anioDe(hoy) === anio ? hoy : `${anio}-12-31`;
+  const res = resumenAgente(ag, anio, `${anio}-12-31`, ctx).filter(r => r.total > 0);
+  const lics = ctx.licencias.filter(l => l.agenteId === ag.id && l.hasta >= `${anio}-01-01` && l.desde <= `${anio}-12-31`).sort((a, b) => a.desde.localeCompare(b.desde));
+  const datos = [['CARGO/CÁTEDRA', cargos.map(c => c.catedra).filter(Boolean).join(' / ')], ['DOMICILIO', ag.domicilio], ['TELÉFONO', ag.telefono], ['EMAIL', ag.email],
+    ['D.N.I', (ag.dni || '') + (ag.cuil ? '   CUIL: ' + ag.cuil : '')], ['LEGAJO PERSONAL', ag.legajoPersonal], ['LEGAJO DE JUNTA', ag.legajoJunta], ['TÍTULO', ag.titulo], ['FECHA DE NACIMIENTO', ag.fechaNac ? fmt(ag.fechaNac) : '']];
+  const filasCargo = cargos.length ? cargos : [{}];
+  const html = `<div class="pr">
+    <table><tr><th class="izq">${REGIMENES[ag.regimen].titulo}: ${esc(nombreAgente(ag))}</th><th>HS</th><th>CURSO y Div</th><th>ID CARGO</th><th>CARÁCTER</th><th>RES./DISP.</th><th>ALTA</th><th>BAJA</th><th>OBSERVACIONES</th></tr>
+      <tr><td rowspan="${Math.max(1, filasCargo.length)}">${datos.map(([k, v]) => `<div><b>${k}:</b> ${esc(v || '')}</div>`).join('')}</td>
+      ${filasCargo.map((c, i) => `${i ? '<tr>' : ''}<td>${esc(c.hs || '')}</td><td>${esc(c.cursoDiv || '')}</td><td>${esc(c.idCargo || '')}</td><td>${esc((c.caracter || '').toUpperCase())}</td><td>${esc(c.resDisp || '')}</td><td>${c.alta ? fmt(c.alta) : ''}</td><td>${c.baja ? fmt(c.baja) : ''}</td><td>${esc(c.obs || '')}</td></tr>`).join('')}
+    </table>
+    <h1 class="der">LICENCIAS ${anio}</h1>
+    ${planillaAnual(ag, anio, ctx, { interactiva: false, imprimir: true })}
+    <div class="salto"></div>
+    <h1>${esc(nombreAgente(ag))} — resumen ${anio}</h1>
+    <table><tr><th>Art.</th><th>Licencia</th><th>Días usados</th><th>Tope anual</th><th>Quedan</th></tr>
+      ${res.map(r => `<tr><td>${esc(r.art.codigo)}</td><td>${esc(artNombre(r.art))}</td><td>${r.total} ${unidadTxt(r.art.unidad, r.total)}</td><td>${r.tope ?? '—'}</td><td>${r.disponibles ?? '—'}</td></tr>`).join('') || '<tr><td colspan="5">Sin licencias</td></tr>'}</table>
+    <br><table><tr><th>Art.</th><th>Desde</th><th>Hasta</th><th>Días</th><th>Trámite</th><th>Observaciones</th></tr>
+      ${lics.map(l => { const art = ctx.arts.get(l.articuloId); const d = diasLicencia(l, art, ctx); const f = tramitesPendientes(l, art); return `<tr><td>${esc(art?.codigo)}</td><td>${fmt(l.desde)}</td><td>${fmt(l.hasta)}</td><td>${d} ${unidadTxt(art?.unidad, d)}</td><td>${(art?.tramites || []).length ? (f.length ? 'Falta: ' + f.map(k => TRAMITES[k]).join(', ') : 'Completo') : '—'}</td><td>${esc(l.obs || '')}</td></tr>`; }).join('') || '<tr><td colspan="6">Sin licencias</td></tr>'}</table>
+    <div class="pie">Días hábiles ausente en ${anio} al ${fmt(aFecha)}: ${diasAusencia(ag.id, `${anio}-01-01`, aFecha, ctx)}. Impreso el ${fmt(hoy)}${estado.meta.institucion ? ' · ' + esc(estado.meta.institucion) : ''}.</div></div>`;
+  $('#print-area').innerHTML = html;
+  setTimeout(() => window.print(), 50);
+}
+function imprimirReporte() {
+  const ctx = contexto(); const d = datosReporte(ctx);
+  $('#print-area').innerHTML = `<div class="pr"><h1>Licencias del ${fmt(ui.rep.desde)} al ${fmt(ui.rep.hasta)}${estado.meta.institucion ? ' — ' + esc(estado.meta.institucion) : ''}</h1>
+    <table><tr><th>Agente</th><th>Régimen</th><th>Licencias</th><th>Días hábiles ausente</th><th>Detalle</th></tr>
+    ${d.porAgente.map(r => `<tr><td>${esc(nombreAgente(r.ag))}</td><td>${REGIMENES[r.ag.regimen].corto}</td><td>${r.n}</td><td>${r.aus}</td><td>${r.det.map(x => `Art. ${esc(x.art.codigo)}: ${x.dias}`).join(' · ')}</td></tr>`).join('')}</table><br>
+    <table><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th>Días en el período</th><th>Trámite</th></tr>
+    ${d.lista.map(x => `<tr><td>${esc(nombreAgente(x.ag))}</td><td>${esc(x.art.codigo)} ${esc(artNombre(x.art))}</td><td>${fmt(x.l.desde)}</td><td>${fmt(x.l.hasta)}</td><td>${x.dias}</td><td>${x.faltan.length ? 'Falta: ' + x.faltan.map(k => TRAMITES[k]).join(', ') : (x.art.tramites?.length ? 'Completo' : '—')}</td></tr>`).join('')}</table>
+    <div class="pie">Impreso el ${fmt(hoyISO())}.</div></div>`;
+  setTimeout(() => window.print(), 50);
+}
+
+/* ---------- Datos de ejemplo ---------- */
+function cargarEjemplo() {
+  const y = anioDe(hoyISO());
+  const t = ahora();
+  const mk = (ap, no, reg, catedra, extra = {}) => sellar({ apellido: ap, nombre: no, regimen: reg, dni: String(20000000 + Math.floor(Math.random() * 15000000)), ejemplo: true,
+    cargos: [sellar({ catedra, hs: reg === '233' ? String(6 + Math.floor(Math.random() * 20)) : '', cursoDiv: reg === '233' ? `${1 + Math.floor(Math.random() * 5)}° ${'ABC'[Math.floor(Math.random() * 3)]}` : '', idCargo: String(100 + Math.floor(Math.random() * 300)), caracter: Math.random() < .5 ? 'Titular' : 'Interino', resDisp: `${Math.floor(Math.random() * 900)}/${y}`, alta: `${y - 3}-03-01`, baja: '', obs: '' })], ...extra });
+  const ags = [
+    mk('Ejemplo Álvarez', 'Lucía', '233', 'Matemática'), mk('Ejemplo Benítez', 'Ramiro', '233', 'Historia'),
+    mk('Ejemplo Castro', 'Marina', '233', 'Biología'), mk('Ejemplo Domínguez', 'Pablo', '233', 'Educación Física'),
+    mk('Ejemplo Funes', 'Carla', '233', 'Lengua y Literatura'), mk('Ejemplo Giménez', 'Héctor', '3487', 'Auxiliar de servicio'),
+    mk('Ejemplo Herrera', 'Silvia', '3487', 'Administrativa'), mk('Ejemplo Ibarra', 'Tomás', '233', 'Ciencias de la Tierra I y II'),
+  ];
+  ags[1].cargos.push(sellar({ catedra: 'Geografía', hs: '8', cursoDiv: '4° B', idCargo: '233', caracter: 'Suplente', resDisp: '', alta: `${y}-03-01`, baja: '', obs: '' }));
+  mutar(e => { e.agentes.push(...ags); }, { redibujar: false });
+  const ctx = contexto();
+  const hoy = hoyISO();
+  const L = (ag, artId, desde, n, tram = true) => {
+    const art = ctx.arts.get(artId); const hasta = calcularHasta(desde, n, art, ctx);
+    const tr = {}; if (tram) (art.tramites || []).forEach(k => { tr[k] = true; });
+    return sellar({ agenteId: ag.id, articuloId: artId, desde, hasta, cargos: [], tramites: tr, obs: '', ejemplo: true });
+  };
+  const lics = [
+    L(ags[0], '233-1', `${y}-03-16`, 3), L(ags[0], '233-1', `${y}-06-08`, 5), L(ags[0], '233-1', `${y}-09-14`, 8), L(ags[0], '233-20', `${y}-05-04`, 1),
+    L(ags[1], '233-13', `${y}-04-13`, 4), L(ags[1], '233-22', `${y}-07-01`, 2), L(ags[1], '233-1', sumarDias(hoy, -2), 4, false),
+    L(ags[2], '233-9', `${y}-08-03`, 180),
+    L(ags[3], '233-18', `${y}-05-18`, 5), L(ags[3], '233-1', `${y}-10-05`, 2),
+    L(ags[4], '233-20', `${y}-03-09`, 2), L(ags[4], '233-20', `${y}-06-15`, 2), L(ags[4], '233-25', sumarDias(hoy, 1), 2, false),
+    L(ags[5], '3487-43', `${y}-04-20`, 2), L(ags[5], '3487-43', `${y}-09-07`, 1), L(ags[5], '3487-32', sumarDias(hoy, -1), 3, false),
+    L(ags[6], '3487-28', `${y}-01-12`, 15), L(ags[6], '3487-42e', `${y}-08-24`, 2),
+    L(ags[7], '233-1', `${y}-04-27`, 1), L(ags[7], '233-1', `${y}-05-26`, 2), L(ags[7], '233-1', `${y}-10-19`, 6),
+  ];
+  const notas = [sellar({ fecha: hoy, texto: 'Reunión de personal a las 10 hs', ejemplo: true }), sellar({ fecha: sumarDias(hoy, 1), texto: 'Pedir certificado a Benítez', ejemplo: true })];
+  mutar(e => { e.licencias.push(...lics); e.notas.push(...notas); }, { msg: 'Datos de ejemplo cargados.' });
+}
+async function borrarEjemplo() {
+  const n = vivos(estado.agentes).filter(a => a.ejemplo).length;
+  const ok = await confirmar({ titulo: 'Borrar datos de ejemplo', html: `<p>Se borran los <b>${plural(n, 'agente')} de ejemplo</b> y sus licencias. Los datos reales no se tocan.</p>`, ok: 'Borrar ejemplos', peligro: true });
+  if (!ok) return;
+  mutar(e => {
+    const ids = new Set(e.agentes.filter(a => a.ejemplo).map(a => a.id));
+    e.agentes = e.agentes.filter(a => !ids.has(a.id));
+    e.licencias = e.licencias.filter(l => !ids.has(l.agenteId));
+    e.notas = (e.notas || []).filter(n => !n.ejemplo);
+  }, { msg: 'Datos de ejemplo borrados.' });
+}
+
+/* =========================================================================
+   6. EVENTOS
+   ========================================================================= */
+const acciones = {
+  'nueva-licencia': el => formLicencia({ agenteId: el.dataset.agente || (ui.vista === 'agente' ? ui.agenteId : '') }),
+  'licencia-desde': el => formLicencia({ agenteId: el.dataset.agente, desde: el.dataset.fecha }),
+  'editar-licencia': el => { if (!modoLectura) formLicencia({ id: el.dataset.id }); },
+  'ir': el => ir(el.dataset.ruta),
+  'respaldo': () => abrirRespaldo(),
+  'nueva-nota': el => abrirNota({ fecha: el.dataset.fecha }),
+  'editar-nota': el => abrirNota({ id: el.dataset.id }),
+  'ver-agente': el => { ir('#agente/' + el.dataset.id); },
+  'nuevo-agente': () => abrirFormAgente(),
+  'editar-agente': el => abrirFormAgente(el.dataset.id),
+  'imprimir-planilla': el => imprimirPlanilla(el.dataset.id),
+  'imprimir-reporte': () => imprimirReporte(),
+  'dia': el => { const n = Number(el.dataset.n); ui.fecha = n === 0 ? hoyISO() : sumarDias(ui.fecha, n); render(); },
+  'anio': el => { ui.anio += Number(el.dataset.n); ui.aFecha = null; render(); },
+  'filtro-reg': el => { ui.filtroReg = el.dataset.v; render(); },
+  'orden': el => { ui.orden = el.dataset.v; $('#lista-agentes').innerHTML = listaAgentes(contexto()); },
+  'rep-preset': el => {
+    const h = hoyISO(), y = anioDe(h), m = Number(h.slice(5, 7)) - 1;
+    if (el.dataset.v === 'mes') { ui.rep.desde = `${y}-${pad(m + 1)}-01`; ui.rep.hasta = `${y}-${pad(m + 1)}-${pad(diasEnMes(y, m))}`; }
+    if (el.dataset.v === 'mes-ant') { const yy = m === 0 ? y - 1 : y, mm = m === 0 ? 11 : m - 1; ui.rep.desde = `${yy}-${pad(mm + 1)}-01`; ui.rep.hasta = `${yy}-${pad(mm + 1)}-${pad(diasEnMes(yy, mm))}`; }
+    if (el.dataset.v === 'anio') { ui.rep.desde = `${y}-01-01`; ui.rep.hasta = `${y}-12-31`; }
+    render();
+  },
+  'csv-agentes': () => {
+    const d = datosReporte(contexto());
+    descargar(`licencias-por-agente-${ui.rep.desde}-al-${ui.rep.hasta}.csv`, csv([['Agente', 'DNI', 'Régimen', 'Licencias', 'Días hábiles ausente', 'Detalle'], ...d.porAgente.map(r => [nombreAgente(r.ag), r.ag.dni || '', REGIMENES[r.ag.regimen].corto, r.n, r.aus, r.det.map(x => `Art. ${x.art.codigo}: ${x.dias}`).join(' | ')])]), 'text/csv;charset=utf-8');
+  },
+  'csv-licencias': () => {
+    const d = datosReporte(contexto());
+    descargar(`licencias-${ui.rep.desde}-al-${ui.rep.hasta}.csv`, csv([['Agente', 'DNI', 'Régimen', 'Artículo', 'Licencia', 'Desde', 'Hasta', 'Días en el período', 'Unidad', 'Trámites pendientes', 'Observaciones'],
+      ...d.lista.map(x => [nombreAgente(x.ag), x.ag.dni || '', REGIMENES[x.ag.regimen].corto, x.art.codigo, artNombre(x.art), fmt(x.l.desde), fmt(x.l.hasta), x.dias, x.art.unidad === 'corridos' ? 'corridos' : 'hábiles', x.faltan.map(k => TRAMITES[k]).join(' | '), x.l.obs || ''])]), 'text/csv;charset=utf-8');
+  },
+  'ajustes-tab': el => { ui.ajustesTab = el.dataset.v; render(); },
+  'cal-anio': el => { ui.calAnio += Number(el.dataset.n); render(); },
+  'cal-borrar': el => { const c = estado.calendario.find(x => x.id === el.dataset.id); mutar(e => { tocar(e.calendario.find(x => x.id === c.id)).borrado = true; }, { msg: `Se quitó ${fmt(c.fecha)}.`, deshacer: () => mutar(e => { tocar(e.calendario.find(x => x.id === c.id)).borrado = false; }) }); },
+  'art-reg': el => { ui.artReg = el.dataset.v; render(); },
+  'art-tramites': el => editarTramitesArticulo(el.dataset.id),
+  'art-nuevo': () => mutar(e => { e.articulos.push(sellar({ regimen: ui.artReg, codigo: 'Nuevo', nombre: 'Nueva licencia', corto: 'Nueva licencia', tiempo: '', reglamentacion: '', grupo: 'personales', capitulo: 'Agregados', unidad: 'habiles', topeAnual: null, topeMensual: null, maxPorLicencia: null, tramites: [], revisar: false })); }, { msg: 'Artículo agregado al final: completá código y nombre.' }),
+  'art-borrar': el => { const a = estado.articulos.find(x => x.id === el.dataset.id); mutar(e => { tocar(e.articulos.find(x => x.id === a.id)).borrado = true; }, { msg: `Se quitó el art. ${a.codigo}.`, deshacer: () => mutar(e => { tocar(e.articulos.find(x => x.id === a.id)).borrado = false; }) }); },
+  'vincular': () => vincularArchivoNuevo(),
+  'abrir-archivo': () => abrirArchivoExistente(),
+  'desvincular': () => desvincularArchivo(),
+  'reconectar': () => reconectarArchivo(true),
+  'conflicto-archivo': () => resolverConflicto('archivo'),
+  'conflicto-mios': async () => { if (await confirmar({ titulo: 'Sobrescribir el archivo', html: '<p>Los cambios que se hicieron en el archivo desde la otra computadora se pierden (quedan sólo en esa compu).</p>', ok: 'Sobrescribir', peligro: true })) resolverConflicto('mios'); },
+  'exportar': () => exportarJSON(),
+  'importar': () => $('#file-import').click(),
+  'restaurar': el => restaurarSnapshot(el.dataset.k),
+  'entrar-consulta': () => entrarConsulta(),
+  'permiso-consulta': () => cargarConsulta(true),
+  'actualizar-consulta': () => { if (Consulta.handle) cargarConsulta(true).then(() => toast('Datos actualizados.')); },
+  'salir-consulta': () => salirConsulta(),
+  'cargar-ejemplo': () => cargarEjemplo(),
+  'borrar-ejemplo': () => borrarEjemplo(),
+  'borrar-todo': async () => {
+    const ok = await confirmar({ titulo: 'Borrar todos los datos', html: `<p>Se borran <b>${plural(vivos(estado.agentes).length, 'agente')}</b> y <b>${plural(vivos(estado.licencias).length, 'licencia')}</b> de este navegador. ${Archivo.estado === 'conectado' ? '<b>También se vacía el archivo vinculado.</b>' : ''}</p><p>Antes se guarda una copia automática.</p>`, ok: 'Borrar todo', peligro: true });
+    if (!ok) return;
+    snapshot('antes-de-borrar-todo-' + Date.now());
+    const meta = estado.meta;
+    estado = estadoInicial(); estado.meta.rev = (meta.rev || 0) + 1; estado.meta.institucion = meta.institucion;
+    guardar(); ir('#inicio'); render(); toast('Datos borrados. La copia quedó en "Copias automáticas".');
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || !document.body.contains(el)) return;
+  if (el.closest('.modal')) return; // los modales manejan sus propios botones
+  const fn = acciones[el.dataset.act];
+  if (fn) { e.preventDefault(); fn(el); }
+});
+const cambios = {
+  'fecha-inicio': el => { if (esISO(el.value)) { ui.fecha = el.value; render(); } },
+  'buscar-agentes': el => { ui.busqueda = el.value; $('#lista-agentes').innerHTML = listaAgentes(contexto()); },
+  'ver-inactivos': el => { ui.verInactivos = el.checked; $('#lista-agentes').innerHTML = listaAgentes(contexto()); },
+  'a-fecha': el => { if (esISO(el.value)) { ui.aFecha = el.value; render(); } },
+  'rep-desde': el => { ui.rep.desde = el.value; render(); },
+  'rep-hasta': el => { ui.rep.hasta = el.value; render(); },
+  'rep-reg': el => { ui.rep.reg = el.value; ui.rep.art = ''; render(); },
+  'rep-art': el => { ui.rep.art = el.value; render(); },
+  'cfg-feriados': el => mutar(e => { e.config.feriadosCuentanHabiles = el.checked; }, { msg: 'Cómputo actualizado.' }),
+  'institucion': el => mutar(e => { e.meta.institucion = el.value.trim(); }, { redibujar: false, msg: 'Guardado.' }),
+  'art-campo': el => {
+    const id = el.closest('tr').dataset.art, k = el.dataset.campo;
+    let v = el.value.trim();
+    if (['topeAnual', 'topeMensual', 'maxPorLicencia'].includes(k)) {
+      v = parseEntero(v);
+      if (Number.isNaN(v)) { el.classList.add('bad'); toast('Escribí un número entero, o dejalo vacío si no tiene tope.'); return; }
+      el.classList.remove('bad');
+    }
+    if ((k === 'codigo' || k === 'nombre' || k === 'corto') && !v) { el.classList.add('bad'); toast('El código y el nombre no pueden quedar vacíos.'); return; }
+    mutar(e => { const a = e.articulos.find(x => x.id === id); a[k] = v; a.revisar = false; tocar(a); }, { redibujar: false, msg: 'Artículo actualizado.' });
+  },
+};
+document.addEventListener('change', e => {
+  const el = e.target.closest('[data-on]');
+  if (!el || el.closest('.modal')) return;
+  if (el.dataset.on === 'buscar-agentes') return;
+  const fn = cambios[el.dataset.on]; if (fn) fn(el);
+});
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-on="buscar-agentes"]');
+  if (el) cambios['buscar-agentes'](el);
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('[data-form="cal-nuevo"]');
+  if (!f) return;
+  e.preventDefault();
+  const fd = new FormData(f);
+  const fecha = fd.get('fecha'), tipo = fd.get('tipo'), desc = String(fd.get('desc') || '').trim();
+  if (!esISO(fecha) || !desc) return toast('Completá fecha y descripción.');
+  const ya = vivos(estado.calendario).find(c => c.fecha === fecha);
+  if (ya) return toast(`El ${fmt(fecha)} ya está cargado: ${ya.desc}.`);
+  mutar(e2 => { e2.calendario.push(sellar({ fecha, tipo, desc })); }, { msg: `Agregado ${fmt(fecha)}.` });
+});
+$('#buscar-global').addEventListener('change', e => {
+  const v = e.target.value.trim(); if (!v) return;
+  const ctx = contexto();
+  let ag = ctx.agentes.find(a => etiquetaAgente(a) === v);
+  if (!ag) { const q = normalizar(v); const c = ctx.agentes.filter(a => normalizar(etiquetaAgente(a)).includes(q)); if (c.length === 1) ag = c[0]; else { ui.busqueda = v; ir('#agentes'); e.target.value = ''; render(); return; } }
+  e.target.value = ''; ir('#agente/' + ag.id);
+});
+$('#buscar-global').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.dispatchEvent(new Event('change')); });
+$('#file-import').addEventListener('change', e => { const f = e.target.files[0]; if (f) importarJSON(f); e.target.value = ''; });
+$('#file-consulta').addEventListener('change', e => { const f = e.target.files[0]; if (f) consultaDesInput(f); e.target.value = ''; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal-root').innerHTML) cerrarModal(); });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== rutaActual) { rutaActual = h; window.scrollTo(0, 0); render(); } });
+window.addEventListener('storage', e => { if (e.key === STORAGE_KEY && !modoLectura && e.newValue) { try { estado = migrar(JSON.parse(e.newValue)); render(); } catch (x) { /* nada */ } } });
+window.addEventListener('beforeprint', () => { if (!$('#print-area').innerHTML && ui.vista === 'agente') imprimirPlanilla(ui.agenteId); });
+window.addEventListener('afterprint', () => { $('#print-area').innerHTML = ''; });
+
+/* =========================================================================
+   7. INIT
+   ========================================================================= */
+async function init() {
+  if (LS.getItem(MODO_KEY) === 'consulta') {
+    modoLectura = true; estado = estadoInicial(); Consulta.estado = 'cargando';
+    try { Consulta.handle = await idbGet('consulta'); } catch (e) { Consulta.handle = null; }
+    if (Consulta.handle) { Consulta.estado = 'requiere-permiso'; render(); await cargarConsulta(false); }
+    else { Consulta.estado = 'error: elegí el archivo de datos compartido.'; render(); }
+    return;
+  }
+  estado = cargarLocal();
+  guardarLocal(); // deja persistida cualquier migración de versión
+  render();
+  if (Archivo.soportado) await reconectarArchivo(false);
+}
+init();
+</script>
+</body>
+</html>
