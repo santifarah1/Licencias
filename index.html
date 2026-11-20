@@ -377,6 +377,8 @@ table.t tfoot td{background:var(--n-25)}
 .chip.warn{background:var(--warn-suave);color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn-linea)}
 /* KPI */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.kpis.tres{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media (max-width:600px){.kpis.tres{grid-template-columns:repeat(2,minmax(0,1fr))!important}.kpis.tres > :last-child{grid-column:1/-1}}
 .kpi{background:#fff;border:1px solid var(--n-200);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:16px;display:grid;gap:6px;align-content:start}
 .kpi-l{display:flex;align-items:center;gap:6px;font-size:var(--t-kpi-l);font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--n-500)}
 .kpi-n{font-size:var(--t-kpi-n);font-weight:700;line-height:1.1;letter-spacing:-.02em}
@@ -1455,9 +1457,6 @@ function vistaInicio(ctx) {
   }).join('');
 
   const anio = anioDe(f);
-  const alertas = alertasTopes(anio, ctx).slice(0, 8).map(a => `<li class="click" data-act="ver-agente" data-id="${a.ag.id}">${artBadge(a.art)}
-      <div class="flex1"><div class="nombre">${esc(nombreAgente(a.ag))}</div><div class="sub">${esc(artNombre(a.art))}</div>${barra(a.total, a.tope)}</div>
-      <div class="num small"><b>${a.total}</b> de ${a.tope}${a.total > a.tope ? '<div><span class="chip err">excedido</span></div>' : ''}</div></li>`).join('');
 
   return `<div class="stack lg">
     <div class="row"><h1 class="cap">${fmtLargo(f)}</h1><span class="spacer"></span>
@@ -1467,10 +1466,9 @@ function vistaInicio(ctx) {
       <button class="btn sm" data-act="dia" data-n="0">Hoy</button></div></div>
     ${avisoEjemplo(ctx)}
     ${fer ? `<div class="msg warn">${ico('info', 'sm')}<span><b>${esc(TIPOS_DIA[fer.tipo])}:</b> ${esc(fer.desc)}</span></div>` : ''}
-    <div class="kpis">
+    <div class="kpis tres">
       ${kpi('calx', 'Con licencia', hoyL.length, 'este día')}
       ${kpi('archivook', 'Trámites pendientes', pend.length, pend.length ? 'licencias sin completar' : 'todo al día', pend.length ? 'warn' : '')}
-      ${kpi('medidor', 'Cerca del tope', alertasTopes(anio, ctx).length, `agentes en ${anio}`)}
       ${kpi('nota', 'Notas del día', notasHoy.length, notasHoy.length ? 'para este día' : 'sin notas')}
     </div>
     <div class="grid2 inicio">
@@ -1484,8 +1482,6 @@ function vistaInicio(ctx) {
       <div class="stack">
         <section class="card"><div class="card-h"><h2>Trámites pendientes</h2><span class="spacer"></span><span class="chip ${pend.length ? 'warn' : 'ok'}">${pend.length}</span></div>
           ${pend.length ? `<ul class="lista">${pendHtml}</ul>${pend.length > 8 ? `<div class="card-b small muted">Y ${pend.length - 8} más: están en Reportes.</div>` : ''}` : '<div class="vacio"><b>Todo al día.</b>Ninguna licencia tiene trámites sin marcar.</div>'}</section>
-        <section class="card"><div class="card-h"><h2>Topes anuales ${anio}</h2><span class="xs muted">75% o más usado</span></div>
-          ${alertas ? `<ul class="lista">${alertas}</ul>` : '<div class="vacio"><b>Sin alertas.</b>Nadie está cerca de un tope.</div>'}</section>
       </div>
     </div>
     <section class="card"><div class="card-h"><h2>Semana del ${fmtC(lun)} al ${fmtC(sumarDias(lun, 4))}</h2><span class="spacer"></span>
