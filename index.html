@@ -455,6 +455,8 @@ table.t td,.semana .ent,.semana .nota,.seg button,.pill,.linkbtn,a,.tram,.opcion
   .lista li.click:hover .nombre,table.t tr.click:hover .nombre{color:var(--azul)}
 }
 /* Título sólo para lectores de pantalla */
+/* Columnas centradas en tablas (reportes, días ausente) */
+table.t th.c,table.t td.c{text-align:center}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Barra superior */
 header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
@@ -1531,13 +1533,13 @@ function listaAgentes(ctx) {
   if (!filas.length) return `<div class="vacio"><b>Ningún agente coincide con la búsqueda.</b>Probá con otro apellido o sacá los filtros.</div>`;
   return `<table class="t cards"><thead><tr>
     <th class="sortable" data-act="orden" data-v="nombre">Agente ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m">Cargos</th>
-    <th class="num sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo</th></tr></thead><tbody>
+    <th class="num c sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo</th></tr></thead><tbody>
     ${filas.map(({ a, det, aus, exced }) => {
       const c = vivos(a.cargos);
       return `<tr class="click" data-act="ver-agente" data-id="${a.id}">
         <td><span class="nombre">${esc(nombreAgente(a))}</span><div class="ag-meta">${regChip(a.regimen)}${a.dni ? `<span>DNI ${esc(Number(a.dni) ? n0(Number(a.dni)) : a.dni)}</span>` : ''}${ausentesHoy.has(a.id) ? '<span class="chip hoy">de licencia hoy</span>' : ''}${exced ? '<span class="chip err">tope excedido</span>' : ''}${a.inactivo ? '<span class="chip">baja</span>' : ''}</div></td>
         <td class="hide-m ag-cargos">${c.length ? c.map(x => `<div>${esc(x.catedra || x.idCargo || '—')}${x.caracter ? ` <span>· ${esc(x.caracter)}</span>` : ''}</div>`).join('') : '<span>—</span>'}</td>
-        <td class="num dias-aus">${aus}</td>
+        <td class="num c dias-aus">${aus}</td>
         <td>${det.length ? `<div class="desglose">${det.map(x => `<span title="${esc(artNombre(x.art) + ': ' + x.n + ' ' + unidadTxt(x.art.unidad, x.n))}">${artBadge(x.art)}${x.n}</span>`).join('')}</div>` : '<span class="muted">—</span>'}</td></tr>`;
     }).join('')}</tbody></table>`;
 }
@@ -1698,14 +1700,14 @@ function vistaReportes(ctx) {
     </div>${valido ? '' : '<p class="err-msg">Revisá las fechas: "desde" tiene que ser anterior a "hasta".</p>'}</div>
     ${datos ? `
     <section class="card"><div class="card-h"><h2>Por agente · ${fmt(desde)} al ${fmt(hasta)}</h2>${datos.clase ? `<span class="chip">${plural(datos.clase, 'día', 'días')} de clase${datos.corteClase < hasta ? ' al ' + fmtC(datos.corteClase) : ''}</span>` : ''}<span class="spacer"></span><button class="btn sm" data-act="csv-agentes">Descargar Excel (CSV)</button><button class="btn sm" data-act="imprimir-reporte">${ico('imprimir', 'sm')}Imprimir</button></div>
-      ${datos.porAgente.length ? `<table class="t"><thead><tr><th>Agente</th><th class="hide-m">Régimen</th><th class="num">Licencias</th><th class="num">Días hábiles ausente</th>${datos.clase ? '<th class="num">Faltó (días de clase)</th><th class="num">Trabajó (días de clase)</th>' : ''}<th>Detalle por artículo</th></tr></thead><tbody>
-        ${datos.porAgente.map(r => `<tr class="click" data-act="ver-agente" data-id="${r.ag.id}"><td class="nombre">${esc(nombreAgente(r.ag))}</td><td class="hide-m">${regChip(r.ag.regimen)}</td><td class="num">${r.n}</td><td class="num"><b>${r.aus}</b></td>${datos.clase ? `<td class="num">${r.faltoClase}</td><td class="num">${r.trabajoClase}</td>` : ''}
+      ${datos.porAgente.length ? `<table class="t"><thead><tr><th>Agente</th><th class="hide-m c">Régimen</th><th class="num c">Licencias</th><th class="num c">Días hábiles ausente</th>${datos.clase ? '<th class="num c">Faltó (días de clase)</th><th class="num c">Trabajó (días de clase)</th>' : ''}<th>Detalle por artículo</th></tr></thead><tbody>
+        ${datos.porAgente.map(r => `<tr class="click" data-act="ver-agente" data-id="${r.ag.id}"><td class="nombre">${esc(nombreAgente(r.ag))}</td><td class="hide-m c">${regChip(r.ag.regimen)}</td><td class="num c">${r.n}</td><td class="num c"><b>${r.aus}</b></td>${datos.clase ? `<td class="num c">${r.faltoClase}</td><td class="num c">${r.trabajoClase}</td>` : ''}
           <td>${r.det.map(d => `${artBadge(d.art)} <span class="num small">${d.dias}</span>`).join(' &nbsp;')}</td></tr>`).join('')}
-        </tbody><tfoot><tr><td>Total</td><td class="hide-m"></td><td class="num">${datos.porAgente.reduce((s, r) => s + r.n, 0)}</td><td class="num">${datos.porAgente.reduce((s, r) => s + r.aus, 0)}</td>${datos.clase ? `<td class="num">${datos.porAgente.reduce((s, r) => s + r.faltoClase, 0)}</td><td></td>` : ''}<td></td></tr></tfoot></table>`
+        </tbody><tfoot><tr><td>Total</td><td class="hide-m"></td><td class="num c">${datos.porAgente.reduce((s, r) => s + r.n, 0)}</td><td class="num c">${datos.porAgente.reduce((s, r) => s + r.aus, 0)}</td>${datos.clase ? `<td class="num c">${datos.porAgente.reduce((s, r) => s + r.faltoClase, 0)}</td><td></td>` : ''}<td></td></tr></tfoot></table>`
         : '<div class="vacio"><b>No hay licencias en el período.</b>Cambiá las fechas o los filtros.</div>'}</section>
     <section class="card"><div class="card-h"><h2>Listado de licencias</h2><span class="chip">${datos.lista.length}</span><span class="spacer"></span><button class="btn sm" data-act="csv-licencias">Descargar Excel (CSV)</button></div>
-      ${datos.lista.length ? `<table class="t cards"><thead><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días en el período</th><th>Trámite</th></tr></thead><tbody>
-        ${datos.lista.map(x => `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${x.l.id}"`}><td class="nombre">${esc(nombreAgente(x.ag))}</td><td>${artBadge(x.art)}</td><td>${fmt(x.l.desde)}</td><td>${fmt(x.l.hasta)}</td><td class="num">${x.dias} <span class="small muted">${x.art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
+      ${datos.lista.length ? `<table class="t cards"><thead><tr><th>Agente</th><th class="c">Art.</th><th class="c">Desde</th><th class="c">Hasta</th><th class="num c">Días en el período</th><th>Trámite</th></tr></thead><tbody>
+        ${datos.lista.map(x => `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${x.l.id}"`}><td class="nombre">${esc(nombreAgente(x.ag))}</td><td class="c">${artBadge(x.art)}</td><td class="c">${fmt(x.l.desde)}</td><td class="c">${fmt(x.l.hasta)}</td><td class="num c">${x.dias} <span class="small muted">${x.art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
           <td>${x.art?.tramites?.length ? cuadritosTramite(x.l, x.art) : '—'}</td></tr>`).join('')}
         </tbody></table>` : '<div class="vacio"><b>Sin licencias en el período.</b></div>'}</section>` : ''}
   </div>`;
