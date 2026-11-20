@@ -903,6 +903,27 @@ function diasAusencia(agenteId, desde, hasta, ctx) {
   }
   return set.size;
 }
+/* Ciclo lectivo: inicio y fin de clases por año (Ajustes → Calendario) */
+function cicloDe(anio, ctx) {
+  const c = (ctx.cfg.ciclos || {})[anio];
+  return c && esISO(c.inicio) && esISO(c.fin) && c.inicio <= c.fin ? c : null;
+}
+function esDiaClase(iso, ctx) { const c = cicloDe(anioDe(iso), ctx); return !!c && iso >= c.inicio && iso <= c.fin && esHabil(iso, ctx); }
+function diasClase(desde, hasta, ctx) {
+  let n = 0;
+  for (let d = desde; d <= hasta; d = sumarDias(d, 1)) if (esDiaClase(d, ctx)) n++;
+  return n;
+}
+/* Días de clase distintos en que el agente estuvo de licencia (cualquier artículo) */
+function faltasClase(agenteId, desde, hasta, ctx) {
+  const set = new Set();
+  for (const l of ctx.licencias) {
+    if (l.agenteId !== agenteId || l.hasta < desde || l.desde > hasta) continue;
+    const a = l.desde < desde ? desde : l.desde, b = l.hasta > hasta ? hasta : l.hasta;
+    for (let d = a; d <= b; d = sumarDias(d, 1)) if (esDiaClase(d, ctx)) set.add(d);
+  }
+  return set.size;
+}
 function resumenAgente(ag, anio, aFecha, ctx) {
   const filas = [];
   for (const art of ctx.arts.values()) {
@@ -1311,6 +1332,7 @@ function vistaFicha(ctx) {
       <section class="card"><div class="card-h"><h2>Resumen ${anio}</h2></div>
         <div class="card-b stack">
           <div class="row"><span class="big">${ausAnio}</span><span class="muted">${ausAnio === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.length, 'licencia')}${ausProg ? `<br><span class="xs">${ausHasta} al ${fmtC(aFecha)} + ${ausProg} ${ausProg === 1 ? 'programado' : 'programados'}</span>` : ''}</span></div>
+          ${bloqueCiclo(ag, anio, aFecha, ctx)}
           ${usados.length ? `<table class="t"><thead><tr><th>Art.</th><th>Licencia</th><th class="num">Usados</th><th class="num">Tope</th><th class="num">Quedan</th><th></th></tr></thead><tbody>
           ${usados.map(r => `<tr><td>${artBadge(r.art)}</td><td class="small" title="${esc(r.art.nombre)}"><b>${esc(artNombre(r.art))}</b><div class="muted">${unidadTxt(r.art.unidad, 2)}${r.art.topeMensual ? ' · máx. ' + r.art.topeMensual + ' por mes' : ''}</div></td>
             <td class="num"><b>${r.totalAnio}</b>${r.programados ? `<div class="xs muted" title="Cargados con fecha posterior al ${fmt(aFecha)}">incluye ${r.programados} ${r.programados === 1 ? 'programado' : 'programados'}</div>` : ''}</td><td class="num">${r.tope ?? '—'}</td>
@@ -1343,6 +1365,18 @@ function vistaFicha(ctx) {
           <td class="small hide-m">${esc(l.obs || '')}</td><td class="hide-m">${modoLectura ? '' : `<span class="muted">${ico('lapiz', 'sm')}</span>`}</td></tr>`; }).join('')}
       </tbody></table>` : `<div class="vacio"><b>Sin licencias en ${anio}.</b></div>`}</section>
   </div>`;
+}
+function bloqueCiclo(ag, anio, aFecha, ctx) {
+  const c = cicloDe(anio, ctx);
+  if (!c) return `<p class="xs muted">${ico('info', 'sm')}Cargá el inicio y fin de clases de ${anio} en Ajustes → Calendario para ver los días de clase trabajados.</p>`;
+  const total = diasClase(c.inicio, c.fin, ctx);
+  const corte = aFecha < c.fin ? aFecha : c.fin;
+  const van = corte < c.inicio ? 0 : diasClase(c.inicio, corte, ctx);
+  const falto = corte < c.inicio ? 0 : faltasClase(ag.id, c.inicio, corte, ctx);
+  const prog = faltasClase(ag.id, c.inicio, c.fin, ctx) - falto;
+  const termino = corte === c.fin;
+  return `<div class="small"><div class="lbl">Ciclo lectivo ${anio}: del ${fmtC(c.inicio)} al ${fmtC(c.fin)} · <b>${plural(total, 'día', 'días')} de clase</b></div>
+    <div>${termino ? 'En el ciclo' : `Al ${fmtC(corte)} van <b>${van}</b> días de clase:`} trabajó <b>${van - falto}</b> y faltó <b>${falto}</b>${van ? ` (${Math.round(falto * 100 / van)}%)` : ''}.${prog ? ` <span class="muted">Tiene ${prog} más programado${prog === 1 ? '' : 's'}.</span>` : ''}</div></div>`;
 }
 function leyenda(ag, lics, ctx) {
   const grupos = [...new Set(lics.map(l => ctx.arts.get(l.articuloId)?.grupo).filter(Boolean))];
@@ -1413,11 +1447,11 @@ function vistaReportes(ctx) {
       <label class="f">Artículo<select class="in" data-on="rep-art"><option value="">Todos</option>${artsReg.map(a => `<option value="${a.id}" ${art === a.id ? 'selected' : ''}>${REGIMENES[a.regimen].corto} · ${esc(a.codigo)} ${esc(artNombre(a))}</option>`).join('')}</select></label>
     </div>${valido ? '' : '<p class="err-msg">Revisá las fechas: "desde" tiene que ser anterior a "hasta".</p>'}</div>
     ${datos ? `
-    <section class="card"><div class="card-h"><h2>Por agente · ${fmt(desde)} al ${fmt(hasta)}</h2><span class="spacer"></span><button class="btn sm" data-act="csv-agentes">Descargar Excel (CSV)</button><button class="btn sm" data-act="imprimir-reporte">${ico('imprimir', 'sm')}Imprimir</button></div>
-      ${datos.porAgente.length ? `<table class="t"><thead><tr><th>Agente</th><th class="hide-m">Régimen</th><th class="num">Licencias</th><th class="num">Días hábiles ausente</th><th>Detalle por artículo</th></tr></thead><tbody>
-        ${datos.porAgente.map(r => `<tr class="click" data-act="ver-agente" data-id="${r.ag.id}"><td class="nombre">${esc(nombreAgente(r.ag))}</td><td class="hide-m">${regChip(r.ag.regimen)}</td><td class="num">${r.n}</td><td class="num"><b>${r.aus}</b></td>
+    <section class="card"><div class="card-h"><h2>Por agente · ${fmt(desde)} al ${fmt(hasta)}</h2>${datos.clase ? `<span class="chip">${plural(datos.clase, 'día', 'días')} de clase${datos.corteClase < hasta ? ' al ' + fmtC(datos.corteClase) : ''}</span>` : ''}<span class="spacer"></span><button class="btn sm" data-act="csv-agentes">Descargar Excel (CSV)</button><button class="btn sm" data-act="imprimir-reporte">${ico('imprimir', 'sm')}Imprimir</button></div>
+      ${datos.porAgente.length ? `<table class="t"><thead><tr><th>Agente</th><th class="hide-m">Régimen</th><th class="num">Licencias</th><th class="num">Días hábiles ausente</th>${datos.clase ? '<th class="num">Faltó (días de clase)</th><th class="num">Trabajó (días de clase)</th>' : ''}<th>Detalle por artículo</th></tr></thead><tbody>
+        ${datos.porAgente.map(r => `<tr class="click" data-act="ver-agente" data-id="${r.ag.id}"><td class="nombre">${esc(nombreAgente(r.ag))}</td><td class="hide-m">${regChip(r.ag.regimen)}</td><td class="num">${r.n}</td><td class="num"><b>${r.aus}</b></td>${datos.clase ? `<td class="num">${r.faltoClase}</td><td class="num">${r.trabajoClase}</td>` : ''}
           <td>${r.det.map(d => `${artBadge(d.art)} <span class="num small">${d.dias}</span>`).join(' &nbsp;')}</td></tr>`).join('')}
-        </tbody><tfoot><tr><td>Total</td><td class="hide-m"></td><td class="num">${datos.porAgente.reduce((s, r) => s + r.n, 0)}</td><td class="num">${datos.porAgente.reduce((s, r) => s + r.aus, 0)}</td><td></td></tr></tfoot></table>`
+        </tbody><tfoot><tr><td>Total</td><td class="hide-m"></td><td class="num">${datos.porAgente.reduce((s, r) => s + r.n, 0)}</td><td class="num">${datos.porAgente.reduce((s, r) => s + r.aus, 0)}</td>${datos.clase ? `<td class="num">${datos.porAgente.reduce((s, r) => s + r.faltoClase, 0)}</td><td></td>` : ''}<td></td></tr></tfoot></table>`
         : '<div class="vacio"><b>No hay licencias en el período.</b>Cambiá las fechas o los filtros.</div>'}</section>
     <section class="card"><div class="card-h"><h2>Listado de licencias</h2><span class="chip">${datos.lista.length}</span><span class="spacer"></span><button class="btn sm" data-act="csv-licencias">Descargar Excel (CSV)</button></div>
       ${datos.lista.length ? `<table class="t cards"><thead><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días en el período</th><th>Trámite</th></tr></thead><tbody>
@@ -1440,7 +1474,12 @@ function datosReporte(ctx) {
   }
   const porAgente = [...m.values()].map(r => ({ ...r, det: [...r.det.values()].sort((a, b) => ordenArt(a.art, b.art)), aus: art ? r.det.get(art)?.dias || 0 : diasAusencia(r.ag.id, desde, hasta, ctx) }))
     .sort((a, b) => nombreAgente(a.ag).localeCompare(nombreAgente(b.ag), 'es'));
-  return { lista, porAgente };
+  // Días de clase del período (sólo si hay ciclo lectivo cargado) y asistencia de cada agente
+  // (hasta hoy como máximo: los días que todavía no pasaron no cuentan como trabajados)
+  const hoy = hoyISO(), corteClase = hasta < hoy ? hasta : hoy;
+  const clase = corteClase >= desde ? diasClase(desde, corteClase, ctx) : 0;
+  if (clase && !art) porAgente.forEach(r => { r.faltoClase = faltasClase(r.ag.id, desde, corteClase, ctx); r.trabajoClase = clase - r.faltoClase; });
+  return { lista, porAgente, clase: art ? 0 : clase, corteClase };
 }
 function csv(filas) {
   const q = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -1494,6 +1533,7 @@ function ajustesCalendario(ctx) {
       <label class="check"><input type="checkbox" data-on="cfg-feriados" ${estado.config.feriadosCuentanHabiles ? 'checked' : ''} ${modoLectura ? 'disabled' : ''}>
         <span>Contar feriados, asuetos y días no laborables como días hábiles<br><span class="small muted">Desmarcado (recomendado): los días hábiles son de lunes a viernes sin contar estos días.</span></span></label>
     </div>
+    ${cardCiclo(y)}
     <section class="card"><div class="card-h"><h2>Calendario ${y}</h2><button class="iconbtn" data-act="cal-anio" data-n="-1">${ico('izq')}</button><button class="iconbtn" data-act="cal-anio" data-n="1">${ico('der')}</button><span class="spacer"></span><span class="small muted">${plural(dias.length, 'día')}</span></div>
       ${modoLectura ? '' : `<div class="card-b"><form class="row" data-form="cal-nuevo">
         <input type="date" class="in w-auto" name="fecha" required min="${y}-01-01" max="${y}-12-31">
@@ -1504,6 +1544,20 @@ function ajustesCalendario(ctx) {
         ${dias.map(c => `<tr><td class="num">${fmt(c.fecha)}</td><td>${DIAS[dow(c.fecha)]}</td><td><span class="chip ${c.tipo === 'A' ? 'warn' : 'err'}">${TIPOS_DIA[c.tipo]}</span></td><td>${esc(c.desc)}</td>
           <td>${modoLectura ? '' : `<button class="btn sm danger" data-act="cal-borrar" data-id="${c.id}">Quitar</button>`}</td></tr>`).join('')}</tbody></table>`
         : `<div class="vacio"><b>No hay feriados cargados para ${y}.</b>Agregalos arriba para que no se cuenten como días hábiles.</div>`}</section></div>`;
+}
+function cardCiclo(y) {
+  const ctx = contexto();
+  const c = (estado.config.ciclos || {})[y] || {};
+  const ok = cicloDe(y, ctx);
+  const dis = modoLectura ? 'disabled' : '';
+  return `<section class="card"><div class="card-h"><h2>Ciclo lectivo ${y}</h2></div><div class="card-b stack">
+    <div class="row">
+      <label class="row small"><span class="muted">Inicio de clases</span><input type="date" class="in w-auto" value="${esc(c.inicio || '')}" min="${y}-01-01" max="${y}-12-31" data-on="ciclo" data-anio="${y}" data-campo="inicio" ${dis}></label>
+      <label class="row small"><span class="muted">Fin de clases</span><input type="date" class="in w-auto" value="${esc(c.fin || '')}" min="${y}-01-01" max="${y}-12-31" data-on="ciclo" data-anio="${y}" data-campo="fin" ${dis}></label>
+    </div>
+    ${ok ? `<p class="small">Hay <b>${plural(diasClase(ok.inicio, ok.fin, ctx), 'día', 'días')} hábiles de clase</b> (de lunes a viernes, sin los feriados, asuetos y días no laborables de abajo).</p>`
+      : (c.inicio && c.fin ? '<p class="err-msg">El inicio tiene que ser anterior al fin de clases.</p>' : '<p class="small muted">Con estas fechas, la ficha de cada agente y los reportes muestran cuántos días de clase hubo, cuántos trabajó y cuántos faltó.</p>')}
+  </div></section>`;
 }
 function ajustesArticulos(ctx) {
   const r = ui.artReg;
@@ -1920,8 +1974,9 @@ function imprimirPlanilla(id) {
 function imprimirReporte() {
   const ctx = contexto(); const d = datosReporte(ctx);
   $('#print-area').innerHTML = `<div class="pr"><h1>Licencias del ${fmt(ui.rep.desde)} al ${fmt(ui.rep.hasta)}${estado.meta.institucion ? ' — ' + esc(estado.meta.institucion) : ''}</h1>
-    <table><tr><th>Agente</th><th>Régimen</th><th>Licencias</th><th>Días hábiles ausente</th><th>Detalle</th></tr>
-    ${d.porAgente.map(r => `<tr><td>${esc(nombreAgente(r.ag))}</td><td>${REGIMENES[r.ag.regimen].corto}</td><td>${r.n}</td><td>${r.aus}</td><td>${r.det.map(x => `Art. ${esc(x.art.codigo)}: ${x.dias}`).join(' · ')}</td></tr>`).join('')}</table><br>
+    ${d.clase ? `<p>Días de clase en el período: ${d.clase}</p>` : ''}
+    <table><tr><th>Agente</th><th>Régimen</th><th>Licencias</th><th>Días hábiles ausente</th>${d.clase ? '<th>Faltó (días de clase)</th><th>Trabajó (días de clase)</th>' : ''}<th>Detalle</th></tr>
+    ${d.porAgente.map(r => `<tr><td>${esc(nombreAgente(r.ag))}</td><td>${REGIMENES[r.ag.regimen].corto}</td><td>${r.n}</td><td>${r.aus}</td>${d.clase ? `<td>${r.faltoClase}</td><td>${r.trabajoClase}</td>` : ''}<td>${r.det.map(x => `Art. ${esc(x.art.codigo)}: ${x.dias}`).join(' · ')}</td></tr>`).join('')}</table><br>
     <table><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th>Días en el período</th><th>Trámite</th></tr>
     ${d.lista.map(x => `<tr><td>${esc(nombreAgente(x.ag))}</td><td>${esc(x.art.codigo)} ${esc(artNombre(x.art))}</td><td>${fmt(x.l.desde)}</td><td>${fmt(x.l.hasta)}</td><td>${x.dias}</td><td>${x.faltan.length ? 'Falta: ' + x.faltan.map(k => tramLabel(k)).join(', ') : (x.art.tramites?.length ? 'Completo' : '—')}</td></tr>`).join('')}</table>
     <div class="pie">Impreso el ${fmt(hoyISO())}.</div></div>`;
@@ -2007,7 +2062,7 @@ const acciones = {
   },
   'csv-agentes': () => {
     const d = datosReporte(contexto());
-    descargar(`licencias-por-agente-${ui.rep.desde}-al-${ui.rep.hasta}.csv`, csv([['Agente', 'DNI', 'Régimen', 'Licencias', 'Días hábiles ausente', 'Detalle'], ...d.porAgente.map(r => [nombreAgente(r.ag), r.ag.dni || '', REGIMENES[r.ag.regimen].corto, r.n, r.aus, r.det.map(x => `Art. ${x.art.codigo}: ${x.dias}`).join(' | ')])]), 'text/csv;charset=utf-8');
+    descargar(`licencias-por-agente-${ui.rep.desde}-al-${ui.rep.hasta}.csv`, csv([['Agente', 'DNI', 'Régimen', 'Licencias', 'Días hábiles ausente', ...(d.clase ? [`Faltó (de ${d.clase} días de clase)`, 'Trabajó (días de clase)'] : []), 'Detalle'], ...d.porAgente.map(r => [nombreAgente(r.ag), r.ag.dni || '', REGIMENES[r.ag.regimen].corto, r.n, r.aus, ...(d.clase ? [r.faltoClase, r.trabajoClase] : []), r.det.map(x => `Art. ${x.art.codigo}: ${x.dias}`).join(' | ')])]), 'text/csv;charset=utf-8');
   },
   'csv-licencias': () => {
     const d = datosReporte(contexto());
@@ -2061,6 +2116,10 @@ const cambios = {
   'rep-hasta': el => { ui.rep.hasta = el.value; render(); },
   'rep-reg': el => { ui.rep.reg = el.value; ui.rep.art = ''; render(); },
   'rep-art': el => { ui.rep.art = el.value; render(); },
+  'ciclo': el => {
+    const y = el.dataset.anio, k = el.dataset.campo, v = esISO(el.value) ? el.value : null;
+    mutar(e => { e.config.ciclos = { ...(e.config.ciclos || {}) }; e.config.ciclos[y] = { ...(e.config.ciclos[y] || {}), [k]: v }; }, { msg: 'Ciclo lectivo actualizado.' });
+  },
   'cfg-feriados': el => mutar(e => { e.config.feriadosCuentanHabiles = el.checked; }, { msg: 'Cómputo actualizado.' }),
   'institucion': el => mutar(e => { e.meta.institucion = el.value.trim(); }, { redibujar: false, msg: 'Guardado.' }),
   'art-campo': el => {
