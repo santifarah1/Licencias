@@ -301,6 +301,202 @@ td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
   .span2{grid-column:auto}
   .big{font-size:var(--t-xl)}
 }
+
+/* ============ 7. Tema visual estilo shadcn/ui ============ */
+:root{
+  /* Paleta */
+  --n-50:hsl(45 20% 96%); --n-25:hsl(45 20% 98%); --n-100:hsl(42 14% 90%);
+  --n-200:hsl(42 14% 84%); --n-300:hsl(42 12% 76%);
+  --n-500:hsl(215 8% 38%); --n-700:hsl(216 9% 24%); --n-900:hsl(216 10% 10%);
+  --azul:hsl(210 65% 38%); --azul-h:hsl(210 65% 30%); --azul-suave:hsl(210 65% 38% / .10);
+  --acento:hsl(96 73% 29%); --acento-h:hsl(96 73% 23%);
+  --hoy-fondo:hsl(96 73% 29% / .05); --hecho-fondo:hsl(96 73% 29% / .15); --hecho-tinta:hsl(96 73% 22%);
+  --marca-verde:hsl(89 69% 36%); --marca-azul:hsl(211 65% 51%);
+  --err:hsl(8 85% 35%); --err-suave:hsl(8 85% 35% / .08); --err-linea:hsl(8 85% 35% / .30);
+  --warn:#78350f; --warn-suave:#fffbeb; --warn-linea:#fcd34d;
+  --gris-suave:hsl(42 14% 92%); --fila-hover:hsl(45 20% 97%); --computo-fondo:hsl(42 14% 92% / .4);
+  --top-fondo:#fff; --top-borde:var(--n-200); --top-campo:#fff; --top-activo:var(--azul-suave);
+  /* Formas */
+  --r-sm:4px; --r-md:8px; --r-lg:8px; --r-nav:6px;
+  --sh-1:0 1px 2px rgba(0,0,0,.05); --sh-seg:0 1px 2px rgba(0,0,0,.08);
+  --sh-3:0 10px 38px -10px rgba(0,0,0,.25),0 10px 20px -15px rgba(0,0,0,.2);
+  /* Medidas */
+  --alto-ctl:36px; --lateral:232px; --contenido:1180px; --gutter:32px; --fila:48px;
+  --t-titulo:24px; --t-card:16px; --t-kpi-l:12px; --t-kpi-n:30px; --t-modal:18px;
+  --dur:150ms;
+}
+html{font-size:15px}
+h1{font-size:var(--t-titulo);letter-spacing:-.01em}
+h1::first-letter{text-transform:uppercase}
+.card-h h2,.card-h h3{font-size:var(--t-card);font-weight:600}
+.num,td.num,th.num,.big,.kpi-n{font-variant-numeric:tabular-nums}
+.ico{width:16px;height:16px;vertical-align:-3px}
+/* Tarjetas */
+.card{border:1px solid var(--n-200);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.card-h{border-bottom-color:var(--n-200)}
+/* Botones */
+.btn{min-height:var(--alto-ctl);height:var(--alto-ctl);padding:0 16px;gap:8px;font-size:14px;font-weight:600;border-radius:var(--r-md);border-color:var(--n-200);background:#fff;transition:background-color var(--dur) ease,border-color var(--dur) ease,color var(--dur) ease,transform var(--dur) ease}
+.btn:active:not(:disabled),.iconbtn:active{transform:scale(.97)}
+.btn.primary{background:var(--azul);border-color:var(--azul)}
+.btn.accent{background:var(--acento);border-color:var(--acento);font-weight:600}
+.btn.danger{color:var(--err);border-color:var(--err-linea)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.sm{min-height:30px;height:30px;padding:0 12px;font-size:13px}
+.iconbtn{width:var(--alto-ctl);height:var(--alto-ctl);border-radius:var(--r-md);transition:background-color var(--dur) ease,transform var(--dur) ease}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--gris-suave);border-color:var(--n-200)}
+  .btn.primary:hover{background:var(--azul-h);border-color:var(--azul-h)}
+  .btn.accent:hover{background:var(--acento-h);border-color:var(--acento-h)}
+  .btn.ghost:hover,.iconbtn:hover{background:var(--gris-suave)}
+  .btn.danger:hover{background:var(--err-suave)}
+  table.t tr.click:hover td,.lista li.click:hover,.semana .ent:hover,.semana .nota:hover{background:var(--fila-hover)}
+  table.planilla td.d:hover{box-shadow:inset 0 0 0 2px var(--azul)}
+  nav.tabs a:hover{background:var(--gris-suave);color:var(--n-900)}
+}
+/* Campos */
+input.in,select.in,textarea.in{min-height:var(--alto-ctl);border-color:var(--n-300);border-radius:var(--r-md);padding:0 12px;font-size:14px;transition:border-color var(--dur) ease,box-shadow var(--dur) ease}
+textarea.in{padding:8px 12px}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--azul);outline:0;box-shadow:0 0 0 1px var(--azul)}
+.top-tools input:focus{outline:0;border-color:var(--azul);box-shadow:0 0 0 1px var(--azul)}
+.seg{border-radius:var(--r-md);border-color:var(--n-200)}
+/* Badges y chips */
+.art{border-radius:var(--r-sm)}
+.chip{border-radius:999px}
+/* Listas y tablas */
+.lista li{min-height:var(--fila);border-bottom:0;border-top:1px solid var(--n-200);transition:background-color var(--dur) ease}
+.lista li:first-child{border-top:0}
+table.t th{font-size:12px;text-transform:none;letter-spacing:0;font-weight:500;color:var(--n-500);background:transparent;border-bottom:1px solid var(--n-200);height:40px}
+table.t td{height:var(--fila);border-bottom:0;border-top:1px solid var(--n-200)}
+table.t tbody tr:first-child td{border-top:0}
+table.t tfoot td{background:var(--n-25)}
+/* Avisos */
+.msg{border:1px solid transparent;padding:8px 12px}
+.msg.warn{background:var(--warn-suave);color:var(--warn);border-color:var(--warn-linea)}
+.msg.err{background:var(--err-suave);color:var(--err);border-color:var(--err-linea)}
+.banner.warn{background:var(--warn-suave);border-color:var(--warn-linea);color:var(--warn)}
+.chip.warn{background:var(--warn-suave);color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn-linea)}
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--n-200);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:16px;display:grid;gap:6px;align-content:start}
+.kpi-l{display:flex;align-items:center;gap:6px;font-size:var(--t-kpi-l);font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--n-500)}
+.kpi-n{font-size:var(--t-kpi-n);font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.kpi-s{font-size:12px;color:var(--n-500)}
+.grid2.inicio{grid-template-columns:1.25fr 1fr}
+/* Trámites: SOL / SAG / UG */
+.trams{display:inline-flex;gap:4px;vertical-align:middle}
+.tram{width:24px;height:24px;border-radius:var(--r-sm);display:inline-grid;place-items:center;font-size:8.5px;font-weight:700;letter-spacing:.02em;background:var(--gris-suave);color:var(--n-500)}
+.tram.ok{background:var(--hecho-fondo);color:var(--hecho-tinta)}
+.tram .ico{width:14px;height:14px;vertical-align:0}
+/* Pestañas segmentadas */
+.segtabs{display:inline-flex;gap:2px;padding:3px;background:var(--gris-suave);border-radius:var(--r-md);flex-wrap:wrap}
+.segtabs button{border:0;background:transparent;border-radius:6px;padding:0 12px;height:30px;font-size:14px;font-weight:500;color:var(--n-500);cursor:pointer;transition:background-color var(--dur) ease,color var(--dur) ease}
+.segtabs button[aria-selected=true]{background:#fff;color:var(--n-900);box-shadow:var(--sh-seg)}
+[data-tab][hidden]{display:none!important}
+/* Semana */
+.semana .dia{border-right-color:var(--n-200)}
+.semana .dia.hoy{background:var(--hoy-fondo);box-shadow:inset 0 2px 0 var(--acento)}
+/* Planilla */
+table.planilla th,table.planilla td{border-color:var(--n-200);height:32px}
+table.planilla td.hoy{box-shadow:inset 0 0 0 2px var(--acento)}
+.planilla-info{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--n-200);min-height:44px;font-size:13px}
+.planilla-info .det{flex:1;min-width:220px;color:var(--n-700)}
+.planilla-info .det:empty::before{content:"Pasá el mouse por un día para ver el detalle.";color:var(--n-500)}
+/* Modal */
+.modal{max-width:672px;border-radius:12px;border:1px solid var(--n-200);animation:entrar var(--dur) ease-out}
+.modal-bg{animation:fade var(--dur) ease-out}
+.modal-h{align-items:flex-start;border-bottom-color:var(--n-200)}
+.modal-h h2{font-size:var(--t-modal);font-weight:600}
+.modal-sub{font-size:13px;color:var(--n-500);font-weight:400;margin-top:4px}
+.modal-f{background:#fff;border-top-color:var(--n-200)}
+.resumen-lic{background:var(--computo-fondo);border-color:var(--n-200)}
+.computo b{font-size:20px;font-weight:700}
+@keyframes entrar{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+/* Detalles (badges, chips, KPI, buscador, combobox) */
+.art{min-width:52px;padding:3px 10px;border-radius:6px;font-size:13px;font-weight:600}
+.chip.doc,.chip.psa{background:#fff;box-shadow:none;border:1px solid var(--n-300);border-radius:6px;color:var(--n-900);font-weight:500;font-size:13px;padding:2px 10px}
+.chip.hoy{background:var(--warn-suave);color:var(--warn);border-radius:6px;font-weight:500;box-shadow:none}
+.kpi.warn{border-color:var(--warn-linea)}
+.kpi-n .kpi-s{font-size:14px;font-weight:500}
+.nombre{font-size:16px}
+.lista li{padding:12px 24px}
+.card-h{padding:16px 24px;min-height:60px}
+.card-h h2{font-size:17px}
+.buscar{position:relative;flex:0 1 480px;min-width:220px}
+.buscar .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--n-500);pointer-events:none}
+.buscar input.in{padding-left:38px;height:44px;font-size:15px}
+.seg{border:0;background:var(--gris-suave);padding:4px;border-radius:var(--r-md);gap:2px}
+.seg button{border-radius:6px;min-height:36px;padding:0 14px;color:var(--n-500);font-weight:500;font-size:15px}
+.seg button[aria-pressed=true]{background:#fff;color:var(--n-900);box-shadow:var(--sh-seg)}
+.ag-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:14px;color:var(--n-500)}
+.ag-cargos{font-size:15px;line-height:1.45}
+.ag-cargos span{color:var(--n-500)}
+td.dias-aus{font-size:20px;font-weight:700}
+/* Combobox de agentes (reemplaza la lista nativa del navegador) */
+.combo-in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23585e67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px!important}
+.combo-pop{position:fixed;z-index:70;background:#fff;border:1px solid var(--n-200);border-radius:var(--r-md);box-shadow:var(--sh-3);padding:4px;max-height:320px;overflow:auto;animation:fade var(--dur) ease-out}
+.combo-pop .op{display:flex;align-items:center;gap:12px;padding:0 12px;height:40px;border-radius:6px;cursor:pointer;font-size:15px}
+.combo-pop .op small{margin-left:auto;color:var(--n-500);font-size:13px}
+.combo-pop .op.on{background:var(--acento);color:#fff}
+.combo-pop .op.on small{color:rgba(255,255,255,.75)}
+.combo-pop .vacio-op{padding:12px;color:var(--n-500);font-size:14px}
+/* Barra superior */
+header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
+.top-in{max-width:var(--contenido);padding:0 var(--gutter);min-height:68px;gap:24px;flex-wrap:nowrap}
+.brand{gap:14px}
+.brand-sep{background:var(--n-200);height:36px}
+.brand-tit{font-size:16px;font-weight:600;line-height:1.25}
+.brand-tit small{font-size:14px;font-weight:400;color:var(--n-500)}
+nav.tabs{gap:4px}
+nav.tabs a{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border-radius:var(--r-md);font-size:16px;font-weight:500;color:var(--n-700);transition:background-color var(--dur) ease,color var(--dur) ease}
+nav.tabs a[aria-current=page]{background:var(--azul-suave);color:var(--azul)}
+nav.tabs a[aria-current=page]::after{display:none}
+nav.tabs a .ico{width:18px;height:18px}
+.top-tools{gap:10px}
+.top-tools input{width:190px;min-height:40px;border-radius:var(--r-md);background:#fff}
+#btn-nueva{height:44px;min-height:44px;padding:0 20px;font-size:16px}
+#btn-nueva .ico{width:18px;height:18px}
+.pill{border-radius:var(--r-md);min-height:36px}
+main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
+.banners{max-width:var(--contenido);padding:16px var(--gutter) 0}
+.page-h{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.page-h .sub-h{display:block;font-size:15px;color:var(--n-500);margin-top:4px;font-weight:400}
+@media (max-width:1279px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pill .txt{display:none}
+  .pill{width:36px;padding:0;justify-content:center}
+}
+@media (max-width:1100px){
+  .top-tools input{display:none}
+  .grid2.inicio{grid-template-columns:1fr}
+}
+@media (max-width:980px){
+  .brand-sep,.brand-tit{display:none}
+}
+@media (max-width:820px){
+  :root{--gutter:16px}
+  .top-in{gap:8px;min-height:60px}
+  main{padding:16px var(--gutter) 48px}
+  nav.tabs{width:auto;order:0;overflow:visible;gap:2px}
+  nav.tabs a{width:40px;height:40px;padding:0;justify-content:center}
+  nav.tabs a .nav-txt{display:none}
+  #btn-nueva{height:40px;min-height:40px;padding:0 14px;font-size:15px}
+  .pill{width:28px;min-height:28px;height:28px;border-radius:999px}
+  .kpi{padding:12px}
+  .kpi-n{font-size:26px}
+  .segtabs{display:flex;width:100%}
+  .segtabs button{flex:1;padding:0 6px;font-size:13px}
+}
+@media (max-width:820px){
+  .stack > *,.grid2 > *{min-width:0}
+  table.t:not(.cards){display:block;overflow-x:auto;white-space:nowrap}
+}
+@media (max-width:480px){
+  .brand .logo-esrn small{display:none}
+  .top-in{gap:6px}
+  #btn-nueva{font-size:0;width:40px;padding:0;justify-content:center;gap:0}
+  #btn-nueva .ico{width:20px;height:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 /* ============ 6. Movimiento e impresión ============ */
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
@@ -332,15 +528,15 @@ td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
   <div class="top-in">
     <div class="brand"><div class="logo-esrn" aria-label="ESRN Rural Virtual"><span class="sigla"><span class="es">ES</span><span class="rn">RN</span></span><small>RURAL VIRTUAL</small></div><span class="brand-sep"></span><div class="brand-tit">Licencias<small id="inst-nombre"></small></div></div>
     <nav class="tabs" id="nav">
-      <a href="#inicio" data-v="inicio" data-act="ir" data-ruta="inicio">Inicio</a>
-      <a href="#agentes" data-v="agentes" data-act="ir" data-ruta="agentes">Agentes</a>
-      <a href="#reportes" data-v="reportes" data-act="ir" data-ruta="reportes">Reportes</a>
-      <a href="#ajustes" data-v="ajustes" data-act="ir" data-ruta="ajustes">Ajustes</a>
+      <a href="#inicio" data-v="inicio" data-act="ir" data-ruta="inicio" title="Inicio"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg><span class="nav-txt">Inicio</span></a>
+      <a href="#agentes" data-v="agentes" data-act="ir" data-ruta="agentes" title="Agentes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-txt">Agentes</span></a>
+      <a href="#reportes" data-v="reportes" data-act="ir" data-ruta="reportes" title="Reportes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg><span class="nav-txt">Reportes</span></a>
+      <a href="#ajustes" data-v="ajustes" data-act="ir" data-ruta="ajustes" title="Ajustes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-txt">Ajustes</span></a>
     </nav>
     <div class="top-tools">
       <button class="pill" id="pill-respaldo" data-act="respaldo"><span class="dot"></span><span class="txt"></span></button>
       <input id="buscar-global" list="dl-agentes" placeholder="Buscar agente…" autocomplete="off" aria-label="Buscar agente">
-      <button class="btn accent" data-act="nueva-licencia" id="btn-nueva"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Licencia</button>
+      <button class="btn accent" data-act="nueva-licencia" id="btn-nueva" aria-label="Nueva licencia"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Licencia</button>
     </div>
   </div>
 </header>
@@ -413,7 +609,14 @@ const ICOS = {
   mas: '<path d="M12 5v14M5 12h14"/>', alerta: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', check: '<path d="M5 12l5 5L20 7"/>',
   nota: '<path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h5"/>', imprimir: '<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
-  lapiz: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>', archivo: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  lapiz: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+  buscar: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  calx: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M14 14l-4 4M10 14l4 4"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  reloj: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  archivook: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/>',
+  medidor: '<path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+  personas: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>', archivo: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
 };
 const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICOS[n] || ''}</svg>`;
 
@@ -1063,9 +1266,19 @@ const ui = {
   vista: 'inicio', agenteId: null, fecha: hoyISO(), anio: new Date().getFullYear(), aFecha: null,
   busqueda: '', filtroReg: '', verInactivos: false, orden: 'nombre',
   rep: { desde: null, hasta: null, reg: '', art: '' },
-  ajustesTab: 'datos', artReg: '233', calAnio: new Date().getFullYear(),
+  ajustesTab: 'datos', fichaTab: 'planilla', artReg: '233', calAnio: new Date().getFullYear(),
 };
 
+/* Trámites como cuadraditos: SOL / SAG / UG (verde con tilde = hecho) */
+const TRAM_SIGLA = { solicitud: 'SOL', sage: 'SAG', ug: 'UG' };
+function cuadritosTramite(lic, art) {
+  const ks = art?.tramites || []; if (!ks.length) return '';
+  const hechos = lic.tramites || {};
+  return `<span class="trams">${ks.map(k => `<span class="tram ${hechos[k] ? 'ok' : ''}" title="${esc(tramLabel(k))}: ${hechos[k] ? 'hecho' : 'pendiente'}">${hechos[k] ? ico('check') : esc(TRAM_SIGLA[k] || k.slice(0, 3).toUpperCase())}</span>`).join('')}</span>`;
+}
+function kpi(icono, etiqueta, numero, sub = '', cls = '') {
+  return `<div class="kpi ${cls}"><div class="kpi-l">${ico(icono)}${etiqueta}</div><div class="kpi-n">${numero}</div>${sub ? `<div class="kpi-s">${sub}</div>` : ''}</div>`;
+}
 function artBadge(art, conNombre = false) {
   if (!art) return '<span class="art g-sistema">?</span>';
   return `<span class="art g-${esc(art.grupo)}" title="${esc('Art. ' + art.codigo + ' — ' + art.nombre)}">${esc(art.codigo)}</span>${conNombre ? ` <span class="small">${esc(artNombre(art))}</span>` : ''}`;
@@ -1095,7 +1308,7 @@ function render() {
   $$('#nav a').forEach(a => a.toggleAttribute('aria-current', false));
   const navV = ui.vista === 'agente' ? 'agentes' : ui.vista;
   const act = $(`#nav a[data-v="${navV}"]`); if (act) act.setAttribute('aria-current', 'page');
-  $('#inst-nombre').textContent = modoLectura ? 'Modo consulta' : 'Control de licencias del personal';
+  $('#inst-nombre').textContent = modoLectura ? 'Modo consulta' : 'del personal';
   $('#btn-nueva').hidden = modoLectura;
   const ctx = contexto();
   $('#dl-agentes').innerHTML = ctx.agentes.map(a => `<option value="${esc(etiquetaAgente(a))}">`).join('');
@@ -1223,7 +1436,7 @@ function vistaInicio(ctx) {
     const vencido = venc && faltan.includes('solicitud') && venc.fecha && venc.fecha < hoyISO();
     return `<li class="click" data-act="editar-licencia" data-id="${l.id}" title="Falta: ${esc(faltan.map(k => tramLabel(k)).join(', '))}">${artBadge(art)}
       <div class="flex1"><div class="nombre">${esc(nombreAgente(ag))}</div><div class="sub">${esc(artNombre(art))} · ${fmtC(l.desde)} al ${fmtC(l.hasta)}</div></div>
-      <div class="num small">${vencido ? `<span class="chip err">Solicitud vencida</span>` : `<span class="chip warn">${total - faltan.length} de ${total}</span>`}</div></li>`;
+      <div class="num small" style="display:grid;justify-items:end;gap:4px">${cuadritosTramite(l, art)}${vencido ? `<span class="chip err">Solicitud vencida</span>` : ''}</div></li>`;
   }).join('');
 
   const anio = anioDe(f);
@@ -1239,7 +1452,13 @@ function vistaInicio(ctx) {
       <button class="btn sm" data-act="dia" data-n="0">Hoy</button></div></div>
     ${avisoEjemplo(ctx)}
     ${fer ? `<div class="msg warn">${ico('info', 'sm')}<span><b>${esc(TIPOS_DIA[fer.tipo])}:</b> ${esc(fer.desc)}</span></div>` : ''}
-    <div class="grid2">
+    <div class="kpis">
+      ${kpi('calx', 'Con licencia', hoyL.length, 'este día')}
+      ${kpi('archivook', 'Trámites pendientes', pend.length, pend.length ? 'licencias sin completar' : 'todo al día', pend.length ? 'warn' : '')}
+      ${kpi('medidor', 'Cerca del tope', alertasTopes(anio, ctx).length, `agentes en ${anio}`)}
+      ${kpi('nota', 'Notas del día', notasHoy.length, notasHoy.length ? 'para este día' : 'sin notas')}
+    </div>
+    <div class="grid2 inicio">
       <div class="stack">
         <section class="card"><div class="card-h"><h2>Con licencia este día</h2><span class="spacer"></span><span class="big">${hoyL.length}</span></div>
           ${hoyL.length ? `<ul class="lista">${ausentes}</ul>` : `<div class="vacio"><b>Nadie con licencia este día.</b>${modoLectura ? '' : 'Para cargar una, tocá "Licencia" arriba.'}</div>`}</section>
@@ -1262,10 +1481,10 @@ function vistaInicio(ctx) {
 /* ---------- Agentes ---------- */
 function vistaAgentes(ctx) {
   return `<div class="stack">
-    <div class="row"><h1>Agentes</h1><span class="muted" id="cuenta-agentes"></span><span class="spacer"></span>
-      ${modoLectura ? '' : `<button class="btn primary" data-act="nuevo-agente">${ico('mas')}Nuevo agente</button>`}</div>
+    <div class="page-h"><div><h1>Agentes</h1><span class="sub-h"><span id="cuenta-agentes"></span> · licencias de ${ui.anio}</span></div><span class="spacer"></span>
+      ${modoLectura ? '' : `<button class="btn" data-act="nuevo-agente">${ico('mas')}Nuevo agente</button>`}</div>
     <div class="row">
-      <input class="in w-busca" placeholder="Buscar por apellido, nombre, DNI o cargo…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" autofocus>
+      <label class="buscar">${ico('buscar')}<input class="in" placeholder="Buscar por apellido, DNI o cátedra…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" aria-label="Buscar agente" autofocus></label>
       <div class="seg" role="group" aria-label="Régimen">
         <button data-act="filtro-reg" data-v="" aria-pressed="${ui.filtroReg === ''}">Todos</button>
         <button data-act="filtro-reg" data-v="233" aria-pressed="${ui.filtroReg === '233'}">Docentes</button>
@@ -1298,17 +1517,15 @@ function listaAgentes(ctx) {
   if (!ctx.agentes.length) return `<div class="vacio"><b>Todavía no hay agentes cargados.</b>${modoLectura ? '' : 'Tocá "Nuevo agente" para cargar el primero.'}</div>`;
   if (!filas.length) return `<div class="vacio"><b>Ningún agente coincide con la búsqueda.</b>Probá con otro apellido o sacá los filtros.</div>`;
   return `<table class="t cards"><thead><tr>
-    <th class="sortable" data-act="orden" data-v="nombre">Apellido y nombre ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m">Régimen</th><th class="hide-m">Cargo / cátedra</th>
-    <th class="num sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo (${ui.anio}${fin < `${ui.anio}-12-31` ? ', al ' + fmtC(fin) : ''})</th><th class="hide-m">Estado</th></tr></thead><tbody>
+    <th class="sortable" data-act="orden" data-v="nombre">Agente ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m">Cargos</th>
+    <th class="num sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo</th></tr></thead><tbody>
     ${filas.map(({ a, det, aus, exced }) => {
       const c = vivos(a.cargos);
       return `<tr class="click" data-act="ver-agente" data-id="${a.id}">
-        <td><span class="nombre">${esc(nombreAgente(a))}</span>${a.dni ? `<div class="small muted">DNI ${esc(a.dni)}</div>` : ''}</td>
-        <td class="hide-m">${regChip(a.regimen)}</td>
-        <td class="hide-m small">${esc(c.map(x => x.catedra || x.idCargo).filter(Boolean).join(' · ') || '—')}</td>
-        <td class="num"><b>${aus}</b></td>
-        <td>${det.length ? `<div class="desglose">${det.map(x => `<span title="${esc(artNombre(x.art) + ': ' + x.n + ' ' + unidadTxt(x.art.unidad, x.n))}">${artBadge(x.art)}${x.n}</span>`).join('')}</div>` : '<span class="muted">—</span>'}</td>
-        <td class="hide-m">${ausentesHoy.has(a.id) ? '<span class="chip warn">De licencia hoy</span> ' : ''}${exced ? '<span class="chip err">Tope excedido</span> ' : ''}${a.inactivo ? '<span class="chip">Baja</span>' : ''}</td></tr>`;
+        <td><span class="nombre">${esc(nombreAgente(a))}</span><div class="ag-meta">${regChip(a.regimen)}${a.dni ? `<span>DNI ${esc(Number(a.dni) ? n0(Number(a.dni)) : a.dni)}</span>` : ''}${ausentesHoy.has(a.id) ? '<span class="chip hoy">de licencia hoy</span>' : ''}${exced ? '<span class="chip err">tope excedido</span>' : ''}${a.inactivo ? '<span class="chip">baja</span>' : ''}</div></td>
+        <td class="hide-m ag-cargos">${c.length ? c.map(x => `<div>${esc(x.catedra || x.idCargo || '—')}${x.caracter ? ` <span>· ${esc(x.caracter)}</span>` : ''}</div>`).join('') : '<span>—</span>'}</td>
+        <td class="num dias-aus">${aus}</td>
+        <td>${det.length ? `<div class="desglose">${det.map(x => `<span title="${esc(artNombre(x.art) + ': ' + x.n + ' ' + unidadTxt(x.art.unidad, x.n))}">${artBadge(x.art)}${x.n}</span>`).join('')}</div>` : '<span class="muted">—</span>'}</td></tr>`;
     }).join('')}</tbody></table>`;
 }
 
@@ -1339,10 +1556,19 @@ function vistaFicha(ctx) {
       <div class="datenav"><span class="small muted">Año</span><button class="iconbtn" data-act="anio" data-n="-1" aria-label="Año anterior">${ico('izq')}</button><b class="num t-lg">${anio}</b><button class="iconbtn" data-act="anio" data-n="1" aria-label="Año siguiente">${ico('der')}</button></div>
       <label class="row small"><span class="muted">Resumen a la fecha</span><input type="date" class="in w-auto" value="${aFecha}" min="${ini}" max="${anio}-12-31" data-on="a-fecha"></label>
     </div>
-    <div class="grid2">
-      <section class="card"><div class="card-h"><h2>Resumen ${anio}</h2></div>
+    <div class="kpis">
+      ${kpi('calx', 'Días ausente', ausAnio, ausProg ? `${ausHasta} al ${fmtC(aFecha)} + ${ausProg} programado${ausProg === 1 ? '' : 's'}` : `días hábiles en ${anio}`)}
+      ${kpi('archivo', 'Licencias', lics.length, `cargadas en ${anio}`)}
+      ${(() => { const c = cicloDe(anio, ctx); if (!c) return kpi('cal', 'Días de clase', '—', 'cargá el ciclo lectivo en Ajustes');
+        const corte = aFecha < c.fin ? aFecha : c.fin; const van = corte < c.inicio ? 0 : diasClase(c.inicio, corte, ctx); const falto = corte < c.inicio ? 0 : faltasClase(ag.id, c.inicio, corte, ctx);
+        return kpi('cal', 'Días de clase trabajados', `${van - falto}<span class="kpi-s"> de ${van}</span>`, `faltó ${falto} al ${fmtC(corte)}`); })()}
+      ${kpi('medidor', 'Cerca del tope', res.filter(r => r.tope && r.totalAnio / r.tope >= 0.75).length, 'artículos con 75% o más usado')}
+    </div>
+    <div class="segtabs" role="tablist" aria-label="Secciones de la ficha">
+      ${[['planilla', 'Planilla anual'], ['articulos', 'Por artículo'], ['licencias', 'Licencias'], ['datos', 'Datos y horario']].map(([k, t]) => `<button role="tab" data-act="ficha-tab" data-v="${k}" aria-selected="${ui.fichaTab === k}">${t}</button>`).join('')}
+    </div>
+      <section class="card" data-tab="articulos" ${ui.fichaTab === 'articulos' ? '' : 'hidden'}><div class="card-h"><h2>Por artículo · ${anio}</h2></div>
         <div class="card-b stack">
-          <div class="row"><span class="big">${ausAnio}</span><span class="muted">${ausAnio === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.length, 'licencia')}${ausProg ? `<br><span class="xs">${ausHasta} al ${fmtC(aFecha)} + ${ausProg} ${ausProg === 1 ? 'programado' : 'programados'}</span>` : ''}</span></div>
           ${bloqueCiclo(ag, anio, aFecha, ctx)}
           ${usados.length ? `<table class="t"><thead><tr><th>Art.</th><th>Licencia</th><th class="num">Usados</th><th class="num">Tope</th><th class="num">Quedan</th><th></th></tr></thead><tbody>
           ${usados.map(r => `<tr><td>${artBadge(r.art)}</td><td class="small" title="${esc(r.art.nombre)}"><b>${esc(artNombre(r.art))}</b><div class="muted">${unidadTxt(r.art.unidad, 2)}${r.art.topeMensual ? ' · máx. ' + r.art.topeMensual + ' por mes' : ''}</div></td>
@@ -1352,7 +1578,7 @@ function vistaFicha(ctx) {
           ${usados.length ? '' : '<p class="muted small">Sin licencias en el período.</p>'}
           ${res.some(r => !r.totalAnio) ? `<div class="small"><span class="muted">Con tope y sin usar:</span> ${res.filter(r => !r.totalAnio).map(r => `${artBadge(r.art)} <span class="num">${r.tope}</span>`).join(' &nbsp;')}</div>` : ''}
         </div></section>
-      <section class="card"><div class="card-h"><h2>Datos</h2></div><div class="card-b stack">
+      <section class="card" data-tab="datos" ${ui.fichaTab === 'datos' ? '' : 'hidden'}><div class="card-h"><h2>Datos y horario</h2></div><div class="card-b stack">
         <dl class="kv">
           ${[['DNI', ag.dni], ['CUIL', ag.cuil], ['Domicilio', ag.domicilio], ['Teléfono', ag.telefono], ['Email', ag.email], ['Legajo personal', ag.legajoPersonal], ['Legajo de junta', ag.legajoJunta], ['Título', ag.titulo], ['Nacimiento', ag.fechaNac ? fmt(ag.fechaNac) : '']]
             .filter(([, v]) => v).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('') || '<dt class="muted">Sin datos personales cargados</dt><dd></dd>'}
@@ -1362,17 +1588,17 @@ function vistaFicha(ctx) {
         ${tieneHorario(ag) ? `<div class="small"><div class="lbl">Días y horario de trabajo</div>${cargos.filter(c => resumenHorario(c)).map(c => `<div><span class="muted">${esc(c.catedra || c.idCargo || 'Cargo')}:</span> ${esc(resumenHorario(c))}</div>`).join('')}</div>` : ''}
         ${ag.obs ? `<div class="small"><b>Observaciones:</b> ${esc(ag.obs)}</div>` : ''}
       </div></section>
-    </div>
-    <section class="card"><div class="card-h"><h2>Planilla de licencias ${anio}</h2><span class="spacer"></span>${modoLectura ? '' : '<span class="xs muted">Tocá un día vacío para cargar desde esa fecha, o una licencia para editarla.</span>'}</div>
+    <section class="card" data-tab="planilla" ${ui.fichaTab === 'planilla' ? '' : 'hidden'}><div class="card-h"><h2>Planilla de licencias ${anio}</h2><span class="spacer"></span>${modoLectura ? '' : '<span class="xs muted">Tocá un día vacío para cargar desde esa fecha, o una licencia para editarla.</span>'}</div>
       <div class="planilla-wrap">${planillaAnual(ag, anio, ctx, { interactiva: !modoLectura })}</div>
-      <div class="planilla-pie">${leyenda(ag, lics, ctx)}<span class="spacer"></span>${listaFeriados(anio, ctx)}</div>
+      <div class="planilla-info"><span class="det" data-planilla-det aria-live="polite"></span>${leyenda(ag, lics, ctx)}</div>
+      <div class="planilla-pie">${listaFeriados(anio, ctx)}</div>
       ${tieneHorario(ag) || modoLectura ? '' : `<div class="planilla-pie xs muted">${ico('info', 'sm')}Cargá sus días y horario en "Editar datos" para ver pintados los días que trabaja.</div>`}</section>
-    <section class="card"><div class="card-h"><h2>Licencias ${anio}</h2><span class="chip">${lics.length}</span></div>
+    <section class="card" data-tab="licencias" ${ui.fichaTab === 'licencias' ? '' : 'hidden'}><div class="card-h"><h2>Licencias ${anio}</h2><span class="chip">${lics.length}</span></div>
       ${lics.length ? `<table class="t cards"><thead><tr><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días</th><th>Trámite</th><th class="hide-m">Observaciones</th><th></th></tr></thead><tbody>
       ${lics.map(l => { const art = ctx.arts.get(l.articuloId); const f = tramitesPendientes(l, art); const d = diasLicencia(l, art, ctx);
         return `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${l.id}"`}><td>${artBadge(art)} <span class="small hide-m">${esc(artNombre(art))}</span></td><td>${fmt(l.desde)}</td><td>${fmt(l.hasta)}</td>
           <td class="num"><b>${d}</b> <span class="small muted">${art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
-          <td>${(art?.tramites || []).length ? (f.length ? `<span class="chip warn">Faltan ${f.length}</span>` : '<span class="chip ok">Completo</span>') : '<span class="muted">—</span>'}</td>
+          <td>${(art?.tramites || []).length ? cuadritosTramite(l, art) : '<span class="muted">—</span>'}</td>
           <td class="small hide-m">${esc(l.obs || '')}</td><td class="hide-m">${modoLectura ? '' : `<span class="muted">${ico('lapiz', 'sm')}</span>`}</td></tr>`; }).join('')}
       </tbody></table>` : `<div class="vacio"><b>Sin licencias en ${anio}.</b></div>`}</section>
   </div>`;
@@ -1467,7 +1693,7 @@ function vistaReportes(ctx) {
     <section class="card"><div class="card-h"><h2>Listado de licencias</h2><span class="chip">${datos.lista.length}</span><span class="spacer"></span><button class="btn sm" data-act="csv-licencias">Descargar Excel (CSV)</button></div>
       ${datos.lista.length ? `<table class="t cards"><thead><tr><th>Agente</th><th>Art.</th><th>Desde</th><th>Hasta</th><th class="num">Días en el período</th><th>Trámite</th></tr></thead><tbody>
         ${datos.lista.map(x => `<tr class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-licencia" data-id="${x.l.id}"`}><td class="nombre">${esc(nombreAgente(x.ag))}</td><td>${artBadge(x.art)}</td><td>${fmt(x.l.desde)}</td><td>${fmt(x.l.hasta)}</td><td class="num">${x.dias} <span class="small muted">${x.art?.unidad === 'corridos' ? 'corr.' : 'háb.'}</span></td>
-          <td>${x.faltan.length ? `<span class="chip warn" title="${esc(x.faltan.map(k => tramLabel(k)).join(', '))}">Faltan ${x.faltan.length}</span>` : (x.art?.tramites?.length ? '<span class="chip ok">Completo</span>' : '—')}</td></tr>`).join('')}
+          <td>${x.art?.tramites?.length ? cuadritosTramite(x.l, x.art) : '—'}</td></tr>`).join('')}
         </tbody></table>` : '<div class="vacio"><b>Sin licencias en el período.</b></div>'}</section>` : ''}
   </div>`;
 }
@@ -1635,10 +1861,10 @@ function formLicencia({ id = null, agenteId = '', desde = '' } = {}) {
   if (!existente && b.agenteId) {
     // por defecto, el último artículo usado para ese agente no: arrancar vacío obliga a elegir conscientemente
   }
-  const m = abrirModal(`<div class="modal-h"><h2>${existente ? 'Editar licencia' : 'Nueva licencia'}</h2><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
+  const m = abrirModal(`<div class="modal-h"><div><h2>${existente ? 'Editar licencia' : 'Nueva licencia'}</h2><div class="modal-sub">El cómputo de días y los topes se actualizan mientras completás.</div></div><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
     <div class="modal-b">
       <div class="fgrid">
-        <label class="f full">Agente<input class="in" list="dl-agentes" data-f="agente" placeholder="Escribí el apellido…" autocomplete="off" ${b.agenteId ? '' : 'autofocus'} enterkeyhint="next"></label>
+        <label class="f full">Agente<input class="in combo-in" data-combo="agentes" data-f="agente" placeholder="Buscá por apellido o DNI…" role="combobox" aria-expanded="false" autocomplete="off" ${b.agenteId ? '' : 'autofocus'} enterkeyhint="next"></label>
         <label class="f full">Artículo<select class="in" data-f="articulo" ${b.agenteId && !existente ? 'autofocus' : ''}></select></label>
         <div class="full ayuda-art" data-f="ayuda" hidden></div>
         <label class="f">Desde<input type="date" class="in" data-f="desde" value="${esc(b.desde)}"></label>
@@ -2046,6 +2272,12 @@ async function borrarEjemplo() {
    6. EVENTOS
    ========================================================================= */
 const acciones = {
+  // Pestañas de la ficha: sólo muestran u ocultan secciones ya dibujadas
+  'ficha-tab': el => {
+    ui.fichaTab = el.dataset.v;
+    $$('.segtabs [data-act="ficha-tab"]').forEach(b => b.setAttribute('aria-selected', b === el));
+    $$('#main [data-tab]').forEach(sec => { sec.hidden = sec.dataset.tab !== ui.fichaTab; });
+  },
   'nueva-licencia': el => formLicencia({ agenteId: el.dataset.agente || (ui.vista === 'agente' ? ui.agenteId : '') }),
   'licencia-desde': el => formLicencia({ agenteId: el.dataset.agente, desde: el.dataset.fecha }),
   'editar-licencia': el => { if (!modoLectura) formLicencia({ id: el.dataset.id }); },
@@ -2174,6 +2406,61 @@ $('#buscar-global').addEventListener('change', e => {
   e.target.value = ''; ir('#agente/' + ag.id);
 });
 $('#buscar-global').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.dispatchEvent(new Event('change')); });
+// Combobox de agentes: lista propia debajo del campo. Al elegir, escribe la misma etiqueta
+// que antes ponía la lista del navegador y dispara 'input' y 'change', así la lógica no cambia.
+const Combo = {
+  pop: null, input: null, items: [], idx: 0,
+  abrir(input) {
+    this.input = input; if (!this.pop) { this.pop = document.createElement('div'); this.pop.className = 'combo-pop'; this.pop.setAttribute('role', 'listbox'); document.body.appendChild(this.pop); }
+    this.filtrar(); input.setAttribute('aria-expanded', 'true');
+  },
+  filtrar() {
+    const q = normalizar(this.input.value);
+    const ags = contexto().agentes.filter(a => !a.inactivo).sort((a, b) => nombreAgente(a).localeCompare(nombreAgente(b), 'es'));
+    const exacto = ags.some(a => etiquetaAgente(a) === this.input.value);
+    this.items = (q && !exacto) ? ags.filter(a => normalizar(etiquetaAgente(a)).includes(q)) : ags;
+    this.idx = Math.max(0, this.items.findIndex(a => etiquetaAgente(a) === this.input.value));
+    this.pintar();
+  },
+  pintar() {
+    if (!this.pop) return;
+    this.pop.innerHTML = this.items.length ? this.items.map((a, i) => `<div class="op ${i === this.idx ? 'on' : ''}" role="option" data-i="${i}">${esc(nombreAgente(a))}<small>${REGIMENES[a.regimen]?.corto || ''}</small></div>`).join('')
+      : '<div class="vacio-op">Ningún agente coincide.</div>';
+    const r = this.input.getBoundingClientRect();
+    Object.assign(this.pop.style, { left: r.left + 'px', top: (r.bottom + 6) + 'px', width: r.width + 'px', display: 'block' });
+    const on = this.pop.querySelector('.op.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+  },
+  elegir(i) {
+    const a = this.items[i]; if (!a || !this.input) return;
+    this.input.value = etiquetaAgente(a);
+    this.input.dispatchEvent(new Event('input', { bubbles: true }));
+    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    this.cerrar();
+  },
+  cerrar() { if (this.pop) this.pop.style.display = 'none'; if (this.input) this.input.setAttribute('aria-expanded', 'false'); this.input = null; },
+};
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input[data-combo="agentes"]')) Combo.abrir(e.target); });
+document.addEventListener('input', e => { if (e.target === Combo.input && e.isTrusted) { Combo.filtrar(); } });
+document.addEventListener('keydown', e => {
+  if (e.target !== Combo.input || !Combo.pop || Combo.pop.style.display === 'none') return;
+  if (e.key === 'ArrowDown') { Combo.idx = Math.min(Combo.items.length - 1, Combo.idx + 1); Combo.pintar(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { Combo.idx = Math.max(0, Combo.idx - 1); Combo.pintar(); e.preventDefault(); }
+  else if (e.key === 'Enter') { if (Combo.items.length) { Combo.elegir(Combo.idx); e.preventDefault(); } }
+  else if (e.key === 'Escape') { Combo.cerrar(); e.stopPropagation(); e.preventDefault(); }
+}, true);
+document.addEventListener('mousedown', e => {
+  const op = e.target.closest && e.target.closest('.combo-pop .op');
+  if (op) { e.preventDefault(); Combo.elegir(Number(op.dataset.i)); return; }
+  if (Combo.input && e.target !== Combo.input && !(e.target.closest && e.target.closest('.combo-pop'))) Combo.cerrar();
+});
+document.addEventListener('focusout', e => { if (e.target === Combo.input) setTimeout(() => { if (document.activeElement !== Combo.input) Combo.cerrar(); }, 120); });
+window.addEventListener('resize', () => Combo.cerrar());
+// Detalle del día debajo de la planilla al pasar el mouse
+document.addEventListener('mouseover', e => {
+  const td = e.target.closest && e.target.closest('table.planilla td.d');
+  const det = $('#main [data-planilla-det]'); if (!det) return;
+  det.textContent = td ? td.title : '';
+});
 $('#file-import').addEventListener('change', e => { const f = e.target.files[0]; if (f) importarJSON(f); e.target.value = ''; });
 $('#file-consulta').addEventListener('change', e => { const f = e.target.files[0]; if (f) consultaDesInput(f); e.target.value = ''; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal-root').innerHTML) cerrarModal(); });
