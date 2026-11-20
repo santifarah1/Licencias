@@ -452,6 +452,8 @@ table.t td,.semana .ent,.semana .nota,.seg button,.pill,.linkbtn,a,.tram,.opcion
   a:hover{color:var(--azul-h)}
   .lista li.click:hover .nombre,table.t tr.click:hover .nombre{color:var(--azul)}
 }
+/* Título sólo para lectores de pantalla */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Barra superior */
 header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
 .top-in{max-width:var(--contenido);padding:0 var(--gutter);min-height:68px;gap:24px;flex-wrap:nowrap}
@@ -1494,7 +1496,7 @@ function vistaInicio(ctx) {
 /* ---------- Agentes ---------- */
 function vistaAgentes(ctx) {
   return `<div class="stack">
-    <div class="page-h"><div><h1>Agentes</h1><span class="sub-h"><span id="cuenta-agentes"></span> · licencias de ${ui.anio}</span></div><span class="spacer"></span>
+    <div class="page-h"><div><h1 class="sr-only">Agentes</h1><span class="sub-h"><span id="cuenta-agentes"></span> · licencias de ${ui.anio}</span></div><span class="spacer"></span>
       ${modoLectura ? '' : `<button class="btn" data-act="nuevo-agente">${ico('mas')}Nuevo agente</button>`}</div>
     <div class="row">
       <label class="buscar">${ico('buscar')}<input class="in" placeholder="Buscar por apellido, DNI o cátedra…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" aria-label="Buscar agente" autofocus></label>
@@ -1688,7 +1690,7 @@ function vistaReportes(ctx) {
   const datos = valido ? datosReporte(ctx) : null;
   const artsReg = [...ctx.arts.values()].filter(a => !reg || a.regimen === reg).sort((a, b) => a.regimen.localeCompare(b.regimen) || ordenArt(a, b));
   return `<div class="stack">
-    <div class="row"><h1>Reportes</h1><span class="spacer"></span>
+    <div class="row"><h1 class="sr-only">Reportes</h1><span class="spacer"></span>
       <button class="btn" data-act="rep-preset" data-v="mes">Este mes</button><button class="btn" data-act="rep-preset" data-v="mes-ant">Mes anterior</button><button class="btn" data-act="rep-preset" data-v="anio">Este año</button></div>
     <div class="card card-b"><div class="fgrid">
       <label class="f">Desde<input type="date" class="in" value="${esc(desde)}" data-on="rep-desde"></label>
@@ -1745,7 +1747,7 @@ function vistaAjustes(ctx) {
   if (t === 'calendario') cuerpo = ajustesCalendario(ctx);
   if (t === 'articulos') cuerpo = ajustesArticulos(ctx);
   if (t === 'general') cuerpo = ajustesGeneral(ctx);
-  return `<div class="stack"><h1>Ajustes</h1>
+  return `<div class="stack"><h1 class="sr-only">Ajustes</h1>
     <div class="sec-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${t === k}" data-act="ajustes-tab" data-v="${k}">${n}</button>`).join('')}</div>${cuerpo}</div>`;
 }
 function ajustesDatos(ctx) {
