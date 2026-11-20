@@ -432,6 +432,7 @@ table.planilla td.hoy{box-shadow:inset 0 0 0 2px var(--acento)}
 .ag-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:14px;color:var(--n-500)}
 .ag-cargos{font-size:15px;line-height:1.45}
 .ag-cargos span{color:var(--n-500)}
+.ag-ids{font-variant-numeric:tabular-nums;white-space:nowrap}
 td.dias-aus{font-size:20px;font-weight:700}
 /* Combobox de agentes (reemplaza la lista nativa del navegador) */
 .combo-in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23585e67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px!important}
@@ -1503,7 +1504,7 @@ function vistaAgentes(ctx) {
     <div class="page-h"><div><h1 class="sr-only">Agentes</h1><span class="sub-h"><span id="cuenta-agentes"></span> · licencias de ${ui.anio}</span></div><span class="spacer"></span>
       ${modoLectura ? '' : `<button class="btn" data-act="nuevo-agente">${ico('mas')}Nuevo agente</button>`}</div>
     <div class="row">
-      <label class="buscar">${ico('buscar')}<input class="in" placeholder="Buscar por apellido, DNI o cátedra…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" aria-label="Buscar agente" autofocus></label>
+      <label class="buscar">${ico('buscar')}<input class="in" placeholder="Buscar por apellido, DNI, cátedra o ID de cargo…" value="${esc(ui.busqueda)}" data-on="buscar-agentes" aria-label="Buscar agente" autofocus></label>
       <div class="seg" role="group" aria-label="Régimen">
         <button data-act="filtro-reg" data-v="" aria-pressed="${ui.filtroReg === ''}">Todos</button>
         <button data-act="filtro-reg" data-v="233" aria-pressed="${ui.filtroReg === '233'}">Docentes</button>
@@ -1536,12 +1537,13 @@ function listaAgentes(ctx) {
   if (!ctx.agentes.length) return `<div class="vacio"><b>Todavía no hay agentes cargados.</b>${modoLectura ? '' : 'Tocá "Nuevo agente" para cargar el primero.'}</div>`;
   if (!filas.length) return `<div class="vacio"><b>Ningún agente coincide con la búsqueda.</b>Probá con otro apellido o sacá los filtros.</div>`;
   return `<table class="t cards"><thead><tr>
-    <th class="sortable" data-act="orden" data-v="nombre">Agente ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m">Cargos</th>
+    <th class="sortable" data-act="orden" data-v="nombre">Agente ${ui.orden === 'nombre' ? '▲' : ''}</th><th class="hide-m c">ID cargo</th><th class="hide-m">Cargos</th>
     <th class="num c sortable" data-act="orden" data-v="dias">Días ausente ${ui.orden === 'dias' ? '▼' : ''}</th><th>Por artículo</th></tr></thead><tbody>
     ${filas.map(({ a, det, aus, exced }) => {
       const c = vivos(a.cargos);
       return `<tr class="click" data-act="ver-agente" data-id="${a.id}">
         <td><span class="nombre">${esc(nombreAgente(a))}</span><div class="ag-meta">${regChip(a.regimen)}${a.dni ? `<span>DNI ${esc(Number(a.dni) ? n0(Number(a.dni)) : a.dni)}</span>` : ''}${ausentesHoy.has(a.id) ? '<span class="chip hoy">de licencia hoy</span>' : ''}${exced ? '<span class="chip err">tope excedido</span>' : ''}${a.inactivo ? '<span class="chip">baja</span>' : ''}</div></td>
+        <td class="hide-m ag-cargos ag-ids c">${c.length ? c.map(x => `<div>${x.idCargo ? esc(x.idCargo) : '<span>—</span>'}</div>`).join('') : '<span>—</span>'}</td>
         <td class="hide-m ag-cargos">${c.length ? c.map(x => `<div>${esc(x.catedra || x.idCargo || '—')}${x.caracter ? ` <span>· ${esc(x.caracter)}</span>` : ''}</div>`).join('') : '<span>—</span>'}</td>
         <td class="num c dias-aus">${aus}</td>
         <td>${det.length ? `<div class="desglose">${det.map(x => `<span title="${esc(artNombre(x.art) + ': ' + x.n + ' ' + unidadTxt(x.art.unidad, x.n))}">${artBadge(x.art)}${x.n}</span>`).join('')}</div>` : '<span class="muted">—</span>'}</td></tr>`;
