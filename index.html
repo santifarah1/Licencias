@@ -1248,7 +1248,8 @@ function listaAgentes(ctx) {
   const q = normalizar(ui.busqueda);
   const hoy = hoyISO();
   const ausentesHoy = new Set(licenciasDelDia(hoy, ctx).map(l => l.agenteId));
-  const ini = `${ui.anio}-01-01`, fin = `${ui.anio}-12-31` < hoy || anioDe(hoy) !== ui.anio ? `${ui.anio}-12-31` : hoy;
+  // Totales del año completo, incluidas las licencias ya cargadas a futuro (igual que la ficha y los topes)
+  const ini = `${ui.anio}-01-01`, fin = `${ui.anio}-12-31`;
   let ags = ctx.agentes.filter(a => (ui.verInactivos || !a.inactivo) && (!ui.filtroReg || a.regimen === ui.filtroReg));
   if (q) ags = ags.filter(a => normalizar([a.apellido, a.nombre, a.dni, a.cuil, ...vivos(a.cargos).map(c => c.catedra + ' ' + c.idCargo + ' ' + c.cursoDiv)].join(' ')).includes(q));
   const filas = ags.map(a => {
@@ -1287,7 +1288,10 @@ function vistaFicha(ctx) {
   const hoy = hoyISO();
   const aFecha = ui.aFecha && anioDe(ui.aFecha) === anio ? ui.aFecha : (anioDe(hoy) === anio ? hoy : `${anio}-12-31`);
   const ini = `${anio}-01-01`;
-  const aus = diasAusencia(ag.id, ini, aFecha, ctx);
+  // Totales del año completo (incluye lo cargado después de la fecha del resumen) y lo que ya pasó
+  const ausAnio = diasAusencia(ag.id, ini, `${anio}-12-31`, ctx);
+  const ausHasta = diasAusencia(ag.id, ini, aFecha, ctx);
+  const ausProg = ausAnio - ausHasta;
   const res = resumenAgente(ag, anio, aFecha, ctx);
   const lics = ctx.licencias.filter(l => l.agenteId === ag.id && l.hasta >= ini && l.desde <= `${anio}-12-31`).sort((a, b) => a.desde.localeCompare(b.desde));
   const cargos = vivos(ag.cargos);
@@ -1304,12 +1308,12 @@ function vistaFicha(ctx) {
       <label class="row small"><span class="muted">Resumen a la fecha</span><input type="date" class="in w-auto" value="${aFecha}" min="${ini}" max="${anio}-12-31" data-on="a-fecha"></label>
     </div>
     <div class="grid2">
-      <section class="card"><div class="card-h"><h2>Resumen al ${fmt(aFecha)}</h2></div>
+      <section class="card"><div class="card-h"><h2>Resumen ${anio}</h2></div>
         <div class="card-b stack">
-          <div class="row"><span class="big">${aus}</span><span class="muted">${aus === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.filter(l => l.desde <= aFecha).length, 'licencia')}</span></div>
+          <div class="row"><span class="big">${ausAnio}</span><span class="muted">${ausAnio === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.length, 'licencia')}${ausProg ? `<br><span class="xs">${ausHasta} al ${fmtC(aFecha)} + ${ausProg} ${ausProg === 1 ? 'programado' : 'programados'}</span>` : ''}</span></div>
           ${usados.length ? `<table class="t"><thead><tr><th>Art.</th><th>Licencia</th><th class="num">Usados</th><th class="num">Tope</th><th class="num">Quedan</th><th></th></tr></thead><tbody>
           ${usados.map(r => `<tr><td>${artBadge(r.art)}</td><td class="small" title="${esc(r.art.nombre)}"><b>${esc(artNombre(r.art))}</b><div class="muted">${unidadTxt(r.art.unidad, 2)}${r.art.topeMensual ? ' · máx. ' + r.art.topeMensual + ' por mes' : ''}</div></td>
-            <td class="num"><b>${r.total}</b>${r.programados ? `<div class="xs muted" title="Licencias cargadas con fecha posterior al ${fmt(aFecha)}">+${r.programados} ${r.programados === 1 ? 'programado' : 'programados'}</div>` : ''}</td><td class="num">${r.tope ?? '—'}</td>
+            <td class="num"><b>${r.totalAnio}</b>${r.programados ? `<div class="xs muted" title="Cargados con fecha posterior al ${fmt(aFecha)}">incluye ${r.programados} ${r.programados === 1 ? 'programado' : 'programados'}</div>` : ''}</td><td class="num">${r.tope ?? '—'}</td>
             <td class="num">${r.disponibles == null ? '—' : r.disponibles < 0 ? `<span class="chip err">−${-r.disponibles}</span>` : r.disponibles}</td><td>${barra(r.totalAnio, r.tope)}</td></tr>`).join('')}
           </tbody></table>` : ''}
           ${usados.length ? '' : '<p class="muted small">Sin licencias en el período.</p>'}
