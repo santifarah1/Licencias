@@ -897,11 +897,15 @@ function resumenAgente(ag, anio, aFecha, ctx) {
   for (const art of ctx.arts.values()) {
     if (art.regimen !== ag.regimen) continue;
     const u = usoArticulo(ag.id, art.id, anio, ctx, { hastaFecha: aFecha });
+    // Lo que queda se calcula con TODO lo cargado en el año (incluye licencias posteriores a la fecha del resumen),
+    // igual que la validación al cargar; si no, el resumen y el aviso de tope no coinciden.
+    const uAnio = usoArticulo(ag.id, art.id, anio, ctx);
+    const programados = uAnio.total - u.total;
     const tieneTope = art.topeAnual != null;
-    if (u.cantidad === 0 && !tieneTope) continue;
-    filas.push({ art, ...u, tope: art.topeAnual, disponibles: tieneTope ? art.topeAnual - u.total : null });
+    if (uAnio.cantidad === 0 && !tieneTope) continue;
+    filas.push({ art, ...u, programados, totalAnio: uAnio.total, tope: art.topeAnual, disponibles: tieneTope ? art.topeAnual - uAnio.total : null });
   }
-  filas.sort((x, y) => (y.total > 0) - (x.total > 0) || ordenArt(x.art, y.art));
+  filas.sort((x, y) => (y.totalAnio > 0) - (x.totalAnio > 0) || ordenArt(x.art, y.art));
   return filas;
 }
 function ordenArt(a, b) {
@@ -940,8 +944,8 @@ function validarLicencia(b, ctx) {
     if (art.topeAnual != null) {
       const quedan = art.topeAnual - u.total;
       const despues = u.total + estaAnio;
-      if (despues > art.topeAnual) avisos.push(`Supera el tope anual del art. ${art.codigo} en ${y}: ya lleva ${u.total} de ${art.topeAnual}; con esta quedaría en ${despues} (${despues - art.topeAnual} de más).`);
-      else info.push(`Art. ${art.codigo} en ${y}: lleva ${u.total} de ${art.topeAnual}. Con esta: ${despues}. Le quedarían ${quedan - estaAnio}.`);
+      if (despues > art.topeAnual) avisos.push(`Supera el tope anual del art. ${art.codigo} en ${y}: ya tiene cargados ${u.total} de ${art.topeAnual} (contando todo el año); con esta quedaría en ${despues} (${despues - art.topeAnual} de más).`);
+      else info.push(`Art. ${art.codigo} en ${y}: tiene cargados ${u.total} de ${art.topeAnual}. Con esta: ${despues}. Le quedarían ${quedan - estaAnio}.`);
     }
     if (art.topeMensual != null) {
       const porMesEsta = Array(12).fill(0);
@@ -1276,7 +1280,7 @@ function vistaFicha(ctx) {
   const res = resumenAgente(ag, anio, aFecha, ctx);
   const lics = ctx.licencias.filter(l => l.agenteId === ag.id && l.hasta >= ini && l.desde <= `${anio}-12-31`).sort((a, b) => a.desde.localeCompare(b.desde));
   const cargos = vivos(ag.cargos);
-  const usados = res.filter(r => r.total > 0);
+  const usados = res.filter(r => r.totalAnio > 0);
   return `<div class="stack">
     <div><a href="#agentes" class="small" data-act="ir" data-ruta="agentes">← Agentes</a></div>
     <div class="row"><h1>${esc(nombreAgente(ag))}</h1>${regChip(ag.regimen)}${ag.inactivo ? '<span class="chip">Dado de baja</span>' : ''}${ag.ejemplo ? '<span class="chip">Ejemplo</span>' : ''}
@@ -1294,11 +1298,11 @@ function vistaFicha(ctx) {
           <div class="row"><span class="big">${aus}</span><span class="muted">${aus === 1 ? 'día hábil' : 'días hábiles'} ausente en ${anio}<br>en ${plural(lics.filter(l => l.desde <= aFecha).length, 'licencia')}</span></div>
           ${usados.length ? `<table class="t"><thead><tr><th>Art.</th><th>Licencia</th><th class="num">Usados</th><th class="num">Tope</th><th class="num">Quedan</th><th></th></tr></thead><tbody>
           ${usados.map(r => `<tr><td>${artBadge(r.art)}</td><td class="small" title="${esc(r.art.nombre)}"><b>${esc(artNombre(r.art))}</b><div class="muted">${unidadTxt(r.art.unidad, 2)}${r.art.topeMensual ? ' · máx. ' + r.art.topeMensual + ' por mes' : ''}</div></td>
-            <td class="num"><b>${r.total}</b></td><td class="num">${r.tope ?? '—'}</td>
-            <td class="num">${r.disponibles == null ? '—' : r.disponibles < 0 ? `<span class="chip err">−${-r.disponibles}</span>` : r.disponibles}</td><td>${barra(r.total, r.tope)}</td></tr>`).join('')}
+            <td class="num"><b>${r.total}</b>${r.programados ? `<div class="xs muted" title="Licencias cargadas con fecha posterior al ${fmt(aFecha)}">+${r.programados} ${r.programados === 1 ? 'programado' : 'programados'}</div>` : ''}</td><td class="num">${r.tope ?? '—'}</td>
+            <td class="num">${r.disponibles == null ? '—' : r.disponibles < 0 ? `<span class="chip err">−${-r.disponibles}</span>` : r.disponibles}</td><td>${barra(r.totalAnio, r.tope)}</td></tr>`).join('')}
           </tbody></table>` : ''}
           ${usados.length ? '' : '<p class="muted small">Sin licencias en el período.</p>'}
-          ${res.some(r => !r.total) ? `<div class="small"><span class="muted">Con tope y sin usar:</span> ${res.filter(r => !r.total).map(r => `${artBadge(r.art)} <span class="num">${r.tope}</span>`).join(' &nbsp;')}</div>` : ''}
+          ${res.some(r => !r.totalAnio) ? `<div class="small"><span class="muted">Con tope y sin usar:</span> ${res.filter(r => !r.totalAnio).map(r => `${artBadge(r.art)} <span class="num">${r.tope}</span>`).join(' &nbsp;')}</div>` : ''}
         </div></section>
       <section class="card"><div class="card-h"><h2>Datos</h2></div><div class="card-b stack">
         <dl class="kv">
