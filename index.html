@@ -434,11 +434,24 @@ td.dias-aus{font-size:20px;font-weight:700}
 /* Combobox de agentes (reemplaza la lista nativa del navegador) */
 .combo-in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23585e67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px!important}
 .combo-pop{position:fixed;z-index:70;background:#fff;border:1px solid var(--n-200);border-radius:var(--r-md);box-shadow:var(--sh-3);padding:4px;max-height:320px;overflow:auto;animation:fade var(--dur) ease-out}
-.combo-pop .op{display:flex;align-items:center;gap:12px;padding:0 12px;height:40px;border-radius:6px;cursor:pointer;font-size:15px}
+.combo-pop .op{display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;height:40px;border-radius:6px;cursor:pointer;font-size:15px;transition:background-color var(--dur) ease,color var(--dur) ease}
+.combo-pop .op .tilde{width:16px;height:16px;flex:none;display:inline-grid;place-items:center;color:var(--acento)}
+.combo-pop .op .tilde .ico{width:16px;height:16px;vertical-align:0}
+.combo-pop .op.sel{font-weight:600}
 .combo-pop .op small{margin-left:auto;color:var(--n-500);font-size:13px}
 .combo-pop .op.on{background:var(--acento);color:#fff}
+.combo-pop .op.on .tilde{color:#fff}
 .combo-pop .op.on small{color:rgba(255,255,255,.75)}
 .combo-pop .vacio-op{padding:12px;color:var(--n-500);font-size:14px}
+/* Fluidez: cambios de color suaves al pasar el mouse */
+table.t td,.semana .ent,.semana .nota,.seg button,.pill,.linkbtn,a,.tram,.opcion,.check{transition:background-color var(--dur) ease,color var(--dur) ease,border-color var(--dur) ease,box-shadow var(--dur) ease}
+[data-tab]:not([hidden]){animation:fade var(--dur) ease-out}
+@media (hover:hover) and (pointer:fine){
+  .seg button:not([aria-pressed=true]):hover,.segtabs button[aria-selected=false]:hover{color:var(--n-900);background:hsl(0 0% 100% / .6)}
+  .pill:hover{background:var(--gris-suave)}
+  a:hover{color:var(--azul-h)}
+  .lista li.click:hover .nombre,table.t tr.click:hover .nombre{color:var(--azul)}
+}
 /* Barra superior */
 header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
 .top-in{max-width:var(--contenido);padding:0 var(--gutter);min-height:68px;gap:24px;flex-wrap:nowrap}
@@ -535,7 +548,7 @@ main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
     </nav>
     <div class="top-tools">
       <button class="pill" id="pill-respaldo" data-act="respaldo"><span class="dot"></span><span class="txt"></span></button>
-      <input id="buscar-global" list="dl-agentes" placeholder="Buscar agente…" autocomplete="off" aria-label="Buscar agente">
+      <input id="buscar-global" data-combo="agentes" data-combo-libre placeholder="Buscar agente…" autocomplete="off" aria-label="Buscar agente" role="combobox" aria-expanded="false">
       <button class="btn accent" data-act="nueva-licencia" id="btn-nueva" aria-label="Nueva licencia"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Licencia</button>
     </div>
   </div>
@@ -2400,6 +2413,7 @@ document.addEventListener('submit', e => {
 });
 $('#buscar-global').addEventListener('change', e => {
   const v = e.target.value.trim(); if (!v) return;
+  if (Combo.input === e.target) Combo.cerrar();
   const ctx = contexto();
   let ag = ctx.agentes.find(a => etiquetaAgente(a) === v);
   if (!ag) { const q = normalizar(v); const c = ctx.agentes.filter(a => normalizar(etiquetaAgente(a)).includes(q)); if (c.length === 1) ag = c[0]; else { ui.busqueda = v; ir('#agentes'); e.target.value = ''; render(); return; } }
@@ -2409,7 +2423,7 @@ $('#buscar-global').addEventListener('keydown', e => { if (e.key === 'Enter') e.
 // Combobox de agentes: lista propia debajo del campo. Al elegir, escribe la misma etiqueta
 // que antes ponía la lista del navegador y dispara 'input' y 'change', así la lógica no cambia.
 const Combo = {
-  pop: null, input: null, items: [], idx: 0,
+  pop: null, input: null, items: [], idx: -1,
   abrir(input) {
     this.input = input; if (!this.pop) { this.pop = document.createElement('div'); this.pop.className = 'combo-pop'; this.pop.setAttribute('role', 'listbox'); document.body.appendChild(this.pop); }
     this.filtrar(); input.setAttribute('aria-expanded', 'true');
@@ -2419,16 +2433,34 @@ const Combo = {
     const ags = contexto().agentes.filter(a => !a.inactivo).sort((a, b) => nombreAgente(a).localeCompare(nombreAgente(b), 'es'));
     const exacto = ags.some(a => etiquetaAgente(a) === this.input.value);
     this.items = (q && !exacto) ? ags.filter(a => normalizar(etiquetaAgente(a)).includes(q)) : ags;
-    this.idx = Math.max(0, this.items.findIndex(a => etiquetaAgente(a) === this.input.value));
+    // Nada queda resaltado de entrada: el verde sigue al mouse o a las flechas.
+    // Sólo al escribir en la carga de licencia se marca el primero, para que Enter lo elija.
+    this.idx = (q && !exacto && !this.input.hasAttribute('data-combo-libre') && this.items.length) ? 0 : -1;
     this.pintar();
   },
   pintar() {
     if (!this.pop) return;
-    this.pop.innerHTML = this.items.length ? this.items.map((a, i) => `<div class="op ${i === this.idx ? 'on' : ''}" role="option" data-i="${i}">${esc(nombreAgente(a))}<small>${REGIMENES[a.regimen]?.corto || ''}</small></div>`).join('')
+    const actual = this.input.value;
+    this.pop.innerHTML = this.items.length ? this.items.map((a, i) => { const sel = etiquetaAgente(a) === actual;
+      return `<div class="op ${i === this.idx ? 'on' : ''} ${sel ? 'sel' : ''}" role="option" aria-selected="${sel}" data-i="${i}"><span class="tilde">${sel ? ico('check') : ''}</span>${esc(nombreAgente(a))}<small>${REGIMENES[a.regimen]?.corto || ''}</small></div>`; }).join('')
       : '<div class="vacio-op">Ningún agente coincide.</div>';
     const r = this.input.getBoundingClientRect();
-    Object.assign(this.pop.style, { left: r.left + 'px', top: (r.bottom + 6) + 'px', width: r.width + 'px', display: 'block' });
-    const on = this.pop.querySelector('.op.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+    const ancho = Math.max(r.width, 300), izq = Math.max(8, Math.min(r.left, window.innerWidth - ancho - 8));
+    Object.assign(this.pop.style, { left: izq + 'px', top: (r.bottom + 6) + 'px', width: ancho + 'px', display: 'block' });
+    this.marcar(true);
+  },
+  // Mueve el resaltado sin redibujar la lista (así sigue al mouse sin saltos)
+  marcar(desplazar = false) {
+    if (!this.pop) return;
+    this.pop.querySelectorAll('.op').forEach(op => op.classList.toggle('on', Number(op.dataset.i) === this.idx));
+    const on = this.pop.querySelector('.op.on'); if (on && desplazar) on.scrollIntoView({ block: 'nearest' });
+  },
+  // Con las flechas se arranca desde el agente elegido, si hay uno
+  mover(paso) {
+    if (!this.items.length) return;
+    if (this.idx < 0) { const sel = this.items.findIndex(a => etiquetaAgente(a) === this.input.value); this.idx = sel >= 0 ? sel : (paso > 0 ? -1 : this.items.length); }
+    this.idx = Math.max(0, Math.min(this.items.length - 1, this.idx + paso));
+    this.marcar(true);
   },
   elegir(i) {
     const a = this.items[i]; if (!a || !this.input) return;
@@ -2440,18 +2472,30 @@ const Combo = {
   cerrar() { if (this.pop) this.pop.style.display = 'none'; if (this.input) this.input.setAttribute('aria-expanded', 'false'); this.input = null; },
 };
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input[data-combo="agentes"]')) Combo.abrir(e.target); });
+// Si el cursor ya estaba en el campo, un clic también abre la lista
+document.addEventListener('click', e => { if (e.target.matches && e.target.matches('input[data-combo="agentes"]') && Combo.input !== e.target) Combo.abrir(e.target); });
 document.addEventListener('input', e => { if (e.target === Combo.input && e.isTrusted) { Combo.filtrar(); } });
 document.addEventListener('keydown', e => {
   if (e.target !== Combo.input || !Combo.pop || Combo.pop.style.display === 'none') return;
-  if (e.key === 'ArrowDown') { Combo.idx = Math.min(Combo.items.length - 1, Combo.idx + 1); Combo.pintar(); e.preventDefault(); }
-  else if (e.key === 'ArrowUp') { Combo.idx = Math.max(0, Combo.idx - 1); Combo.pintar(); e.preventDefault(); }
-  else if (e.key === 'Enter') { if (Combo.items.length) { Combo.elegir(Combo.idx); e.preventDefault(); } }
+  if (e.key === 'ArrowDown') { Combo.mover(1); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { Combo.mover(-1); e.preventDefault(); }
+  else if (e.key === 'Enter') { if (Combo.idx >= 0 && Combo.items[Combo.idx]) { Combo.elegir(Combo.idx); e.preventDefault(); e.stopImmediatePropagation(); } }
   else if (e.key === 'Escape') { Combo.cerrar(); e.stopPropagation(); e.preventDefault(); }
 }, true);
 document.addEventListener('mousedown', e => {
   const op = e.target.closest && e.target.closest('.combo-pop .op');
   if (op) { e.preventDefault(); Combo.elegir(Number(op.dataset.i)); return; }
   if (Combo.input && e.target !== Combo.input && !(e.target.closest && e.target.closest('.combo-pop'))) Combo.cerrar();
+});
+// El verde sigue al mouse; al salir de la lista no queda nada marcado
+document.addEventListener('mousemove', e => {
+  const op = e.target.closest && e.target.closest('.combo-pop .op'); if (!op) return;
+  const i = Number(op.dataset.i); if (i !== Combo.idx) { Combo.idx = i; Combo.marcar(); }
+});
+document.addEventListener('mouseout', e => {
+  if (!Combo.pop || !e.target.closest || !e.target.closest('.combo-pop')) return;
+  if (e.relatedTarget && Combo.pop.contains(e.relatedTarget)) return;
+  Combo.idx = -1; Combo.marcar();
 });
 document.addEventListener('focusout', e => { if (e.target === Combo.input) setTimeout(() => { if (document.activeElement !== Combo.input) Combo.cerrar(); }, 120); });
 window.addEventListener('resize', () => Combo.cerrar());
