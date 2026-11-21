@@ -1,0 +1,14 @@
+{
+  "name": "licencias-esrn",
+  "private": true,
+  "description": "Herramientas de desarrollo (pruebas de las reglas de Firebase). La app en sí es index.html y no necesita nada de esto.",
+  "type": "module",
+  "scripts": {
+    "test:reglas": "firebase emulators:exec --only firestore --project demo-licencias \"node --test pruebas/reglas.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "firebase": "13.2.0",
+    "firebase-tools": "15.37.0"
+  }
+}

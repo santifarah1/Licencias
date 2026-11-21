@@ -459,6 +459,27 @@ table.t td,.semana .ent,.semana .nota,.seg button,.pill,.linkbtn,a,.tram,.opcion
 /* Columnas centradas en tablas (reportes, días ausente) */
 table.t th.c,table.t td.c{text-align:center}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Lo marcado como oculto se oculta siempre (algunos estilos de botón lo pisaban) */
+[hidden]{display:none!important}
+/* Ingreso y usuarios (nube) */
+body.sin-sesion nav.tabs,body.sin-sesion .top-tools{display:none}
+.ingreso{max-width:440px;margin:32px auto 48px;display:grid;gap:20px}
+.ingreso-marca{display:flex;align-items:center;gap:14px}
+.ingreso .card-b{padding:24px}
+.ingreso-tabs{display:flex}
+.ingreso-tabs button{flex:1}
+.w-full{width:100%;justify-content:center}
+.separador{display:flex;align-items:center;gap:12px;color:var(--n-500);font-size:13px}
+.separador::before,.separador::after{content:"";flex:1;height:1px;background:var(--n-200)}
+fieldset.roles{border:0;margin:0;padding:0;display:grid;gap:8px}
+.rol-op{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--n-200);border-radius:var(--r-md);padding:10px 12px;cursor:pointer;transition:border-color var(--dur) ease,background-color var(--dur) ease}
+.rol-op:has(input:checked){border-color:var(--azul);background:var(--azul-suave)}
+.rol-op input{margin-top:3px;accent-color:var(--azul)}
+.rol-op b{display:block}
+.pill.usuario{gap:8px;padding:0 10px 0 4px}
+.pill.usuario .avatar{width:28px;height:28px;border-radius:50%;background:var(--azul);color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:700}
+code.codigo{font:600 16px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--gris-suave);border-radius:6px;padding:8px 12px;letter-spacing:.04em}
+@media (max-width:1365px){.pill.usuario .txt{display:none}.pill.usuario{width:auto;padding:0 4px}}
 /* Barra superior */
 header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
 .top-in{max-width:var(--contenido);padding:0 var(--gutter);min-height:68px;gap:24px;flex-wrap:nowrap}
@@ -558,6 +579,7 @@ main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
       <a href="#ajustes" data-v="ajustes" data-act="ir" data-ruta="ajustes" title="Ajustes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-txt">Ajustes</span></a>
     </nav>
     <div class="top-tools">
+      <button class="pill usuario" id="btn-usuario" data-act="menu-usuario" hidden><span class="avatar" aria-hidden="true"></span><span class="txt"></span></button>
       <button class="pill" id="pill-respaldo" data-act="respaldo"><span class="dot"></span><span class="txt"></span></button>
       <input id="buscar-global" data-combo="agentes" data-combo-libre placeholder="Buscar agente…" autocomplete="off" aria-label="Buscar agente" role="combobox" aria-expanded="false">
       <button class="btn accent" data-act="nueva-licencia" id="btn-nueva" aria-label="Nueva licencia"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Licencia</button>
@@ -1327,6 +1349,10 @@ function ir(ruta) {
   render();
 }
 function render() {
+  if (Nube.activa() && Nube.estado !== 'ok') {
+    $('#main').innerHTML = vistaIngreso(); $('#banners').innerHTML = ''; pintarUsuario();
+    return;
+  }
   const h = rutaActual || 'inicio';
   const [v, id] = h.split('/');
   ui.vista = ['inicio', 'agentes', 'agente', 'reportes', 'ajustes'].includes(v) ? v : 'inicio';
@@ -1348,6 +1374,7 @@ function render() {
   $('#main').innerHTML = (ui.vista !== 'inicio' ? avisoEjemplo(ctx) : '') + html;
   renderBanners();
   pintarEstadoGuardado();
+  pintarUsuario();
 }
 
 function pintarEstadoGuardado() {
@@ -1389,7 +1416,9 @@ function renderBanners() {
   const b = [];
   if (!LS_OK && !modoLectura) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Esta vista no puede guardar datos.</b> Es una vista previa aislada: lo que cargues se pierde al cerrarla. Abrí la app desde su dirección (GitHub Pages) o con doble clic en la compu.</div></div>`);
   if (errorGuardado) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Error al guardar.</b> ${esc(errorGuardado)}</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
-  if (modoLectura) {
+  if (modoLectura && Consulta.estado === 'nube') {
+    b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Usuario de consulta:</b> podés ver todo, pero no modificar.</div></div>`);
+  } else if (modoLectura) {
     if (Consulta.estado.startsWith('error')) b.push(`<div class="banner err">${ico('alerta')}<div class="txt">No se pudo leer el archivo de datos: ${esc(Consulta.estado.slice(7))}</div><button class="btn sm" data-act="entrar-consulta">Elegir el archivo</button><button class="btn sm ghost" data-act="salir-consulta">Salir del modo consulta</button></div>`);
     else b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Modo consulta:</b> se ven los datos del archivo compartido, sin poder modificarlos.</div>${Consulta.handle ? '<button class="btn sm primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn sm ghost" data-act="salir-consulta">Salir</button></div>`);
   } else {
@@ -1748,16 +1777,19 @@ function csv(filas) {
 function vistaAjustes(ctx) {
   const t = ui.ajustesTab;
   const tabs = [['datos', 'Datos y respaldo'], ['calendario', 'Feriados y asuetos'], ['articulos', 'Artículos y topes'], ['general', 'General']];
+  if (Nube.esAdmin()) tabs.push(['usuarios', 'Usuarios']);
   let cuerpo = '';
   if (t === 'datos') cuerpo = ajustesDatos(ctx);
   if (t === 'calendario') cuerpo = ajustesCalendario(ctx);
   if (t === 'articulos') cuerpo = ajustesArticulos(ctx);
   if (t === 'general') cuerpo = ajustesGeneral(ctx);
+  if (t === 'usuarios') cuerpo = ajustesUsuarios();
   return `<div class="stack"><h1 class="sr-only">Ajustes</h1>
     <div class="sec-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${t === k}" data-act="ajustes-tab" data-v="${k}">${n}</button>`).join('')}</div>${cuerpo}</div>`;
 }
 function ajustesDatos(ctx) {
   const snaps = listarSnapshots();
+  if (modoLectura && Consulta.estado === 'nube') return `<div class="card card-b"><p>Tu usuario es de <b>consulta</b>: podés ver todo, pero no modificar ni hacer copias.</p></div>`;
   if (modoLectura) return `<div class="card card-b stack"><p>Estás en <b>modo consulta</b>: se leen los datos del archivo compartido y no se pueden modificar.</p>
     <div class="row">${Consulta.handle ? '<button class="btn primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn" data-act="entrar-consulta">Abrir otro archivo</button><button class="btn" data-act="exportar">Descargar copia</button><button class="btn ghost" data-act="salir-consulta">Salir del modo consulta</button></div></div>`;
   return `<div class="stack">
@@ -2292,6 +2324,32 @@ async function borrarEjemplo() {
    6. EVENTOS
    ========================================================================= */
 const acciones = {
+  // Ingreso y usuarios (nube)
+  'ingreso-tab': el => { ingreso.tab = el.dataset.v; ingreso.error = ''; ingreso.aviso = ''; render(); },
+  'ingreso-google': () => ingresoAccion(() => Nube.ingresarGoogle()),
+  'ingreso-olvide': () => {
+    const email = ($('#main input[name=email]')?.value || '').trim();
+    if (!email) { ingreso.error = 'Escribí tu mail arriba y después tocá "Olvidé mi contraseña".'; ingreso.aviso = ''; render(); return; }
+    ingreso.campos.email = email;
+    ingresoAccion(() => Nube.recuperarClave(email), { exito: `Te mandamos un mail a ${email} para elegir una contraseña nueva. Si no llega, fijate en "Spam".` });
+  },
+  'ingreso-salir': () => { ingreso.campos = {}; ingreso.tab = 'entrar'; Nube.salir(); },
+  'ingreso-reintentar': () => location.reload(),
+  'menu-usuario': () => abrirMenuUsuario(),
+  'usuarios-recargar': () => { Nube.usuarios = null; render(); },
+  'codigo-copiar': () => { navigator.clipboard?.writeText(Nube.codigo).then(() => toast('Código copiado.'), () => toast(Nube.codigo)); },
+  'codigo-nuevo': async () => {
+    const ok = !Nube.codigo || await confirmar({ titulo: 'Generar un código nuevo', html: '<p>El código actual deja de servir para crear cuentas nuevas. Las cuentas que ya existen siguen funcionando.</p>', ok: 'Generar' });
+    if (!ok) return;
+    try { await Nube.guardarCodigo(generarCodigo()); toast('Código nuevo listo.'); } catch (e) { toast(mensajeNube(e)); }
+    render();
+  },
+  'usuario-activo': async el => {
+    const u = Nube.usuarios.find(x => x.uid === el.dataset.uid); if (!u) return;
+    if (u.activo && !await confirmar({ titulo: 'Dar de baja', html: `<p><b>${esc(u.nombre)}</b> no va a poder entrar más a la app. Se puede reactivar cuando quieras.</p>`, ok: 'Dar de baja', peligro: true })) return;
+    try { await Nube.actualizarUsuario(u.uid, { activo: !u.activo }); toast(u.activo ? 'Acceso reactivado.' : 'Acceso dado de baja.'); } catch (e) { toast(mensajeNube(e)); }
+    render();
+  },
   // Pestañas de la ficha: sólo muestran u ocultan secciones ya dibujadas
   'ficha-tab': el => {
     ui.fichaTab = el.dataset.v;
@@ -2371,6 +2429,9 @@ document.addEventListener('click', e => {
   if (fn) { e.preventDefault(); fn(el); }
 });
 const cambios = {
+  'usuario-rol': async el => {
+    try { await Nube.actualizarUsuario(el.dataset.uid, { rol: el.value }); toast('Tipo de usuario actualizado.'); } catch (e) { toast(mensajeNube(e)); render(); }
+  },
   'fecha-inicio': el => { if (esISO(el.value)) { ui.fecha = el.value; render(); } },
   'buscar-agentes': el => { ui.busqueda = el.value; $('#lista-agentes').innerHTML = listaAgentes(contexto()); },
   'ver-inactivos': el => { ui.verInactivos = el.checked; $('#lista-agentes').innerHTML = listaAgentes(contexto()); },
@@ -2522,7 +2583,289 @@ window.addEventListener('afterprint', () => { $('#print-area').innerHTML = ''; }
 /* =========================================================================
    7. INIT
    ========================================================================= */
+/* =========================================================================
+   7. NUBE: USUARIOS CON FIREBASE
+   Mientras FIREBASE_CONFIG sea null, la app funciona exactamente como antes
+   (sin usuarios, datos en este navegador y en el archivo de Drive).
+   Para probar con el emulador local: abrir la app con ?emulador desde localhost o file://.
+   Etapa 2: ingreso, registro con código de la escuela y tipos de usuario.
+   Los datos siguen guardándose como hasta ahora; pasan al servidor en la etapa 3.
+   ========================================================================= */
+const FIREBASE_CONFIG = null; // ← acá va el firebaseConfig del proyecto (etapa 1)
+const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/13.2.0/';
+const ROLES = { admin: 'Administra', carga: 'Carga licencias', consulta: 'Solo consulta' };
+const ROLES_CORTO = { admin: 'Administra', carga: 'Carga', consulta: 'Consulta' };
+
+const Nube = {
+  config: null, emulador: false, fb: null, auth: null, db: null,
+  estado: 'apagada', // apagada | cargando | sin-sesion | sin-perfil | baja | ok | error
+  usuario: null, perfil: null, error: '', registrando: false, archivoReconectado: false,
+  usuarios: null, codigo: null, cargandoAdmin: false,
+
+  activa() { return !!this.config; },
+  preparar() {
+    const local = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+    if (local && new URLSearchParams(location.search).has('emulador')) {
+      this.emulador = true;
+      this.config = { apiKey: 'demo', authDomain: 'demo-licencias.firebaseapp.com', projectId: 'demo-licencias', appId: 'demo' };
+    } else this.config = FIREBASE_CONFIG;
+  },
+  async iniciar() {
+    this.estado = 'cargando'; aplicarSesion();
+    try {
+      const [app, auth, fs] = await Promise.all(['app', 'auth', 'firestore'].map(m => import(FIREBASE_SDK + `firebase-${m}.js`)));
+      this.fb = { ...app, ...auth, ...fs };
+      const fbApp = app.initializeApp(this.config);
+      this.auth = auth.getAuth(fbApp); this.auth.languageCode = 'es';
+      this.db = fs.getFirestore(fbApp);
+      if (this.emulador) {
+        auth.connectAuthEmulator(this.auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+        fs.connectFirestoreEmulator(this.db, '127.0.0.1', 8080);
+      }
+      auth.onAuthStateChanged(this.auth, u => { if (!this.registrando) this.alCambiarSesion(u); });
+    } catch (e) {
+      this.estado = 'error'; this.error = 'No se pudo conectar con el servidor. Revisá la conexión a internet y recargá la página.';
+      aplicarSesion();
+    }
+  },
+  async alCambiarSesion(u) {
+    this.usuario = u; this.perfil = null; this.usuarios = null; this.codigo = null;
+    if (!u) { this.estado = 'sin-sesion'; aplicarSesion(); return; }
+    try {
+      const s = await this.fb.getDoc(this.fb.doc(this.db, 'usuarios', u.uid));
+      if (!s.exists()) this.estado = 'sin-perfil';
+      else { this.perfil = s.data(); this.estado = this.perfil.activo ? 'ok' : 'baja'; }
+    } catch (e) { this.estado = 'error'; this.error = mensajeNube(e); }
+    aplicarSesion();
+  },
+  // ----- Ingreso y registro -----
+  ingresar(email, clave) { return this.fb.signInWithEmailAndPassword(this.auth, email.trim(), clave); },
+  ingresarGoogle() { return this.fb.signInWithPopup(this.auth, new this.fb.GoogleAuthProvider()); },
+  recuperarClave(email) { return this.fb.sendPasswordResetEmail(this.auth, email.trim()); },
+  salir() { return this.fb.signOut(this.auth); },
+  async registrar({ nombre, email, clave, rol, codigo }) {
+    let cred;
+    this.registrando = true;
+    try {
+      cred = await this.fb.createUserWithEmailAndPassword(this.auth, email.trim(), clave);
+      await this.fb.updateProfile(cred.user, { displayName: nombre.trim() });
+      await this.crearPerfil(cred.user, { nombre, rol, codigo });
+    } catch (e) {
+      // Código incorrecto: se borra la cuenta recién creada para que pueda volver a intentar con el mismo mail
+      if (cred && e.code === 'permission-denied') { await cred.user.delete().catch(() => {}); this.registrando = false; this.alCambiarSesion(null); throw new Error('El código de la escuela no es correcto.'); }
+      this.registrando = false;
+      if (cred) this.alCambiarSesion(cred.user);
+      throw e;
+    }
+    this.registrando = false;
+    await this.alCambiarSesion(this.auth.currentUser);
+  },
+  async completarPerfil(datos) { // quien entró con Google (o perdió su perfil) y todavía no se registró
+    try { await this.crearPerfil(this.usuario, datos); }
+    catch (e) { if (e.code === 'permission-denied') throw new Error('El código de la escuela no es correcto.'); throw e; }
+    await this.alCambiarSesion(this.usuario);
+  },
+  crearPerfil(user, { nombre, rol, codigo }) {
+    const f = this.fb;
+    return f.setDoc(f.doc(this.db, 'usuarios', user.uid), {
+      nombre: nombre.trim(), email: user.email, rol, activo: true,
+      codigo: normalizarCodigo(codigo), creado: f.serverTimestamp(),
+    });
+  },
+  // ----- Administración (sólo el admin; las reglas del servidor lo controlan) -----
+  esAdmin() { return this.estado === 'ok' && this.perfil?.rol === 'admin'; },
+  async cargarAdmin() {
+    if (this.cargandoAdmin) return;
+    this.cargandoAdmin = true;
+    try {
+      const f = this.fb;
+      const [us, cod] = await Promise.all([f.getDocs(f.collection(this.db, 'usuarios')), f.getDoc(f.doc(this.db, 'config', 'acceso'))]);
+      this.usuarios = us.docs.map(d => ({ uid: d.id, ...d.data() }));
+      this.codigo = cod.exists() ? cod.data().codigo : '';
+    } catch (e) { this.usuarios = []; this.codigo = ''; toast(mensajeNube(e)); }
+    this.cargandoAdmin = false;
+    render();
+  },
+  async actualizarUsuario(uid, cambios) {
+    await this.fb.updateDoc(this.fb.doc(this.db, 'usuarios', uid), cambios);
+    const u = this.usuarios?.find(x => x.uid === uid); if (u) Object.assign(u, cambios);
+  },
+  async guardarCodigo(c) {
+    await this.fb.setDoc(this.fb.doc(this.db, 'config', 'acceso'), { codigo: c });
+    this.codigo = c;
+  },
+};
+
+function normalizarCodigo(c) { return String(c || '').trim().toUpperCase().replace(/\s+/g, ''); }
+function generarCodigo() {
+  const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sin 0/O ni 1/I/L para que no se confundan
+  const r = crypto.getRandomValues(new Uint8Array(8));
+  const s = Array.from(r, n => letras[n % letras.length]).join('');
+  return `ESRN-${s.slice(0, 4)}-${s.slice(4)}`;
+}
+function mensajeNube(e) {
+  const c = e?.code || '';
+  const m = {
+    'auth/invalid-credential': 'El mail o la contraseña no son correctos.',
+    'auth/wrong-password': 'El mail o la contraseña no son correctos.',
+    'auth/user-not-found': 'No hay ninguna cuenta con ese mail.',
+    'auth/invalid-email': 'El mail no es válido.',
+    'auth/missing-email': 'Escribí tu mail.',
+    'auth/missing-password': 'Escribí tu contraseña.',
+    'auth/email-already-in-use': 'Ya hay una cuenta con ese mail. Ingresá con tu contraseña (o tocá "Olvidé mi contraseña").',
+    'auth/weak-password': 'La contraseña tiene que tener al menos 6 caracteres.',
+    'auth/too-many-requests': 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+    'auth/network-request-failed': 'No hay conexión a internet. Revisá la conexión y probá de nuevo.',
+    'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permití las ventanas emergentes para este sitio.',
+    'auth/account-exists-with-different-credential': 'Ese mail ya tiene una cuenta con contraseña. Ingresá con el mail y la contraseña.',
+    'permission-denied': 'No tenés permiso para hacer eso.',
+    'unavailable': 'No hay conexión con el servidor. Probá de nuevo en un momento.',
+  };
+  return m[c] || e?.message || 'Ocurrió un error. Probá de nuevo.';
+}
+
+/* Aplica el estado de la sesión: tipo de usuario, modo consulta y qué se muestra */
+function aplicarSesion() {
+  const dentro = !Nube.activa() || Nube.estado === 'ok';
+  document.body.classList.toggle('sin-sesion', !dentro);
+  if (Nube.activa() && Nube.estado === 'ok') {
+    const consulta = Nube.perfil.rol === 'consulta';
+    modoLectura = consulta;
+    Consulta.estado = consulta ? 'nube' : '';
+    if (!consulta && !Nube.archivoReconectado && Archivo.soportado) { Nube.archivoReconectado = true; reconectarArchivo(false); }
+  }
+  render();
+}
+
+/* ---------- Pantallas de ingreso ---------- */
+const ingreso = { tab: 'entrar', error: '', aviso: '', ocupado: false, campos: {} };
+function vistaIngreso() {
+  const c = ingreso.campos;
+  const v = k => esc(c[k] || '');
+  const err = ingreso.error ? `<div class="msg err">${ico('alerta', 'sm')}<span>${esc(ingreso.error)}</span></div>` : '';
+  const aviso = ingreso.aviso ? `<div class="msg ok">${ico('check', 'sm')}<span>${esc(ingreso.aviso)}</span></div>` : '';
+  const dis = ingreso.ocupado ? 'disabled' : '';
+  const google = `<button type="button" class="btn w-full" data-act="ingreso-google" ${dis}>${ICONO_GOOGLE}Continuar con Google</button>`;
+  const rolElegir = `<fieldset class="roles"><legend class="lbl">¿Qué vas a hacer en la app?</legend>
+      <label class="rol-op"><input type="radio" name="rol" value="carga" ${c.rol !== 'consulta' ? 'checked' : ''}><span><b>Cargo licencias</b><span class="muted small">Cargar y editar agentes, licencias y notas.</span></span></label>
+      <label class="rol-op"><input type="radio" name="rol" value="consulta" ${c.rol === 'consulta' ? 'checked' : ''}><span><b>Solo consulto</b><span class="muted small">Ver todo, sin poder modificar (directivos).</span></span></label></fieldset>`;
+  const codigo = `<label class="f">Código de la escuela<input class="in" name="codigo" value="${v('codigo')}" autocomplete="off" autocapitalize="characters" placeholder="Te lo pasa quien administra la app" required></label>`;
+  let cuerpo = '';
+  if (Nube.estado === 'cargando' || Nube.estado === 'apagada') cuerpo = `<p class="muted">Conectando…</p>`;
+  else if (Nube.estado === 'error') cuerpo = `<div class="msg err">${ico('alerta', 'sm')}<span>${esc(Nube.error)}</span></div><button class="btn primary w-full" data-act="ingreso-reintentar">Reintentar</button>`;
+  else if (Nube.estado === 'baja') cuerpo = `<p>Tu acceso a la app está <b>dado de baja</b>. Si es un error, avisale a quien administra la app.</p><button class="btn w-full" data-act="ingreso-salir">Salir</button>`;
+  else if (Nube.estado === 'sin-perfil') cuerpo = `<p class="muted small">Ingresaste como <b>${esc(Nube.usuario?.email)}</b>. Para terminar, completá estos datos:</p>
+      <form class="stack" data-form="ingreso-perfil">
+        <label class="f">Nombre y apellido<input class="in" name="nombre" value="${esc(c.nombre || Nube.usuario?.displayName || '')}" autocomplete="name" required></label>
+        ${rolElegir}${codigo}${err}
+        <button class="btn primary w-full" ${dis}>Entrar</button>
+      </form>
+      <button class="linkbtn" data-act="ingreso-salir">Usar otra cuenta</button>`;
+  else if (ingreso.tab === 'entrar') cuerpo = `
+      <form class="stack" data-form="ingreso-entrar">
+        <label class="f">Mail<input class="in" type="email" name="email" value="${v('email')}" autocomplete="email" required autofocus></label>
+        <label class="f">Contraseña<input class="in" type="password" name="clave" autocomplete="current-password" required></label>
+        ${err}${aviso}
+        <button class="btn primary w-full" ${dis}>Ingresar</button>
+      </form>
+      <button class="linkbtn" data-act="ingreso-olvide">Olvidé mi contraseña</button>
+      <div class="separador"><span>o</span></div>${google}`;
+  else cuerpo = `
+      <form class="stack" data-form="ingreso-registro">
+        <label class="f">Nombre y apellido<input class="in" name="nombre" value="${v('nombre')}" autocomplete="name" required autofocus></label>
+        <label class="f">Mail<input class="in" type="email" name="email" value="${v('email')}" autocomplete="email" required></label>
+        <label class="f">Contraseña<span class="hint">Al menos 6 caracteres.</span><input class="in" type="password" name="clave" autocomplete="new-password" minlength="6" required></label>
+        ${rolElegir}${codigo}${err}
+        <button class="btn primary w-full" ${dis}>Crear cuenta</button>
+      </form>
+      <div class="separador"><span>o</span></div>${google}
+      <p class="xs muted">Con Google, después te pedimos qué vas a hacer y el código de la escuela.</p>`;
+  const tabs = ['sin-sesion'].includes(Nube.estado) ? `<div class="segtabs ingreso-tabs" role="tablist">
+      <button role="tab" data-act="ingreso-tab" data-v="entrar" aria-selected="${ingreso.tab === 'entrar'}">Ingresar</button>
+      <button role="tab" data-act="ingreso-tab" data-v="registro" aria-selected="${ingreso.tab === 'registro'}">Crear cuenta</button></div>` : '';
+  return `<div class="ingreso">
+    <div class="ingreso-marca"><div class="logo-esrn" aria-label="ESRN Rural Virtual"><span class="sigla"><span class="es">ES</span><span class="rn">RN</span></span><small>RURAL VIRTUAL</small></div>
+      <div><b>Licencias del personal</b><div class="muted small">${Nube.emulador ? 'Modo prueba (emulador)' : esc(INSTITUCION)}</div></div></div>
+    <div class="card card-b stack">${tabs}${cuerpo}</div></div>`;
+}
+const ICONO_GOOGLE = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h6a5.1 5.1 0 0 1-2.2 3.4v2.8h3.6c2.1-2 3.2-4.8 3.2-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.4-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.7 14c-.2-.7-.4-1.4-.4-2s.1-1.4.4-2V7.1H2a11 11 0 0 0 0 9.8l3.7-2.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2 7.1L5.7 10c.9-2.7 3.4-4.6 6.3-4.6z"/></svg>';
+
+async function ingresoAccion(fn, { exito = '' } = {}) {
+  ingreso.ocupado = true; ingreso.error = ''; ingreso.aviso = ''; render();
+  try { await fn(); if (exito) ingreso.aviso = exito; }
+  catch (e) { if (e?.code !== 'auth/popup-closed-by-user' && e?.code !== 'auth/cancelled-popup-request') ingreso.error = mensajeNube(e); }
+  ingreso.ocupado = false; render();
+}
+function leerFormIngreso(f) {
+  const fd = new FormData(f); const o = {};
+  for (const [k, val] of fd.entries()) o[k] = String(val);
+  const { clave, ...resto } = o; Object.assign(ingreso.campos, resto); // la contraseña no se guarda
+  return o;
+}
+document.addEventListener('submit', e => {
+  const f = e.target.closest('[data-form^="ingreso-"]'); if (!f) return;
+  e.preventDefault();
+  const d = leerFormIngreso(f);
+  const tipo = f.dataset.form;
+  if (tipo === 'ingreso-entrar') ingresoAccion(() => Nube.ingresar(d.email, d.clave));
+  if (tipo === 'ingreso-registro') {
+    if (!normalizarCodigo(d.codigo)) { ingreso.error = 'Falta el código de la escuela.'; render(); return; }
+    ingresoAccion(() => Nube.registrar(d));
+  }
+  if (tipo === 'ingreso-perfil') ingresoAccion(() => Nube.completarPerfil(d));
+});
+
+/* ---------- Menú del usuario (arriba a la derecha) ---------- */
+function pintarUsuario() {
+  const b = $('#btn-usuario'); if (!b) return;
+  const ok = Nube.activa() && Nube.estado === 'ok';
+  b.hidden = !ok;
+  if (!ok) return;
+  const nombre = Nube.perfil.nombre || Nube.usuario.email;
+  const ini = nombre.split(/\s+/).filter(Boolean).slice(0, 2).map(s => s[0].toUpperCase()).join('');
+  b.querySelector('.avatar').textContent = ini || '?';
+  b.querySelector('.txt').textContent = nombre.split(/\s+/)[0];
+  b.title = `${nombre} · ${ROLES[Nube.perfil.rol] || ''}`;
+}
+function abrirMenuUsuario() {
+  const p = Nube.perfil;
+  const m = abrirModal(`<div class="modal-h"><div><h2>${esc(p.nombre)}</h2><div class="modal-sub">${esc(Nube.usuario.email)}</div></div><span class="spacer"></span><button class="iconbtn" data-x="no" aria-label="Cerrar">${ico('x')}</button></div>
+    <div class="modal-b"><div class="row"><span class="muted">Tipo de usuario:</span><span class="chip">${esc(ROLES[p.rol] || p.rol)}</span></div>
+      ${p.rol === 'consulta' ? '<p class="small muted">Podés ver todo, pero no modificar. Si necesitás cargar licencias, pedíselo a quien administra la app.</p>' : ''}</div>
+    <div class="modal-f"><span class="spacer"></span><button class="btn" data-x="no">Cerrar</button><button class="btn danger" data-x="salir">Salir</button></div>`, { chico: true });
+  m.querySelectorAll('[data-x=no]').forEach(b => { b.onclick = () => cerrarModal(); });
+  m.querySelector('[data-x=salir]').onclick = async () => { cerrarModal(); ingreso.campos = {}; ingreso.tab = 'entrar'; await Nube.salir(); };
+}
+
+/* ---------- Ajustes → Usuarios (sólo administra) ---------- */
+function ajustesUsuarios() {
+  if (!Nube.esAdmin()) return '<div class="vacio">Sólo quien administra la app ve esta sección.</div>';
+  if (Nube.usuarios === null) { setTimeout(() => Nube.cargarAdmin()); return '<div class="card card-b muted">Cargando usuarios…</div>'; }
+  const yo = Nube.usuario.uid;
+  const us = [...Nube.usuarios].sort((a, b) => (b.activo - a.activo) || String(a.nombre).localeCompare(String(b.nombre), 'es'));
+  return `<div class="stack">
+    <section class="card"><div class="card-h"><h2>Código de la escuela</h2></div><div class="card-b stack">
+      <p class="small">Para crear su cuenta, cada persona tiene que poner este código. Pasáselo sólo al personal de la escuela. Si se filtra, generá uno nuevo: las cuentas que ya existen siguen funcionando.</p>
+      <div class="row"><code class="codigo">${Nube.codigo ? esc(Nube.codigo) : 'Todavía no hay código: nadie se puede registrar.'}</code>
+        ${Nube.codigo ? '<button class="btn sm" data-act="codigo-copiar">Copiar</button>' : ''}
+        <button class="btn sm" data-act="codigo-nuevo">${Nube.codigo ? 'Generar uno nuevo' : 'Generar código'}</button></div>
+    </div></section>
+    <section class="card"><div class="card-h"><h2>Usuarios</h2><span class="chip">${us.filter(u => u.activo).length} activos</span><span class="spacer"></span><button class="btn sm" data-act="usuarios-recargar">Actualizar</button></div>
+      <table class="t"><thead><tr><th>Nombre</th><th class="hide-m">Mail</th><th>Tipo</th><th class="c">Acceso</th></tr></thead><tbody>
+      ${us.map(u => `<tr><td class="nombre">${esc(u.nombre)}${u.uid === yo ? ' <span class="chip">vos</span>' : ''}</td><td class="hide-m small">${esc(u.email)}</td>
+        <td>${u.uid === yo ? esc(ROLES[u.rol]) : `<select class="in w-auto" data-on="usuario-rol" data-uid="${u.uid}">${Object.entries(ROLES).map(([k, n]) => `<option value="${k}" ${u.rol === k ? 'selected' : ''}>${n}</option>`).join('')}</select>`}</td>
+        <td class="c">${u.uid === yo ? '<span class="chip ok">Activo</span>' : `<button class="btn sm ${u.activo ? 'danger' : ''}" data-act="usuario-activo" data-uid="${u.uid}">${u.activo ? 'Dar de baja' : 'Reactivar'}</button>`}</td></tr>`).join('')}
+      </tbody></table></section></div>`;
+}
+
 async function init() {
+  Nube.preparar();
+  if (Nube.activa()) {
+    // Etapa 2: los datos siguen en este navegador; la nube maneja usuarios y permisos
+    estado = cargarLocal(); guardarLocal();
+    Nube.iniciar();
+    return;
+  }
   if (LS.getItem(MODO_KEY) === 'consulta') {
     modoLectura = true; estado = estadoInicial(); Consulta.estado = 'cargando';
     try { Consulta.handle = await idbGet('consulta'); } catch (e) { Consulta.handle = null; }
