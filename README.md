@@ -6,6 +6,19 @@ App de control de licencias del personal de la ESRN Rural Virtual. Es un solo ar
 
 Por ahora la nube se activa solo entrando con `?nube` al final del link (por ejemplo `https://santifarah1.github.io/Licencias/?nube`). Sin eso, la app funciona como siempre: sin usuarios, con los datos en el navegador y en el archivo de Drive. Cuando todos pasen a usar usuarios, se pone `NUBE_POR_DEFECTO = true` en `index.html`.
 
+### Los datos en el servidor
+
+Con la nube activa, los datos se guardan en Firestore y no en el navegador ni en el archivo de Drive:
+
+- **Dónde se guardan:** cada agente, licencia, nota, artículo y día del calendario es un documento en `datos/{colección}/registros/{id}`. La configuración (ciclos lectivos, versión de los datos) va en `datos/config/registros/general`.
+- **Cómo se sube:** al guardar, se suben solo los registros que cambiaron. Si dos personas cargan a la vez cosas distintas, no se pisan.
+- **Cambios de las demás:** llegan solos y la pantalla se actualiza, sin recargar.
+- **Sin internet:** se sigue cargando, y se sube todo solo cuando vuelve la conexión. El indicador de arriba muestra "Sin conexión: se sube al volver".
+- **Base vacía:** la primera persona que entra con permiso de carga siembra los artículos y los feriados.
+- **Pasar datos desde una compu:** el administrador usa **Ajustes → Datos y respaldo → Importar copia** con el `.json` exportado. Reemplaza todo lo del servidor.
+- **Al salir:** se borra la copia local de los datos de esa compu, pensando en compus compartidas.
+- **Copia diaria:** con Google Apps Script, en el Drive de la cuenta del proyecto. La instalación está en [`herramientas/copia-diaria/LEEME.md`](herramientas/copia-diaria/LEEME.md).
+
 ### Tipos de usuario
 
 | Tipo | Quién | Qué puede hacer |
