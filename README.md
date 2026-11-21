@@ -4,7 +4,7 @@ App de control de licencias del personal de la ESRN Rural Virtual. Es un solo ar
 
 ## Usuarios en la nube (Firebase)
 
-Por ahora la nube se activa solo entrando con `?nube` al final del link (por ejemplo `https://santifarah1.github.io/Licencias/?nube`). Sin eso, la app funciona como siempre: sin usuarios, con los datos en el navegador y en el archivo de Drive. Cuando todos pasen a usar usuarios, se pone `NUBE_POR_DEFECTO = true` en `index.html`.
+En **https://licencias-esrn.web.app** (el link propio de Firebase) siempre se entra con usuario. En el link de GitHub Pages, por ahora la nube se activa solo entrando con `?nube` al final del link (por ejemplo `https://santifarah1.github.io/Licencias/?nube`). Sin eso, la app funciona como siempre: sin usuarios, con los datos en el navegador y en el archivo de Drive. Cuando todos pasen a usar usuarios, se pone `NUBE_POR_DEFECTO = true` en `index.html`.
 
 ### Los datos en el servidor
 
