@@ -2634,7 +2634,8 @@ window.addEventListener('afterprint', () => { $('#print-area').innerHTML = ''; }
 /* =========================================================================
    7. NUBE: USUARIOS CON FIREBASE
    Por ahora la nube se activa sólo entrando con ?nube al final del link
-   (o poniendo NUBE_POR_DEFECTO en true). Sin eso, la app funciona exactamente como antes
+   (o poniendo NUBE_POR_DEFECTO en true). En los links propios de Firebase (licencias-esrn.web.app
+   y .firebaseapp.com) la nube está siempre activa. Sin eso, la app funciona exactamente como antes
    (sin usuarios, datos en este navegador y en el archivo de Drive).
    Para probar con el emulador local: abrir la app con ?emulador desde localhost o file://.
    Etapa 2: ingreso, registro con código de la escuela y tipos de usuario.
@@ -2650,6 +2651,8 @@ const FIREBASE_CONFIG = {
   appId: '1:843734308881:web:c277c8f36e135a02c239b0',
 };
 const NUBE_POR_DEFECTO = false; // en true cuando todos pasen a usar usuarios (etapa 4)
+// El link propio de Firebase es el sistema nuevo: ahí siempre se entra con usuario
+const EN_LINK_FIREBASE = /\.(web\.app|firebaseapp\.com)$/.test(location.hostname);
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/13.2.0/';
 const ROLES = { admin: 'Administra', carga: 'Carga licencias', consulta: 'Solo consulta' };
 const ROLES_CORTO = { admin: 'Administra', carga: 'Carga', consulta: 'Consulta' };
@@ -2666,7 +2669,7 @@ const Nube = {
     if (local && new URLSearchParams(location.search).has('emulador')) {
       this.emulador = true;
       this.config = { apiKey: 'demo', authDomain: 'demo-licencias.firebaseapp.com', projectId: 'demo-licencias', appId: 'demo' };
-    } else if (FIREBASE_CONFIG && (NUBE_POR_DEFECTO || new URLSearchParams(location.search).has('nube'))) {
+    } else if (FIREBASE_CONFIG && (NUBE_POR_DEFECTO || EN_LINK_FIREBASE || new URLSearchParams(location.search).has('nube'))) {
       this.config = FIREBASE_CONFIG;
     }
   },
