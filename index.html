@@ -854,6 +854,7 @@ function guardarLocal() {
 }
 
 function guardar() {
+  if (NubeDatos.activos()) { NubeDatos.subir(); pintarEstadoGuardado(); return; }
   guardarLocal();
   snapshotDiario();
   programarArchivo();
@@ -1046,7 +1047,8 @@ function descargar(nombre, contenido, tipo) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function exportarJSON() {
-  if (!modoLectura) { estado.meta.ultimoBackup = ahora(); guardarLocal(); }
+  if (NubeDatos.activos()) { if (puedeCargarNube()) { estado.meta.ultimoBackup = ahora(); guardar(); } }
+  else if (!modoLectura) { estado.meta.ultimoBackup = ahora(); guardarLocal(); }
   descargar(`licencias-${hoyISO()}.json`, JSON.stringify(estado, null, 1), 'application/json');
   renderBanners();
 }
@@ -1061,11 +1063,11 @@ function importarJSON(file) {
     const ok = await confirmar({
       titulo: 'Importar copia "' + file.name + '"',
       html: `<p>La copia tiene <b>${plural(vivos(m.agentes).length, 'agente')}</b> y <b>${plural(vivos(m.licencias).length, 'licencia')}</b> (guardada el ${fmtFechaHora(m.meta?.modificado)}).</p>
-             <p><b>Reemplaza todo</b> lo que hay ahora (${plural(vivos(estado.agentes).length, 'agente')}, ${plural(vivos(estado.licencias).length, 'licencia')}). Antes se guarda una copia automática por si hace falta volver.</p>`,
+             <p><b>Reemplaza todo</b> lo que hay ${NubeDatos.activos() ? '<b>en el servidor</b>, para todas las personas con usuario' : 'ahora'} (${plural(vivos(estado.agentes).length, 'agente')}, ${plural(vivos(estado.licencias).length, 'licencia')}). ${NubeDatos.activos() ? 'Si hace falta volver atrás, están las copias de cada noche.' : 'Antes se guarda una copia automática por si hace falta volver.'}</p>`,
       ok: 'Reemplazar con la copia', peligro: true,
     });
     if (!ok) return;
-    snapshot('antes-de-importar-' + Date.now());
+    if (!NubeDatos.activos()) snapshot('antes-de-importar-' + Date.now());
     estado = m; estado.meta.modificado = ahora(); estado.meta.rev = (estado.meta.rev || 0) + 1;
     if (Archivo.estado === 'conectado') Archivo.revConocida = null;
     guardar(); render(); toast('Copia importada.');
@@ -1353,6 +1355,11 @@ function render() {
     $('#main').innerHTML = vistaIngreso(); $('#banners').innerHTML = ''; pintarUsuario();
     return;
   }
+  if (NubeDatos.activos() && !NubeDatos.listo) {
+    $('#main').innerHTML = '<div class="vacio"><b>Cargando los datos…</b>La primera vez puede tardar unos segundos.</div>';
+    $('#banners').innerHTML = ''; pintarUsuario(); pintarEstadoGuardado();
+    return;
+  }
   const h = rutaActual || 'inicio';
   const [v, id] = h.split('/');
   ui.vista = ['inicio', 'agentes', 'agente', 'reportes', 'ajustes'].includes(v) ? v : 'inicio';
@@ -1379,6 +1386,15 @@ function render() {
 
 function pintarEstadoGuardado() {
   const el = $('#pill-respaldo'); if (!el || !estado) return;
+  if (NubeDatos.activos()) {
+    let cls = 'ok', txt = 'Guardado en la nube';
+    if (NubeDatos.error) { cls = 'err'; txt = 'No se pudo guardar'; }
+    else if (!navigator.onLine) { cls = 'warn'; txt = NubeDatos.pendientes ? 'Sin conexión: se sube al volver' : 'Sin conexión'; }
+    else if (NubeDatos.pendientes || !NubeDatos.listo) { cls = ''; txt = NubeDatos.listo ? 'Guardando…' : 'Cargando…'; }
+    else if (modoLectura) { cls = 'ok'; txt = 'Datos al día'; }
+    el.className = 'pill ' + cls; el.title = txt; el.querySelector('.txt').textContent = txt;
+    return;
+  }
   const hh = d => d ? ` · ${pad(d.getHours())}:${pad(d.getMinutes())}` : '';
   let cls = '', txt = '';
   if (modoLectura) { cls = ''; txt = 'Modo consulta' + hh(Consulta.cargado); }
@@ -1395,6 +1411,15 @@ function pintarEstadoGuardado() {
   el.querySelector('.txt').textContent = txt;
 }
 function abrirRespaldo() {
+  if (NubeDatos.activos()) {
+    const m = abrirModal(`<div class="modal-h"><h2>Datos en la nube</h2><span class="spacer"></span><button class="iconbtn" data-x="no" aria-label="Cerrar">${ico('x')}</button></div>
+      <div class="modal-b stack"><p>Todo lo que se carga se guarda en el servidor de la escuela y se ve desde cualquier compu, con tu usuario.</p>
+        <p class="small muted">${navigator.onLine ? 'Hay conexión.' : 'Ahora no hay conexión: podés seguir cargando y se sube solo cuando vuelva.'}${NubeDatos.pendientes ? ' Hay cambios subiéndose.' : ''} Además se guarda una copia automática todas las noches.</p>
+        <div class="row"><button class="btn" data-x="exportar">${ico('archivo')}Exportar copia (.json)</button></div></div>`, { chico: true });
+    m.querySelectorAll('[data-x=no]').forEach(b => { b.onclick = () => cerrarModal(); });
+    m.querySelector('[data-x=exportar]').onclick = () => { cerrarModal(); exportarJSON(); toast('Copia descargada.'); };
+    return;
+  }
   if (modoLectura) { if (Consulta.handle) cargarConsulta(true).then(() => toast('Datos actualizados.')); else $('#file-consulta').click(); return; }
   const conectado = Archivo.estado === 'conectado';
   const ult = estado.meta.ultimoBackup;
@@ -1416,6 +1441,7 @@ function renderBanners() {
   const b = [];
   if (!LS_OK && !modoLectura) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Esta vista no puede guardar datos.</b> Es una vista previa aislada: lo que cargues se pierde al cerrarla. Abrí la app desde su dirección (GitHub Pages) o con doble clic en la compu.</div></div>`);
   if (errorGuardado) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Error al guardar.</b> ${esc(errorGuardado)}</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
+  if (NubeDatos.activos() && NubeDatos.error) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>No se pudo guardar en el servidor:</b> ${esc(NubeDatos.error)} Recargá la página; si sigue, exportá una copia y avisale a quien administra la app.</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
   if (modoLectura && Consulta.estado === 'nube') {
     b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Usuario de consulta:</b> podés ver todo, pero no modificar.</div></div>`);
   } else if (modoLectura) {
@@ -1435,6 +1461,13 @@ function avisoEjemplo(ctx) {
 }
 /* ---------- Bienvenida ---------- */
 function vistaBienvenida() {
+  if (NubeDatos.activos()) return `<div class="welcome stack">
+    <div><h1>Licencias ESRN Rural Virtual</h1>
+    <p class="muted">Todavía no hay agentes cargados en el servidor de la escuela.</p></div>
+    <div class="opc">
+      <button class="opcion" data-act="nuevo-agente"><span class="art g-personales">1</span><span><b>Cargar el primer agente</b><span class="muted small">Queda guardado en el servidor y lo ven todas las personas con usuario.</span></span></button>
+      ${Nube.esAdmin() ? '<button class="opcion" data-act="importar"><span class="art g-salud">2</span><span><b>Importar una copia (.json)</b><span class="muted small">Para subir los datos que estaban guardados en una compu.</span></span></button>' : ''}
+    </div></div>`;
   return `<div class="welcome stack">
     <div><h1>Licencias ESRN Rural Virtual</h1>
     <p class="muted">Fichas de cada agente, sus cargos y todas las licencias del año, con el cómputo de días y los topes de cada artículo (Res. 233/98 para docentes y Ley 3487 para PSA).</p></div>
@@ -1788,8 +1821,15 @@ function vistaAjustes(ctx) {
     <div class="sec-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${t === k}" data-act="ajustes-tab" data-v="${k}">${n}</button>`).join('')}</div>${cuerpo}</div>`;
 }
 function ajustesDatos(ctx) {
+  if (NubeDatos.activos()) return `<div class="stack">
+    <section class="card"><div class="card-h"><h2>Datos en la nube</h2></div><div class="card-b stack">
+      <p>Los datos se guardan en el servidor de la escuela: <b>${plural(vivos(estado.agentes).length, 'agente')}</b>, <b>${plural(vivos(estado.licencias).length, 'licencia')}</b> y <b>${plural(vivos(estado.notas).length, 'nota')}</b>. Todas las personas con usuario ven lo mismo, desde cualquier compu.</p>
+      <p class="small muted">Todas las noches se guarda una copia automática en el Drive de la cuenta del proyecto. Además, podés bajar una copia cuando quieras.</p>
+      <div class="row"><button class="btn" data-act="exportar">${ico('archivo')}Exportar copia (.json)</button>
+      ${Nube.esAdmin() ? '<button class="btn" data-act="importar">Importar copia…</button>' : ''}</div>
+      ${Nube.esAdmin() ? '<p class="xs muted">Importar una copia <b>reemplaza todos los datos del servidor</b> por los de la copia. Sirve para pasar los datos que estaban en una compu, o para volver a una copia anterior.</p>' : ''}
+    </div></section></div>`;
   const snaps = listarSnapshots();
-  if (modoLectura && Consulta.estado === 'nube') return `<div class="card card-b"><p>Tu usuario es de <b>consulta</b>: podés ver todo, pero no modificar ni hacer copias.</p></div>`;
   if (modoLectura) return `<div class="card card-b stack"><p>Estás en <b>modo consulta</b>: se leen los datos del archivo compartido y no se pueden modificar.</p>
     <div class="row">${Consulta.handle ? '<button class="btn primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn" data-act="entrar-consulta">Abrir otro archivo</button><button class="btn" data-act="exportar">Descargar copia</button><button class="btn ghost" data-act="salir-consulta">Salir del modo consulta</button></div></div>`;
   return `<div class="stack">
@@ -2566,6 +2606,8 @@ document.addEventListener('mouseout', e => {
 });
 document.addEventListener('focusout', e => { if (e.target === Combo.input) setTimeout(() => { if (document.activeElement !== Combo.input) Combo.cerrar(); }, 120); });
 window.addEventListener('resize', () => Combo.cerrar());
+window.addEventListener('online', () => pintarEstadoGuardado());
+window.addEventListener('offline', () => pintarEstadoGuardado());
 // Detalle del día debajo de la planilla al pasar el mouse
 document.addEventListener('mouseover', e => {
   const td = e.target.closest && e.target.closest('table.planilla td.d');
@@ -2590,7 +2632,7 @@ window.addEventListener('afterprint', () => { $('#print-area').innerHTML = ''; }
    (sin usuarios, datos en este navegador y en el archivo de Drive).
    Para probar con el emulador local: abrir la app con ?emulador desde localhost o file://.
    Etapa 2: ingreso, registro con código de la escuela y tipos de usuario.
-   Los datos siguen guardándose como hasta ahora; pasan al servidor en la etapa 3.
+   Etapa 3: con la nube activa, los datos se guardan en el servidor (ver NubeDatos).
    ========================================================================= */
 // Proyecto licencias-esrn. Estos datos no son secretos (van en la página): la seguridad la dan las reglas.
 const FIREBASE_CONFIG = {
@@ -2629,7 +2671,8 @@ const Nube = {
       this.fb = { ...app, ...auth, ...fs };
       const fbApp = app.initializeApp(this.config);
       this.auth = auth.getAuth(fbApp); this.auth.languageCode = 'es';
-      this.db = fs.getFirestore(fbApp);
+      try { this.db = fs.initializeFirestore(fbApp, { localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }) }); }
+      catch (e) { this.db = fs.getFirestore(fbApp); } // navegadores sin almacenamiento: funciona igual, sin modo sin conexión
       if (this.emulador) {
         auth.connectAuthEmulator(this.auth, 'http://127.0.0.1:9099', { disableWarnings: true });
         fs.connectFirestoreEmulator(this.db, '127.0.0.1', 8080);
@@ -2654,7 +2697,13 @@ const Nube = {
   ingresar(email, clave) { return this.fb.signInWithEmailAndPassword(this.auth, email.trim(), clave); },
   ingresarGoogle() { return this.fb.signInWithPopup(this.auth, new this.fb.GoogleAuthProvider()); },
   recuperarClave(email) { return this.fb.sendPasswordResetEmail(this.auth, email.trim()); },
-  salir() { return this.fb.signOut(this.auth); },
+  async salir() {
+    NubeDatos.desconectar();
+    await this.fb.signOut(this.auth);
+    // En una compu compartida no queda nada guardado: se borra la copia local de los datos
+    try { await this.fb.terminate(this.db); await this.fb.clearIndexedDbPersistence(this.db); } catch (e) { /* si no se puede, se recarga igual */ }
+    location.reload();
+  },
   async registrar({ nombre, email, clave, rol, codigo }) {
     let cred;
     this.registrando = true;
@@ -2708,6 +2757,125 @@ const Nube = {
   },
 };
 
+/* ---------- Etapa 3: los datos en el servidor ----------
+   Cada agente, licencia, nota, artículo y día del calendario es un documento aparte en
+   datos/{colección}/registros/{id}. La configuración (ciclos, feriados como hábiles, versión)
+   va en datos/config/registros/general.
+   La app sigue trabajando con el mismo objeto "estado" de siempre: al guardar se suben sólo
+   los registros que cambiaron, y los cambios de otras personas llegan solos y se redibuja.
+   Sin internet se sigue trabajando: Firestore guarda los cambios y los sube al volver. */
+const COLECCIONES = ['agentes', 'licencias', 'notas', 'articulos', 'calendario'];
+const NubeDatos = {
+  subs: [], sync: new Map(), recibidos: new Set(), listo: false, generalExiste: false,
+  pendientes: 0, error: '', renderPendiente: false,
+
+  activos() { return Nube.activa() && Nube.estado === 'ok'; },
+  conectar() {
+    this.desconectar();
+    const f = Nube.fb, db = Nube.db;
+    estado = estadoVacio();
+    this.sync = new Map(); this.recibidos = new Set(); this.listo = false; this.generalExiste = false; this.error = '';
+    this.subs.push(f.onSnapshot(f.doc(db, 'datos', 'config', 'registros', 'general'), s => {
+      this.generalExiste = s.exists();
+      if (s.exists()) {
+        const d = s.data();
+        this.sync.set('general', JSON.stringify(d));
+        estado.version = d.version || estado.version;
+        estado.config = { ...estado.config, ...(d.config || {}) };
+        Object.assign(estado.meta, d.meta || {});
+      }
+      this.recibido('general');
+    }, e => this.falla(e)));
+    for (const col of COLECCIONES) {
+      this.subs.push(f.onSnapshot(f.collection(db, 'datos', col, 'registros'), s => {
+        for (const ch of s.docChanges()) {
+          const id = ch.doc.id, key = col + '/' + id;
+          const arr = estado[col];
+          const i = arr.findIndex(r => r.id === id);
+          if (ch.type === 'removed') { if (i >= 0) arr.splice(i, 1); this.sync.delete(key); continue; }
+          const d = ch.doc.data();
+          this.sync.set(key, JSON.stringify(d));
+          if (i >= 0) arr[i] = d; else arr.push(d);
+        }
+        this.recibido(col);
+      }, e => this.falla(e)));
+    }
+  },
+  desconectar() { this.subs.forEach(u => { try { u(); } catch (e) { /* ya cerrada */ } }); this.subs = []; this.listo = false; },
+  falla(e) { this.error = mensajeNube(e); this.listo = true; this.redibujar(); },
+  recibido(parte) {
+    this.recibidos.add(parte);
+    if (!this.listo && this.recibidos.size === COLECCIONES.length + 1) { this.listo = true; this.alEstarListo(); }
+    this.redibujar();
+  },
+  // Primera carga completa: si la base está vacía se siembran artículos y feriados; si es de una versión vieja, se migra.
+  alEstarListo() {
+    if (!puedeCargarNube()) return;
+    if (!this.generalExiste) {
+      if (!estado.articulos.length) {
+        const ini = estadoInicial();
+        estado.articulos = ini.articulos; estado.calendario = vivos(estado.calendario).length ? estado.calendario : ini.calendario;
+      }
+      this.subir();
+    } else if ((estado.version || 1) < SCHEMA_VERSION) {
+      estado = migrar(estado, { persistir: false });
+      this.subir();
+    }
+  },
+  // Redibuja sin cortar a quien está escribiendo en un campo de la pantalla
+  redibujar() {
+    if (this.renderPendiente) return;
+    this.renderPendiente = true;
+    requestAnimationFrame(() => {
+      this.renderPendiente = false;
+      const a = document.activeElement;
+      if (a && a.closest && a.closest('#main') && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && this.listo) {
+        a.addEventListener('blur', () => this.redibujar(), { once: true });
+        return;
+      }
+      render();
+    });
+  },
+  // Sube sólo lo que cambió respecto de lo último que se vio en el servidor
+  subir() {
+    if (!this.listo || !puedeCargarNube()) return;
+    const f = Nube.fb, db = Nube.db, ops = [], vistos = new Set();
+    for (const col of COLECCIONES) {
+      for (const r of estado[col] || []) {
+        if (!r || !r.id) continue;
+        const key = col + '/' + r.id, j = JSON.stringify(r);
+        vistos.add(key);
+        if (this.sync.get(key) !== j) { ops.push({ ref: f.doc(db, 'datos', col, 'registros', r.id), datos: JSON.parse(j) }); this.sync.set(key, j); }
+      }
+    }
+    for (const key of [...this.sync.keys()]) {
+      if (key === 'general' || vistos.has(key)) continue;
+      const [col, id] = key.split('/');
+      ops.push({ ref: f.doc(db, 'datos', col, 'registros', id), borrar: true }); this.sync.delete(key);
+    }
+    const g = datosGenerales(), jg = JSON.stringify(g);
+    if (this.sync.get('general') !== jg) { ops.push({ ref: f.doc(db, 'datos', 'config', 'registros', 'general'), datos: JSON.parse(jg) }); this.sync.set('general', jg); }
+    for (let i = 0; i < ops.length; i += 400) {
+      const lote = f.writeBatch(db);
+      ops.slice(i, i + 400).forEach(o => o.borrar ? lote.delete(o.ref) : lote.set(o.ref, o.datos));
+      this.pendientes++; pintarEstadoGuardado();
+      lote.commit().then(() => { this.error = ''; }, e => { this.error = mensajeNube(e); renderBanners(); })
+        .finally(() => { this.pendientes--; pintarEstadoGuardado(); });
+    }
+  },
+};
+function puedeCargarNube() { return NubeDatos.activos() && ['admin', 'carga'].includes(Nube.perfil?.rol); }
+function estadoVacio() {
+  const t = ahora();
+  return { version: SCHEMA_VERSION, meta: { institucion: INSTITUCION, creado: t, modificado: t, rev: 0, ultimoBackup: null, semillaArticulos: 1 },
+    config: { feriadosCuentanHabiles: false }, articulos: [], calendario: [], agentes: [], licencias: [], notas: [] };
+}
+// Lo que va al documento "general": sin los contadores que cambian en cada guardado
+function datosGenerales() {
+  const { rev, modificado, ...meta } = estado.meta || {};
+  return { version: estado.version, config: estado.config || {}, meta };
+}
+
 function normalizarCodigo(c) { return String(c || '').trim().toUpperCase().replace(/\s+/g, ''); }
 function generarCodigo() {
   const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sin 0/O ni 1/I/L para que no se confundan
@@ -2739,12 +2907,13 @@ function mensajeNube(e) {
 /* Aplica el estado de la sesión: tipo de usuario, modo consulta y qué se muestra */
 function aplicarSesion() {
   const dentro = !Nube.activa() || Nube.estado === 'ok';
+  if (Nube.activa() && Nube.estado !== 'ok') NubeDatos.desconectar();
   document.body.classList.toggle('sin-sesion', !dentro);
   if (Nube.activa() && Nube.estado === 'ok') {
     const consulta = Nube.perfil.rol === 'consulta';
     modoLectura = consulta;
     Consulta.estado = consulta ? 'nube' : '';
-    if (!consulta && !Nube.archivoReconectado && Archivo.soportado) { Nube.archivoReconectado = true; reconectarArchivo(false); }
+    if (!NubeDatos.subs.length) NubeDatos.conectar();
   }
   render();
 }
@@ -2873,8 +3042,8 @@ function ajustesUsuarios() {
 async function init() {
   Nube.preparar();
   if (Nube.activa()) {
-    // Etapa 2: los datos siguen en este navegador; la nube maneja usuarios y permisos
-    estado = cargarLocal(); guardarLocal();
+    // Con la nube, los datos vienen del servidor al iniciar sesión (no del navegador)
+    estado = estadoVacio();
     Nube.iniciar();
     return;
   }
