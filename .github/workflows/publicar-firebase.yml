@@ -1,0 +1,44 @@
+# Publica la app en Firebase Hosting (licencias-esrn.web.app) y las reglas de seguridad
+# cada vez que se mergea algo a main. Necesita el secreto FIREBASE_SERVICE_ACCOUNT
+# (ver README → "Publicación en Firebase"). Mientras no esté cargado, no hace nada.
+name: Publicar en Firebase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar-firebase
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      - name: Sin llave cargada todavía
+        if: env.CREDENCIAL == ''
+        run: echo "::notice::Falta el secreto FIREBASE_SERVICE_ACCOUNT, así que no se publica en Firebase (GitHub Pages sigue igual)."
+
+      - uses: actions/checkout@v4
+        if: env.CREDENCIAL != ''
+
+      - uses: actions/setup-node@v4
+        if: env.CREDENCIAL != ''
+        with:
+          node-version: 22
+
+      - name: Publicar la app y las reglas
+        if: env.CREDENCIAL != ''
+        run: |
+          # Se publica sólo la app: nada de pruebas, herramientas ni configuración
+          rm -rf publico && mkdir publico && cp index.html publico/
+          printf '%s' "$CREDENCIAL" > "$RUNNER_TEMP/credencial.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/credencial.json"
+          npx --yes firebase-tools@15.37.0 deploy --only hosting,firestore:rules --project licencias-esrn --non-interactive
+          rm -f "$RUNNER_TEMP/credencial.json"

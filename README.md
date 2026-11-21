@@ -40,6 +40,30 @@ La seguridad la aplican las reglas del servidor (`firestore.rules`), no la pági
 5. **Primer administrador:** registrarse en la app con ese código. Después, en Firestore → `usuarios` → tu documento, cambiar el campo `rol` a `admin`. Desde ahí, todo se maneja desde la app.
 6. **Dominios:** en Authentication → Configuración → **Dominios autorizados**, agregar el dominio donde está publicada la app.
 
+### Publicación en Firebase (licencias-esrn.web.app)
+
+Cada vez que se mergea algo a `main`, el workflow `.github/workflows/publicar-firebase.yml` publica la app en **https://licencias-esrn.web.app** y, de paso, publica las reglas de `firestore.rules`, así no hay que pegarlas a mano. Publica únicamente `index.html` (lo copia a una carpeta `publico/` aparte), así que nunca se suben las pruebas, las herramientas ni la configuración. GitHub Pages sigue funcionando igual.
+
+Necesita una llave guardada como secreto en GitHub. Mientras no esté cargada, el workflow no hace nada. Cómo cargarla (una sola vez, con la cuenta dueña del proyecto):
+
+1. Entrá a https://console.cloud.google.com/iam-admin/serviceaccounts?project=licencias-esrn → **+ Crear cuenta de servicio**.
+2. Nombre: `github-publicar` → **Crear y continuar**.
+3. Agregá estos tres roles (escribí el nombre en el buscador) → **Continuar** → **Listo**:
+   - **Administrador de Firebase Hosting**
+   - **Administrador de reglas de Firebase**
+   - **Consumidor de Service Usage**
+4. En la lista, tocá la cuenta `github-publicar` → pestaña **Claves** → **Agregar clave → Crear clave nueva → JSON → Crear**. Se descarga un archivo `.json`.
+5. En GitHub, en el repositorio: **Settings → Secrets and variables → Actions → New repository secret**.
+   - **Name:** `FIREBASE_SERVICE_ACCOUNT`
+   - **Secret:** abrí el `.json` con el Bloc de notas, copiá **todo** y pegalo acá.
+   - **Add secret**.
+6. **Borrá el archivo `.json` descargado:** es una llave. Si se pierde, se crea otra desde el mismo lugar.
+7. En GitHub → **Actions → Publicar en Firebase → Run workflow**. Cuando termine en verde, abrí https://licencias-esrn.web.app.
+
+Si el workflow falla:
+- Con un error de permisos: agregale a la cuenta el rol **Administrador de Firebase** y volvé a correrlo.
+- Si dice que Hosting no está configurado: en la consola de Firebase → **Hosting → Comenzar**, salteá los pasos y volvé a correrlo.
+
 ### Pruebas
 
 - Reglas de seguridad: `npm install` y después `npm run test:reglas`. Corre las pruebas de `pruebas/reglas.test.mjs` contra el emulador de Firebase.
