@@ -4,7 +4,7 @@ App de control de licencias del personal de la ESRN Rural Virtual. Es un solo ar
 
 ## Usuarios en la nube (Firebase)
 
-Mientras `FIREBASE_CONFIG` (en `index.html`) sea `null`, la app funciona como siempre: sin usuarios, con los datos en el navegador y en el archivo de Drive.
+Por ahora la nube se activa solo entrando con `?nube` al final del link (por ejemplo `https://santifarah1.github.io/Licencias/?nube`). Sin eso, la app funciona como siempre: sin usuarios, con los datos en el navegador y en el archivo de Drive. Cuando todos pasen a usar usuarios, se pone `NUBE_POR_DEFECTO = true` en `index.html`.
 
 ### Tipos de usuario
 
@@ -21,7 +21,7 @@ La seguridad la aplican las reglas del servidor (`firestore.rules`), no la pági
 ### Puesta en marcha (una sola vez)
 
 1. **Proyecto:** crear el proyecto en Firebase con Authentication (correo/contraseña y Google) y Firestore en `southamerica-east1`, en modo producción y en el plan Spark (sin tarjeta).
-2. **Configuración:** pegar el `firebaseConfig` del proyecto en `FIREBASE_CONFIG`, dentro de `index.html`.
+2. **Configuración:** el `firebaseConfig` del proyecto va en `FIREBASE_CONFIG`, dentro de `index.html` (ya cargado para `licencias-esrn`).
 3. **Reglas:** en la consola de Firebase → Firestore → **Reglas**, pegar el contenido de `firestore.rules` y tocar **Publicar**. Repetirlo cada vez que cambie ese archivo.
 4. **Primer código:** en Firestore → **Datos**, crear la colección `config`, el documento `acceso` y un campo `codigo` (tipo string) con un código en mayúsculas, por ejemplo `ESRN-AB12-CD34`.
 5. **Primer administrador:** registrarse en la app con ese código. Después, en Firestore → `usuarios` → tu documento, cambiar el campo `rol` a `admin`. Desde ahí, todo se maneja desde la app.
