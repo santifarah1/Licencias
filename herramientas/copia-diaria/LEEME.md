@@ -1,6 +1,6 @@
 # Copia diaria automática (Google Apps Script)
 
-Todas las noches, cerca de las 3, guarda una copia de todos los datos en el Drive de la cuenta dueña del proyecto de Firebase. Queda en la carpeta **Copias Licencias ESRN**, con un archivo por día (`licencias-AAAA-MM-DD.json`). Se guardan las últimas 60, y las más viejas van a la papelera.
+Todas las noches, cerca de las 3, guarda una copia de todos los datos en el Drive de la cuenta dueña del proyecto de Firebase. Queda en la carpeta **Copias Licencias ESRN**, con un archivo por día (`copia-automatica-AAAA-MM-DD.json`). El nombre distinto es para no confundirlas con las que se bajan a mano con "Exportar copia" (`licencias-AAAA-MM-DD.json`). Se guardan las últimas 60, y las más viejas van a la papelera.
 
 Cada copia tiene el mismo formato que "Exportar copia" de la app. Para volver a una copia: en la app, como administrador, **Ajustes → Datos y respaldo → Importar copia** y elegir el archivo.
 
@@ -21,7 +21,7 @@ Todo se hace con la **cuenta de Google dueña del proyecto** (la que creó `lice
    - Tocá **Revisar permisos** y elegí la cuenta.
    - Si dice **"Google no verificó esta app"**, tocá **Configuración avanzada → Ir a Copia diaria Licencias (no seguro)**. Es normal: la app es tuya y no está publicada.
    - Tocá **Permitir**.
-6. En el **Registro de ejecución** de abajo tiene que aparecer algo como `Copia licencias-2026-11-21.json: 8 agentes, 22 licencias.`
+6. En el **Registro de ejecución** de abajo tiene que aparecer algo como `Copia copia-automatica-2026-11-21.json: 8 agentes, 22 licencias.`
 7. Entrá al **Drive** de esa cuenta: tiene que estar la carpeta **Copias Licencias ESRN** con la primera copia.
 
 Listo. Desde ahora corre sola todas las noches. Para ver que siga andando, en script.google.com → el proyecto → **Ejecuciones** (el ícono de la lista) están todas las corridas.
@@ -34,6 +34,10 @@ Listo. Desde ahora corre sola todas las noches. Para ver que siga andando, en sc
   3. Si pide configurar la **pantalla de consentimiento de OAuth**, seguí el enlace y completá solo lo obligatorio: nombre de la app `Copia diaria Licencias`, el mail de la cuenta en los dos campos de mail, tipo **Externo** y, en "Usuarios de prueba", el mail de la cuenta. Después volvé a ejecutar `instalar`.
 - **`Firestore respondió 403 … PERMISSION_DENIED`**: el script se está ejecutando con otra cuenta. Revisá arriba a la derecha que sea la dueña del proyecto.
 - **Cualquier otro error**: copiá el mensaje del Registro de ejecución y pasáselo a Santi.
+
+## Si ya lo tenías instalado
+
+Volvé a pegar `Codigo.gs` en el editor y guardá. No hace falta ejecutar `instalar` de nuevo: desde la próxima noche las copias salen con el nombre nuevo. Las viejas (`licencias-…` de esa carpeta) se siguen contando para guardar solo las últimas 60.
 
 ## Si cambia algo
 
