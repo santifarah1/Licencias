@@ -3,7 +3,7 @@
  *
  * Se instala UNA vez, en la cuenta de Google dueña del proyecto de Firebase
  * (ver herramientas/copia-diaria/LEEME.md). Todas las noches lee todos los datos
- * y guarda un archivo licencias-AAAA-MM-DD.json en la carpeta "Copias Licencias ESRN"
+ * y guarda un archivo copia-automatica-AAAA-MM-DD.json en la carpeta "Copias Licencias ESRN"
  * de ese Drive. El archivo tiene el mismo formato que "Exportar copia" de la app,
  * así que se puede volver a cargar con Ajustes → Datos → Importar copia.
  */
@@ -30,7 +30,7 @@ function copiaDiaria() {
   }, {}));
   const carpeta = carpeta_();
   const fecha = Utilities.formatDate(new Date(), 'America/Argentina/Buenos_Aires', 'yyyy-MM-dd');
-  const nombre = 'licencias-' + fecha + '.json';
+  const nombre = 'copia-automatica-' + fecha + '.json';
   const previa = carpeta.getFilesByName(nombre);
   while (previa.hasNext()) previa.next().setTrashed(true); // si se corre dos veces el mismo día, queda la última
   carpeta.createFile(nombre, JSON.stringify(estado, null, 1), 'application/json');
@@ -101,8 +101,9 @@ function limpiarViejas_(carpeta) {
   const it = carpeta.getFiles();
   while (it.hasNext()) {
     const f = it.next();
-    if (/^licencias-\d{4}-\d{2}-\d{2}\.json$/.test(f.getName())) archivos.push(f);
+    if (/^(copia-automatica|licencias)-\d{4}-\d{2}-\d{2}\.json$/.test(f.getName())) archivos.push(f);
   }
-  archivos.sort(function (a, b) { return a.getName() < b.getName() ? 1 : -1; });
+  const fechaDe = function (f) { return f.getName().slice(-15, -5); };
+  archivos.sort(function (a, b) { return fechaDe(a) < fechaDe(b) ? 1 : -1; });
   archivos.slice(COPIAS_A_GUARDAR).forEach(function (f) { f.setTrashed(true); });
 }

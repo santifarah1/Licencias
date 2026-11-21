@@ -1058,6 +1058,12 @@ function importarJSON(file) {
     let d;
     try { d = JSON.parse(r.result); } catch (e) { return toast('El archivo no es un JSON válido.'); }
     if (!esEstadoValido(d)) return toast('El archivo no tiene el formato de datos de esta app.');
+    // Una copia sin artículos es de una base vacía: importarla borraría los artículos y los feriados
+    if (!vivos(d.articulos).length) {
+      return confirmar({ titulo: 'Esta copia está vacía', ok: 'Entendido',
+        html: `<p>"${esc(file.name)}" no tiene agentes, licencias ni artículos: es una copia de cuando no había nada cargado, así que no se importa.</p>
+               <p class="small muted">Para pasar los datos de una compu, en esa compu tocá el indicador de arriba → <b>Exportar copia</b>, e importá ese archivo.</p>` });
+    }
     let m;
     try { m = migrar(structuredClone(d), { persistir: false }); } catch (e) { return toast(e.message); }
     const ok = await confirmar({
