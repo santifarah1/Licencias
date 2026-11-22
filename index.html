@@ -2739,11 +2739,19 @@ const Nube = {
   async alCambiarSesion(u) {
     this.usuario = u; this.perfil = null; this.usuarios = null; this.codigo = null;
     if (!u) { this.estado = 'sin-sesion'; aplicarSesion(); return; }
+    this.estado = 'cargando'; aplicarSesion();
+    const ref = this.fb.doc(this.db, 'usuarios', u.uid);
+    let s = null;
     try {
-      const s = await this.fb.getDoc(this.fb.doc(this.db, 'usuarios', u.uid));
-      if (!s.exists()) this.estado = 'sin-perfil';
-      else { this.perfil = s.data(); this.estado = this.perfil.activo ? 'ok' : 'baja'; }
-    } catch (e) { this.estado = 'error'; this.error = mensajeNube(e); }
+      // El perfil se confirma con el servidor (no sólo con lo guardado en la compu)
+      s = await conTiempo(this.fb.getDocFromServer(ref), 15000);
+    } catch (e) {
+      // Sin conexión: se puede seguir con el perfil ya confirmado otra vez en esta compu
+      try { const c = await this.fb.getDocFromCache(ref); if (c.exists() && !c.metadata.hasPendingWrites) s = c; } catch (e2) { /* no hay copia local */ }
+      if (!s) { this.estado = 'error'; this.error = e.code === 'permission-denied' ? mensajeNube(e) : MSJ_SIN_SERVIDOR; aplicarSesion(); return; }
+    }
+    if (!s.exists()) this.estado = 'sin-perfil';
+    else { this.perfil = s.data(); this.estado = this.perfil.activo ? 'ok' : 'baja'; }
     aplicarSesion();
   },
   // ----- Ingreso y registro -----
@@ -2768,6 +2776,7 @@ const Nube = {
       // Código incorrecto: se borra la cuenta recién creada para que pueda volver a intentar con el mismo mail
       if (cred && e.code === 'permission-denied') { await cred.user.delete().catch(() => {}); this.registrando = false; this.alCambiarSesion(null); throw new Error('El código de la escuela no es correcto.'); }
       this.registrando = false;
+      if (cred && e.code === 'tiempo') { this.alCambiarSesion(null); await this.fb.signOut(this.auth).catch(() => {}); throw new Error(MSJ_SIN_SERVIDOR + ' Tu cuenta quedó creada: cuando haya conexión, entrá por "Ingresar" con el mismo mail y contraseña para terminar.'); }
       if (cred) this.alCambiarSesion(cred.user);
       throw e;
     }
@@ -2781,10 +2790,11 @@ const Nube = {
   },
   crearPerfil(user, { nombre, rol, codigo }) {
     const f = this.fb;
-    return f.setDoc(f.doc(this.db, 'usuarios', user.uid), {
+    // Si el servidor no confirma en 20 segundos, se avisa en vez de quedar esperando para siempre
+    return conTiempo(f.setDoc(f.doc(this.db, 'usuarios', user.uid), {
       nombre: nombre.trim(), email: user.email, rol, activo: true,
       codigo: normalizarCodigo(codigo), creado: f.serverTimestamp(),
-    });
+    }), 20000);
   },
   // ----- Administración (sólo el admin; las reglas del servidor lo controlan) -----
   esAdmin() { return this.estado === 'ok' && this.perfil?.rol === 'admin'; },
@@ -2929,6 +2939,13 @@ function datosGenerales() {
   return { version: estado.version, config: estado.config || {}, meta };
 }
 
+const MSJ_SIN_SERVIDOR = 'No se pudo conectar con la base de datos de la escuela. Revisá la conexión a internet y probá de nuevo. Si sigue pasando con internet andando, puede ser un antivirus o un filtro de la red que bloquea la conexión.';
+/* Espera una respuesta del servidor como mucho "ms" milisegundos */
+function conTiempo(promesa, ms) {
+  let t;
+  const corte = new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error(MSJ_SIN_SERVIDOR), { code: 'tiempo' })), ms); });
+  return Promise.race([promesa, corte]).finally(() => clearTimeout(t));
+}
 function normalizarCodigo(c) { return String(c || '').trim().toUpperCase().replace(/\s+/g, ''); }
 function generarCodigo() {
   const letras = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sin 0/O ni 1/I/L para que no se confundan
@@ -2953,6 +2970,7 @@ function mensajeNube(e) {
     'auth/account-exists-with-different-credential': 'Ese mail ya tiene una cuenta con contraseña. Ingresá con el mail y la contraseña.',
     'permission-denied': 'No tenés permiso para hacer eso.',
     'unavailable': 'No hay conexión con el servidor. Probá de nuevo en un momento.',
+    'tiempo': MSJ_SIN_SERVIDOR,
   };
   return m[c] || e?.message || 'Ocurrió un error. Probá de nuevo.';
 }
