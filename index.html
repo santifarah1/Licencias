@@ -1532,17 +1532,12 @@ function vistaPermisoConsulta() {
 function vistaInicio(ctx) {
   const f = ui.fecha;
   const fer = ctx.calIdx.get(f);
-  const hoyL = licenciasDelDia(f, ctx).sort((a, b) => nombreAgente(ctx.agIdx.get(a.agenteId)).localeCompare(nombreAgente(ctx.agIdx.get(b.agenteId)), 'es'));
-  const ausentes = hoyL.map(l => {
-    const ag = ctx.agIdx.get(l.agenteId), art = ctx.arts.get(l.articuloId);
-    const total = diasLicencia(l, art, ctx), hasta = diasLicencia(l, art, ctx, null, f);
-    return `<li class="click" data-act="ver-agente" data-id="${ag.id}">${artBadge(art)}
-      <div class="flex1"><div class="nombre">${esc(nombreAgente(ag))} ${regChip(ag.regimen)}</div><div class="sub">${esc(artNombre(art))}${(() => { const ts = turnosDelDia(ag, f); return ts.length ? ` · <b>le toca ${esc(textoTurnos(ts))}</b>` : ''; })()}</div></div>
-      <div class="small num">${cuentaDia(f, art, ctx) ? `día <b>${hasta}</b> de ${total}` : '<span class="muted">no computa</span>'}<div class="muted">hasta ${fmtC(l.hasta)}</div></div></li>`;
-  }).join('');
   const notasHoy = ctx.notas.filter(n => n.fecha === f).sort((a, b) => a.creado.localeCompare(b.creado));
 
   const lun = lunesDe(f);
+  const vie = sumarDias(lun, 4);
+  // Agentes distintos con alguna licencia entre el lunes y el viernes de la semana que se ve
+  const conLicSemana = new Set(ctx.licencias.filter(l => l.desde <= vie && l.hasta >= lun).map(l => l.agenteId)).size;
   const semana = [0, 1, 2, 3, 4].map(i => {
     const d = sumarDias(lun, i);
     const c = ctx.calIdx.get(d);
@@ -1581,14 +1576,12 @@ function vistaInicio(ctx) {
     ${avisoEjemplo(ctx)}
     ${fer ? `<div class="msg warn">${ico('info', 'sm')}<span><b>${esc(TIPOS_DIA[fer.tipo])}:</b> ${esc(fer.desc)}</span></div>` : ''}
     <div class="kpis tres">
-      ${kpi('calx', 'Con licencia', hoyL.length, 'este día')}
+      ${kpi('calx', 'Con licencia', conLicSemana, `en la semana del ${fmtC(lun)} al ${fmtC(vie)}`)}
       ${kpi('archivook', 'Trámites pendientes', pend.length, pend.length ? 'licencias sin completar' : 'todo al día', pend.length ? 'warn' : '')}
       ${kpi('nota', 'Notas del día', notasHoy.length, notasHoy.length ? 'para este día' : 'sin notas')}
     </div>
     <div class="grid2 inicio">
       <div class="stack">
-        <section class="card"><div class="card-h"><h2>Con licencia este día</h2><span class="spacer"></span><span class="big">${hoyL.length}</span></div>
-          ${hoyL.length ? `<ul class="lista">${ausentes}</ul>` : `<div class="vacio"><b>Nadie con licencia este día.</b>${modoLectura ? '' : 'Para cargar una, tocá "Licencia" arriba.'}</div>`}</section>
         <section class="card"><div class="card-h"><h2>Notas del día</h2><span class="spacer"></span>${modoLectura ? '' : `<button class="btn sm" data-act="nueva-nota" data-fecha="${f}">${ico('mas', 'sm')}Nota</button>`}</div>
           ${notasHoy.length ? `<ul class="lista notas-dia">${notasHoy.map(n => `<li class="${modoLectura ? '' : 'click'}" ${modoLectura ? '' : `data-act="editar-nota" data-id="${n.id}"`}>${ico('nota')}<span class="flex1">${esc(n.texto)}</span></li>`).join('')}</ul>`
             : `<div class="vacio">Sin notas para este día.</div>`}</section>
