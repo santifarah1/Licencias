@@ -1845,10 +1845,10 @@ function vistaNomina(ctx) {
         <button data-act="nomina-reg" data-v="3487" aria-pressed="${reg === '3487'}">PSA</button></div>
       <label class="check"><input type="checkbox" data-on="nomina-bajas" ${bajas ? 'checked' : ''}> Incluir dados de baja</label></div>
     <section class="card"><div class="card-h"><h2>Nómina del personal</h2><span class="chip">${plural(filas.length, 'agente')}</span></div>
-      ${filas.length ? `<table class="t nomina"><thead><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo</th><th class="c">ID</th><th>Materia</th><th class="c">Fecha de nacimiento</th></tr></thead><tbody>
+      ${filas.length ? `<table class="t nomina"><thead><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo personal</th><th>Legajo de junta</th><th class="c">ID</th><th>Materia</th><th class="c">Fecha de nacimiento</th></tr></thead><tbody>
       ${filas.map(({ a, cargos }) => `<tr class="click" data-act="ver-agente" data-id="${a.id}">
         <td><span class="nombre">${esc(nombreAgente(a))}</span>${a.inactivo ? ' <span class="chip">baja</span>' : ''}<div class="ag-meta">${regChip(a.regimen)}</div></td>
-        <td class="num-izq">${esc(a.cuil || '—')}</td><td class="num-izq">${esc(a.legajoPersonal || '—')}</td>
+        <td class="num-izq">${esc(a.cuil || '—')}</td><td class="num-izq">${esc(a.legajoPersonal || '—')}</td><td class="num-izq">${esc(a.legajoJunta || '—')}</td>
         <td class="c ag-cargos">${lineas(cargos, 'idCargo')}</td><td class="ag-cargos">${lineas(cargos, 'catedra')}</td>
         <td class="c">${a.fechaNac ? fmt(a.fechaNac) : '—'}</td></tr>`).join('')}
       </tbody></table>` : '<div class="vacio"><b>No hay agentes para mostrar.</b>Cambiá el filtro o cargá agentes en "Agentes".</div>'}</section></div>`;
@@ -2385,8 +2385,8 @@ function imprimirNomina() {
   const lineas = (cargos, campo) => cargos.map(c => esc(c[campo] || '—')).join('<br>') || '—';
   const titulo = ui.nomina.reg ? ' — ' + REGIMENES[ui.nomina.reg].corto : '';
   $('#print-area').innerHTML = `<div class="pr"><h1>Nómina del personal${titulo} — ${esc(INSTITUCION)}</h1>
-    <table><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo</th><th>ID</th><th>Materia</th><th>Fecha de nacimiento</th></tr>
-    ${filas.map(({ a, cargos }) => `<tr><td>${esc(nombreAgente(a))}${a.inactivo ? ' (baja)' : ''}</td><td>${esc(a.cuil || '—')}</td><td>${esc(a.legajoPersonal || '—')}</td><td>${lineas(cargos, 'idCargo')}</td><td>${lineas(cargos, 'catedra')}</td><td>${a.fechaNac ? fmt(a.fechaNac) : '—'}</td></tr>`).join('')}</table>
+    <table><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo personal</th><th>Legajo de junta</th><th>ID</th><th>Materia</th><th>Fecha de nacimiento</th></tr>
+    ${filas.map(({ a, cargos }) => `<tr><td>${esc(nombreAgente(a))}${a.inactivo ? ' (baja)' : ''}</td><td>${esc(a.cuil || '—')}</td><td>${esc(a.legajoPersonal || '—')}</td><td>${esc(a.legajoJunta || '—')}</td><td>${lineas(cargos, 'idCargo')}</td><td>${lineas(cargos, 'catedra')}</td><td>${a.fechaNac ? fmt(a.fechaNac) : '—'}</td></tr>`).join('')}</table>
     <div class="pie">${plural(filas.length, 'agente')}. Impreso el ${fmt(hoyISO())}.</div></div>`;
   setTimeout(() => window.print(), 50);
 }
@@ -2507,8 +2507,8 @@ const acciones = {
   'csv-nomina': () => {
     const filas = datosNomina(contexto());
     const renglones = [];
-    filas.forEach(({ a, cargos }) => (cargos.length ? cargos : [{}]).forEach(c => renglones.push([nombreAgente(a), REGIMENES[a.regimen].corto, a.cuil || '', a.legajoPersonal || '', c.idCargo || '', c.catedra || '', a.fechaNac ? fmt(a.fechaNac) : '', a.inactivo ? 'Baja' : ''])));
-    descargar(`nomina-del-personal-${hoyISO()}.csv`, csv([['Apellido y nombre', 'Régimen', 'CUIL', 'Legajo', 'ID cargo', 'Materia', 'Fecha de nacimiento', 'Estado'], ...renglones]), 'text/csv;charset=utf-8');
+    filas.forEach(({ a, cargos }) => (cargos.length ? cargos : [{}]).forEach(c => renglones.push([nombreAgente(a), REGIMENES[a.regimen].corto, a.cuil || '', a.legajoPersonal || '', a.legajoJunta || '', c.idCargo || '', c.catedra || '', a.fechaNac ? fmt(a.fechaNac) : '', a.inactivo ? 'Baja' : ''])));
+    descargar(`nomina-del-personal-${hoyISO()}.csv`, csv([['Apellido y nombre', 'Régimen', 'CUIL', 'Legajo personal', 'Legajo de junta', 'ID cargo', 'Materia', 'Fecha de nacimiento', 'Estado'], ...renglones]), 'text/csv;charset=utf-8');
   },
   'dia': el => { const n = Number(el.dataset.n); ui.fecha = n === 0 ? hoyISO() : sumarDias(ui.fecha, n); render(); },
   'anio': el => { ui.anio += Number(el.dataset.n); ui.aFecha = null; render(); },
