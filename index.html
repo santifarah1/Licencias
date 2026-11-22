@@ -268,7 +268,12 @@ details.feriados ul{columns:2 260px;margin:var(--s2) 0 0;padding-left:var(--s4);
 .sec-tabs button[aria-selected=true]{color:var(--n-900);border-bottom-color:var(--acento)}
 td input.in,td select.in{min-height:36px;padding:var(--s1) var(--s2);font-size:var(--t-sm)}
 td.art-cod{width:96px} td.art-num{width:96px} td.art-nom{min-width:240px}
-.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:var(--s2)}
+.hgrid{display:grid;grid-template-columns:repeat(5,minmax(96px,1fr));gap:var(--s2);overflow-x:auto}
+.hturno{margin-top:var(--s2)}
+.hturno-t{font-size:var(--t-sm);font-weight:600;color:var(--n-700);margin-bottom:var(--s1)}
+.modal.ancho{max-width:900px}
+.hdia{min-width:0}
+.hdia input.in{width:100%;min-width:0;padding:2px 4px 2px 6px;font-size:13px}
 .hdia{border:1px solid var(--n-200);border-radius:var(--r-md);padding:var(--s2);display:grid;gap:var(--s1);background:var(--n-0)}
 .hdia.on{border-color:var(--trabajo-linea);background:var(--acento-suave)}
 .hdia label{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:var(--t-sm);cursor:pointer;text-transform:capitalize;min-height:28px}
@@ -601,7 +606,7 @@ main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
    1. CONSTANTES
    ========================================================================= */
 const STORAGE_KEY = 'licencias-personal';
-const SCHEMA_VERSION = 8;
+const SCHEMA_VERSION = 9;
 const APP_VERSION = '1.4.1';
 const MODO_KEY = STORAGE_KEY + '-modo';
 const SNAP_PREFIX = STORAGE_KEY + '-snap-';
@@ -750,6 +755,7 @@ function migrar(datos, { persistir = true } = {}) {
   if (version < 6) d = migrarA6(d);
   if (version < 7) d = migrarA7(d);
   if (version < 8) d = migrarA8(d);
+  if (version < 9) d = migrarA9(d);
   // (futuras migraciones en cascada: if (version < 3) d = migrarA3(d); …)
   d.meta = { institucion: '', rev: 0, ultimoBackup: null, semillaArticulos: 1, ...d.meta };
   d.config = { feriadosCuentanHabiles: false, ...d.config };
@@ -764,6 +770,27 @@ function migrar(datos, { persistir = true } = {}) {
    solicitud, cargado en SAGE y elevado a UG */
 /* v5: art. 17° (nacimiento de hijo) son 15 días corridos */
 /* v6: nuevo motivo "Comisión de servicio" (préstamo a otra escuela o tarea del Ministerio) */
+/* v9: horario por turnos (mañana / tarde / vespertino-noche), de lunes a viernes.
+   Antes cada día tenía un solo horario {desde, hasta}: pasa al turno que corresponde por la hora
+   de entrada (sin hora → mañana). Los sábados se dejan de usar. */
+function turnoPorHora(desde) {
+  if (!desde) return 'm';
+  return desde < '12:00' ? 'm' : desde < '18:00' ? 't' : 'n';
+}
+function migrarA9(d) {
+  const t = ahora();
+  (d.agentes || []).forEach(a => (a.cargos || []).forEach(c => {
+    const viejo = c.horario && typeof c.horario === 'object' ? c.horario : {};
+    const nuevo = {};
+    Object.entries(viejo).forEach(([dia, h]) => {
+      if (!h || Number(dia) < 1 || Number(dia) > 5) return; // sábado (6) y valores raros se descartan
+      if (h.m || h.t || h.n) { nuevo[dia] = h; return; }      // ya estaba en el formato nuevo
+      nuevo[dia] = { [turnoPorHora(h.desde)]: { desde: h.desde || '', hasta: h.hasta || '' } };
+    });
+    if (JSON.stringify(nuevo) !== JSON.stringify(viejo)) { c.horario = nuevo; a.modificado = t; }
+  }));
+  return d;
+}
 /* v8: 11/09 Día del Maestro como asueto (no hay actividad escolar) */
 function migrarA8(d) {
   const t = ahora();
@@ -1271,26 +1298,36 @@ function validarLicencia(b, ctx) {
   return { errores, avisos, info, dias, art, ag };
 }
 
-/* Horario de trabajo: cargos vigentes que trabajan ese día (lunes=1 … sábado=6) */
+/* Horario de trabajo por turnos, de lunes (1) a viernes (5):
+   cargo.horario = { 1: { m: {desde, hasta}, t: {...}, n: {...} }, 2: {...}, … } */
+const TURNOS = [['m', 'Turno mañana', 'mañana'], ['t', 'Turno tarde', 'tarde'], ['n', 'Turno vespertino/noche', 'vespertino/noche']];
+const DIAS_SEMANA = [1, 2, 3, 4, 5];
+function turnosDeCargo(c, dia) {
+  let h = (c.horario || {})[dia] || {};
+  // Formato viejo ({desde, hasta} por día), por si todavía no se actualizó (p. ej. en el servidor y lo ve alguien de consulta)
+  if (('desde' in h || 'hasta' in h) && !(h.m || h.t || h.n)) h = { [turnoPorHora(h.desde)]: h };
+  return TURNOS.filter(([k]) => h[k]).map(([k, , corto]) => ({ turno: k, nombre: corto, desde: h[k].desde || '', hasta: h[k].hasta || '' }));
+}
+/* Cargos vigentes que trabajan ese día, un renglón por turno */
 function turnosDelDia(ag, iso) {
   const w = dow(iso);
   const out = [];
   for (const c of vivos(ag?.cargos)) {
-    const h = (c.horario || {})[w];
-    if (!h) continue;
     if (c.alta && iso < c.alta) continue;
     if (c.baja && iso > c.baja) continue;
-    out.push({ cargo: c, desde: h.desde || '', hasta: h.hasta || '' });
+    for (const t of turnosDeCargo(c, w)) out.push({ cargo: c, ...t });
   }
   return out;
 }
-function tieneHorario(ag) { return vivos(ag?.cargos).some(c => c.horario && Object.keys(c.horario).length); }
+function tieneHorario(ag) { return vivos(ag?.cargos).some(c => DIAS_SEMANA.some(d => turnosDeCargo(c, d).length)); }
 function textoTurnos(ts) {
-  return ts.map(t => `${t.desde && t.hasta ? `${t.desde}–${t.hasta}` : 'sin horario'}${t.cargo.catedra ? ' (' + t.cargo.catedra + ')' : ''}`).join(' · ');
+  return ts.map(t => `${t.desde && t.hasta ? `${t.desde}–${t.hasta}` : 'turno ' + t.nombre}${t.cargo.catedra ? ' (' + t.cargo.catedra + ')' : ''}`).join(' · ');
 }
 function resumenHorario(c) {
-  const h = c.horario || {};
-  return [1, 2, 3, 4, 5, 6].filter(d => h[d]).map(d => `${DIAS_C[d]} ${h[d].desde && h[d].hasta ? h[d].desde + '–' + h[d].hasta : ''}`.trim()).join(' · ');
+  return DIAS_SEMANA.map(d => {
+    const ts = turnosDeCargo(c, d); if (!ts.length) return '';
+    return `${DIAS_C[d]} ${ts.map(t => t.desde && t.hasta ? `${t.desde}–${t.hasta}` : t.nombre).join(' y ')}`;
+  }).filter(Boolean).join(' · ');
 }
 /* Días de trabajo (según horario) dentro de una licencia, sin contar feriados */
 function diasDeTrabajoEn(lic, ag, ctx) {
@@ -2167,11 +2204,13 @@ function abrirFormAgente(id = null) {
       <label class="f">Alta<input type="date" class="in" data-c="alta" value="${esc(c.alta)}"></label>
       <label class="f">Baja<input type="date" class="in" data-c="baja" value="${esc(c.baja)}"></label>
       <label class="f span2">Observaciones<input class="in" data-c="obs" value="${esc(c.obs)}"></label>
-      <div class="full"><div class="lbl">Días y horario de trabajo <span class="xs muted">(marcá los días; el horario es opcional)</span></div>
-        <div class="hgrid">${[1, 2, 3, 4, 5, 6].map(d => { const h = (c.horario || {})[d]; return `<div class="hdia ${h ? 'on' : ''}" data-hdia="${d}">
+      <div class="full"><div class="lbl">Días y horario de trabajo <span class="xs muted">(marcá los días de cada turno; el horario es opcional)</span></div>
+        ${TURNOS.map(([k, nombre]) => `<div class="hturno"><div class="hturno-t">${nombre}</div><div class="hgrid">${DIAS_SEMANA.map(d => {
+          const h = ((c.horario || {})[d] || {})[k];
+          return `<div class="hdia ${h ? 'on' : ''}" data-hdia="${d}" data-turno="${k}">
           <label><input type="checkbox" data-h="on" ${h ? 'checked' : ''}>${DIAS[d]}</label>
-          <input type="time" class="in" data-h="desde" value="${esc(h?.desde || '')}" aria-label="Desde" ${h ? '' : 'disabled'}>
-          <input type="time" class="in" data-h="hasta" value="${esc(h?.hasta || '')}" aria-label="Hasta" ${h ? '' : 'disabled'}></div>`; }).join('')}</div></div>
+          <input type="time" class="in" data-h="desde" value="${esc(h?.desde || '')}" aria-label="${DIAS[d]} ${nombre}: entrada" ${h ? '' : 'disabled'}>
+          <input type="time" class="in" data-h="hasta" value="${esc(h?.hasta || '')}" aria-label="${DIAS[d]} ${nombre}: salida" ${h ? '' : 'disabled'}></div>`; }).join('')}</div></div>`).join('')}</div>
       <div class="row al-fin"><button class="btn sm danger" type="button" data-x="quitar-cargo">Quitar cargo</button></div></div>`;
   const m = abrirModal(`<div class="modal-h"><h2>${existente ? 'Editar agente' : 'Nuevo agente'}</h2><span class="spacer"></span><button class="iconbtn" data-x="cerrar" aria-label="Cerrar">${ico('x')}</button></div>
     <div class="modal-b">
@@ -2192,6 +2231,7 @@ function abrirFormAgente(id = null) {
     </div>
     <div class="modal-f">${existente ? '<button class="btn danger" data-x="borrar">Borrar agente</button>' : ''}<span class="spacer"></span>
       <button class="btn" data-x="cerrar">Cancelar</button><button class="btn primary" data-x="guardar">${existente ? 'Guardar cambios' : 'Guardar agente'}</button></div>`);
+  m.classList.add('ancho'); // el formulario de agente usa más ancho (cargos y turnos)
   m.querySelectorAll('[data-x=cerrar]').forEach(x => x.onclick = () => cerrarModal());
   m.querySelector('[data-x=agregar-cargo]').onclick = () => {
     const div = document.createElement('div'); div.innerHTML = filaCargo({ id: uid(), catedra: '', hs: '', cursoDiv: '', idCargo: '', caracter: '', resDisp: '', alta: '', baja: '', obs: '' });
@@ -2210,7 +2250,10 @@ function abrirFormAgente(id = null) {
     o.cargos = $$('[data-cargo]', m).map(div => {
       const c = { id: div.dataset.cargo }; $$('[data-c]', div).forEach(i => { c[i.dataset.c] = i.value.trim(); });
       c.horario = {};
-      $$('[data-hdia]', div).forEach(b => { if (b.querySelector('[data-h=on]').checked) c.horario[b.dataset.hdia] = { desde: b.querySelector('[data-h=desde]').value, hasta: b.querySelector('[data-h=hasta]').value }; });
+      $$('[data-hdia]', div).forEach(b => {
+        if (!b.querySelector('[data-h=on]').checked) return;
+        (c.horario[b.dataset.hdia] ||= {})[b.dataset.turno] = { desde: b.querySelector('[data-h=desde]').value, hasta: b.querySelector('[data-h=hasta]').value };
+      });
       return c;
     }).filter(c => c.catedra || c.idCargo || c.hs || c.cursoDiv || c.alta || c.resDisp || Object.keys(c.horario).length);
     return o;
@@ -2227,10 +2270,11 @@ function abrirFormAgente(id = null) {
     if (dup) err.push(`Ya hay un agente con DNI ${dni}: ${nombreAgente(dup)}.`);
     o.cargos.forEach(c => {
       if (c.alta && c.baja && c.baja < c.alta) err.push(`En el cargo "${c.catedra || c.idCargo}", la baja es anterior al alta.`);
-      Object.entries(c.horario).forEach(([d, h]) => {
-        if (h.desde && h.hasta && h.hasta <= h.desde) err.push(`En el cargo "${c.catedra || c.idCargo || 'sin nombre'}", el ${DIAS[d]} la hora de salida es anterior a la de entrada.`);
-        if (!!h.desde !== !!h.hasta) av.push(`En el cargo "${c.catedra || c.idCargo || 'sin nombre'}", el ${DIAS[d]} tiene sólo una de las dos horas.`);
-      });
+      Object.entries(c.horario).forEach(([d, porTurno]) => Object.entries(porTurno).forEach(([k, h]) => {
+        const cuando = `el ${DIAS[d]} (${TURNOS.find(t => t[0] === k)[2]})`;
+        if (h.desde && h.hasta && h.hasta <= h.desde) err.push(`En el cargo "${c.catedra || c.idCargo || 'sin nombre'}", ${cuando} la hora de salida es anterior a la de entrada.`);
+        if (!!h.desde !== !!h.hasta) av.push(`En el cargo "${c.catedra || c.idCargo || 'sin nombre'}", ${cuando} tiene sólo una de las dos horas.`);
+      }));
     });
     const msgs = m.querySelector('[data-f=msgs]');
     msgs.innerHTML = err.map(e => `<div class="msg err">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('') + av.map(e => `<div class="msg warn">${ico('alerta', 'sm')}<span>${esc(e)}</span></div>`).join('');
@@ -2331,8 +2375,8 @@ function cargarEjemplo() {
     mk('Ejemplo Herrera', 'Silvia', '3487', 'Administrativa'), mk('Ejemplo Ibarra', 'Tomás', '233', 'Ciencias de la Tierra I y II'),
   ];
   const turnos = [[1, 3, 5], [2, 4], [1, 2, 3], [3, 4, 5], [1, 4], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [2, 3, 5]];
-  ags.forEach((a, i) => { const tarde = i % 3 === 2; a.cargos[0].horario = Object.fromEntries(turnos[i].map(d => [d, tarde ? { desde: '13:30', hasta: '17:30' } : { desde: '07:45', hasta: '12:05' }])); });
-  ags[1].cargos.push(sellar({ catedra: 'Geografía', hs: '8', cursoDiv: '4° B', idCargo: '233', caracter: 'Suplente', resDisp: '', alta: `${y}-03-01`, baja: '', obs: '', horario: { 5: { desde: '13:30', hasta: '15:30' } } }));
+  ags.forEach((a, i) => { const tarde = i % 3 === 2; a.cargos[0].horario = Object.fromEntries(turnos[i].map(d => [d, tarde ? { t: { desde: '13:30', hasta: '17:30' } } : { m: { desde: '07:45', hasta: '12:05' } }])); });
+  ags[1].cargos.push(sellar({ catedra: 'Geografía', hs: '8', cursoDiv: '4° B', idCargo: '233', caracter: 'Suplente', resDisp: '', alta: `${y}-03-01`, baja: '', obs: '', horario: { 5: { t: { desde: '13:30', hasta: '15:30' } } } }));
   mutar(e => { e.agentes.push(...ags); }, { redibujar: false });
   const ctx = contexto();
   const hoy = hoyISO();
