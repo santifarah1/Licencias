@@ -438,6 +438,8 @@ table.planilla td.hoy{box-shadow:inset 0 0 0 2px var(--acento)}
 .ag-cargos{font-size:15px;line-height:1.45}
 .ag-cargos span{color:var(--n-500)}
 .ag-ids{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.num-izq{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.nomina td{vertical-align:middle}
 td.dias-aus{font-size:20px;font-weight:700}
 /* Combobox de agentes (reemplaza la lista nativa del navegador) */
 .combo-in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23585e67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5M7 9l5-5 5 5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px!important}
@@ -1359,6 +1361,7 @@ const ui = {
   vista: 'inicio', agenteId: null, fecha: hoyISO(), anio: new Date().getFullYear(), aFecha: null,
   busqueda: '', filtroReg: '', verInactivos: false, orden: 'nombre',
   rep: { desde: null, hasta: null, reg: '', art: '' },
+  repTab: 'licencias', nomina: { reg: '', bajas: false },
   ajustesTab: 'datos', fichaTab: 'planilla', artReg: '233', calAnio: new Date().getFullYear(),
 };
 
@@ -1786,7 +1789,13 @@ function planillaAnual(ag, anio, ctx, { interactiva = true, imprimir = false } =
 }
 
 /* ---------- Reportes ---------- */
+function pestanasReportes() {
+  return `<div class="segtabs" role="tablist" aria-label="Tipo de reporte">
+    <button role="tab" data-act="rep-tab" data-v="licencias" aria-selected="${ui.repTab === 'licencias'}">Licencias</button>
+    <button role="tab" data-act="rep-tab" data-v="nomina" aria-selected="${ui.repTab === 'nomina'}">Nómina del personal</button></div>`;
+}
 function vistaReportes(ctx) {
+  if (ui.repTab === 'nomina') return vistaNomina(ctx);
   const hoy = hoyISO();
   if (!ui.rep.desde) { ui.rep.desde = hoy.slice(0, 8) + '01'; ui.rep.hasta = `${hoy.slice(0, 7)}-${pad(diasEnMes(anioDe(hoy), Number(hoy.slice(5, 7)) - 1))}`; }
   const { desde, hasta, reg, art } = ui.rep;
@@ -1794,7 +1803,7 @@ function vistaReportes(ctx) {
   const datos = valido ? datosReporte(ctx) : null;
   const artsReg = [...ctx.arts.values()].filter(a => !reg || a.regimen === reg).sort((a, b) => a.regimen.localeCompare(b.regimen) || ordenArt(a, b));
   return `<div class="stack">
-    <div class="row"><h1 class="sr-only">Reportes</h1><span class="spacer"></span>
+    <div class="row"><h1 class="sr-only">Reportes</h1>${pestanasReportes()}<span class="spacer"></span>
       <button class="btn" data-act="rep-preset" data-v="mes">Este mes</button><button class="btn" data-act="rep-preset" data-v="mes-ant">Mes anterior</button><button class="btn" data-act="rep-preset" data-v="anio">Este año</button></div>
     <div class="card card-b"><div class="fgrid">
       <label class="f">Desde<input type="date" class="in" value="${esc(desde)}" data-on="rep-desde"></label>
@@ -1815,6 +1824,34 @@ function vistaReportes(ctx) {
           <td>${x.art?.tramites?.length ? cuadritosTramite(x.l, x.art) : '—'}</td></tr>`).join('')}
         </tbody></table>` : '<div class="vacio"><b>Sin licencias en el período.</b></div>'}</section>` : ''}
   </div>`;
+}
+/* ---------- Nómina del personal: los datos de todos, para tener a mano ---------- */
+function datosNomina(ctx) {
+  const { reg, bajas } = ui.nomina;
+  return ctx.agentes.filter(a => (bajas || !a.inactivo) && (!reg || a.regimen === reg))
+    .sort((a, b) => nombreAgente(a).localeCompare(nombreAgente(b), 'es'))
+    .map(a => ({ a, cargos: vivos(a.cargos).filter(c => c.catedra || c.idCargo) }));
+}
+function vistaNomina(ctx) {
+  const filas = datosNomina(ctx), { reg, bajas } = ui.nomina;
+  const lineas = (cargos, campo) => cargos.length ? cargos.map(c => `<div>${esc(c[campo] || '—')}</div>`).join('') : '<span class="muted">—</span>';
+  return `<div class="stack">
+    <div class="row"><h1 class="sr-only">Reportes</h1>${pestanasReportes()}<span class="spacer"></span>
+      <button class="btn" data-act="csv-nomina">Descargar Excel (CSV)</button><button class="btn" data-act="imprimir-nomina">${ico('imprimir', 'sm')}Imprimir</button></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Régimen">
+        <button data-act="nomina-reg" data-v="" aria-pressed="${reg === ''}">Todos</button>
+        <button data-act="nomina-reg" data-v="233" aria-pressed="${reg === '233'}">Docentes</button>
+        <button data-act="nomina-reg" data-v="3487" aria-pressed="${reg === '3487'}">PSA</button></div>
+      <label class="check"><input type="checkbox" data-on="nomina-bajas" ${bajas ? 'checked' : ''}> Incluir dados de baja</label></div>
+    <section class="card"><div class="card-h"><h2>Nómina del personal</h2><span class="chip">${plural(filas.length, 'agente')}</span></div>
+      ${filas.length ? `<table class="t nomina"><thead><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo</th><th class="c">ID</th><th>Materia</th><th class="c">Fecha de nacimiento</th></tr></thead><tbody>
+      ${filas.map(({ a, cargos }) => `<tr class="click" data-act="ver-agente" data-id="${a.id}">
+        <td><span class="nombre">${esc(nombreAgente(a))}</span>${a.inactivo ? ' <span class="chip">baja</span>' : ''}<div class="ag-meta">${regChip(a.regimen)}</div></td>
+        <td class="num-izq">${esc(a.cuil || '—')}</td><td class="num-izq">${esc(a.legajoPersonal || '—')}</td>
+        <td class="c ag-cargos">${lineas(cargos, 'idCargo')}</td><td class="ag-cargos">${lineas(cargos, 'catedra')}</td>
+        <td class="c">${a.fechaNac ? fmt(a.fechaNac) : '—'}</td></tr>`).join('')}
+      </tbody></table>` : '<div class="vacio"><b>No hay agentes para mostrar.</b>Cambiá el filtro o cargá agentes en "Agentes".</div>'}</section></div>`;
 }
 function datosReporte(ctx) {
   const { desde, hasta, reg, art } = ui.rep;
@@ -2343,6 +2380,16 @@ function imprimirPlanilla(id) {
   $('#print-area').innerHTML = html;
   setTimeout(() => window.print(), 50);
 }
+function imprimirNomina() {
+  const filas = datosNomina(contexto());
+  const lineas = (cargos, campo) => cargos.map(c => esc(c[campo] || '—')).join('<br>') || '—';
+  const titulo = ui.nomina.reg ? ' — ' + REGIMENES[ui.nomina.reg].corto : '';
+  $('#print-area').innerHTML = `<div class="pr"><h1>Nómina del personal${titulo} — ${esc(INSTITUCION)}</h1>
+    <table><tr><th>Apellido y nombre</th><th>CUIL</th><th>Legajo</th><th>ID</th><th>Materia</th><th>Fecha de nacimiento</th></tr>
+    ${filas.map(({ a, cargos }) => `<tr><td>${esc(nombreAgente(a))}${a.inactivo ? ' (baja)' : ''}</td><td>${esc(a.cuil || '—')}</td><td>${esc(a.legajoPersonal || '—')}</td><td>${lineas(cargos, 'idCargo')}</td><td>${lineas(cargos, 'catedra')}</td><td>${a.fechaNac ? fmt(a.fechaNac) : '—'}</td></tr>`).join('')}</table>
+    <div class="pie">${plural(filas.length, 'agente')}. Impreso el ${fmt(hoyISO())}.</div></div>`;
+  setTimeout(() => window.print(), 50);
+}
 function imprimirReporte() {
   const ctx = contexto(); const d = datosReporte(ctx);
   $('#print-area').innerHTML = `<div class="pr"><h1>Licencias del ${fmt(ui.rep.desde)} al ${fmt(ui.rep.hasta)}${INSTITUCION ? ' — ' + esc(INSTITUCION) : ''}</h1>
@@ -2453,6 +2500,16 @@ const acciones = {
   'editar-agente': el => abrirFormAgente(el.dataset.id),
   'imprimir-planilla': el => imprimirPlanilla(el.dataset.id),
   'imprimir-reporte': () => imprimirReporte(),
+  'rep-tab': el => { ui.repTab = el.dataset.v; render(); },
+  'nomina-reg': el => { ui.nomina.reg = el.dataset.v; render(); },
+  'imprimir-nomina': () => imprimirNomina(),
+  // Excel: un renglón por cargo (si alguien tiene dos materias, aparece dos veces), así se puede filtrar y ordenar
+  'csv-nomina': () => {
+    const filas = datosNomina(contexto());
+    const renglones = [];
+    filas.forEach(({ a, cargos }) => (cargos.length ? cargos : [{}]).forEach(c => renglones.push([nombreAgente(a), REGIMENES[a.regimen].corto, a.cuil || '', a.legajoPersonal || '', c.idCargo || '', c.catedra || '', a.fechaNac ? fmt(a.fechaNac) : '', a.inactivo ? 'Baja' : ''])));
+    descargar(`nomina-del-personal-${hoyISO()}.csv`, csv([['Apellido y nombre', 'Régimen', 'CUIL', 'Legajo', 'ID cargo', 'Materia', 'Fecha de nacimiento', 'Estado'], ...renglones]), 'text/csv;charset=utf-8');
+  },
   'dia': el => { const n = Number(el.dataset.n); ui.fecha = n === 0 ? hoyISO() : sumarDias(ui.fecha, n); render(); },
   'anio': el => { ui.anio += Number(el.dataset.n); ui.aFecha = null; render(); },
   'filtro-reg': el => { ui.filtroReg = el.dataset.v; render(); },
@@ -2512,6 +2569,7 @@ document.addEventListener('click', e => {
   if (fn) { e.preventDefault(); fn(el); }
 });
 const cambios = {
+  'nomina-bajas': el => { ui.nomina.bajas = el.checked; render(); },
   'usuario-rol': async el => {
     try { await Nube.actualizarUsuario(el.dataset.uid, { rol: el.value }); toast('Tipo de usuario actualizado.'); } catch (e) { toast(mensajeNube(e)); render(); }
   },
