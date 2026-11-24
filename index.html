@@ -469,6 +469,7 @@ table.t th.c,table.t td.c{text-align:center}
 /* Lo marcado como oculto se oculta siempre (algunos estilos de botón lo pisaban) */
 [hidden]{display:none!important}
 /* Ingreso y usuarios (nube) */
+.emergencia-op{border-color:var(--warn-linea);background:var(--warn-suave)}
 body.sin-sesion nav.tabs,body.sin-sesion .top-tools{display:none}
 .ingreso{max-width:440px;margin:32px auto 48px;display:grid;gap:20px}
 .ingreso-marca{display:flex;align-items:center;gap:14px}
@@ -607,7 +608,11 @@ main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
 /* =========================================================================
    1. CONSTANTES
    ========================================================================= */
-const STORAGE_KEY = 'licencias-personal';
+// Modo emergencia (?emergencia): se trabaja con la copia que la nube dejó en esta compu, guardada aparte
+const EN_EMERGENCIA = new URLSearchParams(location.search).has('emergencia');
+const STORAGE_KEY = EN_EMERGENCIA ? 'licencias-personal-emergencia' : 'licencias-personal';
+const COPIA_NUBE_KEY = 'licencias-personal-copia-nube';      // copia que deja la nube en cada compu
+const EMERGENCIA_INFO_KEY = 'licencias-personal-emergencia-info'; // de cuándo y de quién es la copia usada
 const SCHEMA_VERSION = 10;
 const APP_VERSION = '1.4.1';
 const MODO_KEY = STORAGE_KEY + '-modo';
@@ -937,7 +942,7 @@ async function idbDel(k) { const db = await idb(); return new Promise((res, rej)
 
 /* ---------- Adaptador Archivo (File System Access API: Chrome / Edge) ---------- */
 const Archivo = {
-  soportado: typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function',
+  soportado: !EN_EMERGENCIA && typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function',
   handle: null, nombre: '', estado: 'sin-archivo', // sin-archivo | requiere-permiso | conectado | conflicto | error
   revConocida: null, ultimaEscritura: null, error: '', enDiscoConflicto: null,
   tipos: [{ description: 'Datos de licencias (.json)', accept: { 'application/json': ['.json'] } }],
@@ -1092,7 +1097,28 @@ function exportarJSON() {
   descargar(`licencias-${hoyISO()}.json`, JSON.stringify(estado, null, 1), 'application/json');
   renderBanners();
 }
-function importarJSON(file) {
+/* Junta dos juegos de datos: agrega lo que falta y, si un registro está en los dos,
+   se queda con el que se modificó último. No borra nada que no esté en la copia. */
+function fusionarEstados(actual, copia) {
+  const out = structuredClone(actual);
+  let nuevos = 0, actualizados = 0, iguales = 0;
+  for (const col of ['agentes', 'licencias', 'notas', 'articulos', 'calendario']) {
+    out[col] = out[col] || [];
+    const idx = new Map(out[col].map((r, i) => [r.id, i]));
+    for (const r of copia[col] || []) {
+      if (!r || !r.id) continue;
+      if (!idx.has(r.id)) { out[col].push(structuredClone(r)); idx.set(r.id, out[col].length - 1); if (!r.borrado) nuevos++; continue; }
+      const i = idx.get(r.id), a = out[col][i];
+      if ((r.modificado || '') > (a.modificado || '')) { out[col][i] = structuredClone(r); actualizados++; } else iguales++;
+    }
+  }
+  // Ciclos lectivos que estén sólo en la copia
+  const ciclos = { ...(copia.config?.ciclos || {}), ...(out.config?.ciclos || {}) };
+  out.config = { ...(out.config || {}), ciclos };
+  out.meta = { ...(out.meta || {}), modificado: ahora(), rev: (out.meta?.rev || 0) + 1 };
+  return { estado: out, nuevos, actualizados, iguales };
+}
+function importarJSON(file, modo = 'reemplazar') {
   const r = new FileReader();
   r.onload = async () => {
     let d;
@@ -1106,6 +1132,21 @@ function importarJSON(file) {
     }
     let m;
     try { m = migrar(structuredClone(d), { persistir: false }); } catch (e) { return toast(e.message); }
+    if (modo === 'sumar') {
+      const f = fusionarEstados(estado, m);
+      const ok2 = await confirmar({
+        titulo: 'Sumar la copia "' + file.name + '"',
+        html: `<p>Se agregan <b>${plural(f.nuevos, 'registro nuevo', 'registros nuevos')}</b> y se actualizan <b>${plural(f.actualizados, 'registro', 'registros')}</b> que en la copia están más nuevos (agentes, licencias, notas, artículos y feriados).</p>
+               <p class="small muted">No se borra nada de lo que ya hay${NubeDatos.activos() ? ' en el servidor' : ''}. ${plural(f.iguales, 'registro', 'registros')} ya estaba${f.iguales === 1 ? '' : 'n'} igual o más nuevo${f.iguales === 1 ? '' : 's'} y no se toca${f.iguales === 1 ? '' : 'n'}.</p>`,
+        ok: 'Sumar la copia',
+      });
+      if (!ok2) return;
+      if (!NubeDatos.activos()) snapshot('antes-de-sumar-' + Date.now());
+      estado = f.estado;
+      if (Archivo.estado === 'conectado') Archivo.revConocida = null;
+      guardar(); render(); toast(`Copia sumada: ${f.nuevos} nuevos, ${f.actualizados} actualizados.`);
+      return;
+    }
     const ok = await confirmar({
       titulo: 'Importar copia "' + file.name + '"',
       html: `<p>La copia tiene <b>${plural(vivos(m.agentes).length, 'agente')}</b> y <b>${plural(vivos(m.licencias).length, 'licencia')}</b> (guardada el ${fmtFechaHora(m.meta?.modificado)}).</p>
@@ -1505,12 +1546,21 @@ function abrirRespaldo() {
 }
 function renderBanners() {
   const b = [];
+  if (EN_EMERGENCIA) {
+    const info = (() => { try { return JSON.parse(LS.getItem(EMERGENCIA_INFO_KEY) || '{}'); } catch (e) { return {}; } })();
+    b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Modo emergencia:</b> estás usando la copia de esta compu${info.fecha ? ' del ' + esc(fmtFechaHora(info.fecha)) : ''}. ${modoLectura ? 'Sólo para consultar.' : 'Lo que cargues queda <b>sólo en esta compu</b>: al terminar cada día tocá "Exportar copia" y, cuando vuelva el servidor, quien administra la suma con "Sumar una copia".'}</div>
+      ${modoLectura ? '' : '<button class="btn sm" data-act="exportar">Exportar copia</button>'}<button class="btn sm" data-act="emergencia-salir">Volver al ingreso</button></div>`);
+  }
   if (!LS_OK && !modoLectura) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Esta vista no puede guardar datos.</b> Es una vista previa aislada: lo que cargues se pierde al cerrarla. Abrí la app desde su dirección (GitHub Pages) o con doble clic en la compu.</div></div>`);
   if (errorGuardado) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Error al guardar.</b> ${esc(errorGuardado)}</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
+  if (NubeDatos.activos() && NubeDatos.listo && puedeCargarNube() && vivos(estado.agentes).length) {
+    const ult = estado.meta?.ultimoBackup, dias = ult ? Math.floor((Date.now() - new Date(ult)) / 864e5) : null;
+    if (dias == null || dias >= 7) b.push(`<div class="banner warn">${ico('archivo')}<div class="txt"><b>${dias == null ? 'Todavía nadie bajó una copia de los datos.' : `Hace ${dias} días que nadie baja una copia de los datos.`}</b> Es la red de seguridad si algún día falla el servidor: bajala y guardala en la compu o en un pendrive.</div><button class="btn sm primary" data-act="exportar">Exportar copia</button></div>`);
+  }
   if (NubeDatos.activos() && NubeDatos.error) b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>No se pudo guardar en el servidor:</b> ${esc(NubeDatos.error)} Recargá la página; si sigue, exportá una copia y avisale a quien administra la app.</div><button class="btn sm" data-act="exportar">Exportar copia</button></div>`);
   if (modoLectura && Consulta.estado === 'nube') {
     b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Usuario de consulta:</b> podés ver todo, pero no modificar.</div></div>`);
-  } else if (modoLectura) {
+  } else if (modoLectura && !EN_EMERGENCIA) {
     if (Consulta.estado.startsWith('error')) b.push(`<div class="banner err">${ico('alerta')}<div class="txt">No se pudo leer el archivo de datos: ${esc(Consulta.estado.slice(7))}</div><button class="btn sm" data-act="entrar-consulta">Elegir el archivo</button><button class="btn sm ghost" data-act="salir-consulta">Salir del modo consulta</button></div>`);
     else b.push(`<div class="banner info">${ico('info')}<div class="txt"><b>Modo consulta:</b> se ven los datos del archivo compartido, sin poder modificarlos.</div>${Consulta.handle ? '<button class="btn sm primary" data-act="actualizar-consulta">Actualizar datos</button>' : ''}<button class="btn sm ghost" data-act="salir-consulta">Salir</button></div>`);
   } else {
@@ -1914,13 +1964,15 @@ function vistaAjustes(ctx) {
     <div class="sec-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" aria-selected="${t === k}" data-act="ajustes-tab" data-v="${k}">${n}</button>`).join('')}</div>${cuerpo}</div>`;
 }
 function ajustesDatos(ctx) {
+  if (EN_EMERGENCIA) return `<div class="card card-b stack"><p><b>Modo emergencia.</b> Estos datos son la copia que quedó en esta compu y lo que se cargue acá queda sólo en esta compu.</p>
+    ${modoLectura ? '' : '<p class="small muted">Al terminar cada día, bajá una copia. Cuando vuelva el servidor, quien administra la junta con "Sumar una copia" y no se pierde nada.</p><div class="row"><button class="btn primary" data-act="exportar">Exportar copia (.json)</button></div>'}</div>`;
   if (NubeDatos.activos()) return `<div class="stack">
     <section class="card"><div class="card-h"><h2>Datos en la nube</h2></div><div class="card-b stack">
       <p>Los datos se guardan en el servidor de la escuela: <b>${plural(vivos(estado.agentes).length, 'agente')}</b>, <b>${plural(vivos(estado.licencias).length, 'licencia')}</b> y <b>${plural(vivos(estado.notas).length, 'nota')}</b>. Todas las personas con usuario ven lo mismo, desde cualquier compu.</p>
       <p class="small muted">Todas las noches se guarda una copia automática en el Drive de la cuenta del proyecto. Además, podés bajar una copia cuando quieras.</p>
       <div class="row"><button class="btn" data-act="exportar">${ico('archivo')}Exportar copia (.json)</button>
-      ${Nube.esAdmin() ? '<button class="btn" data-act="importar">Importar copia…</button>' : ''}</div>
-      ${Nube.esAdmin() ? '<p class="xs muted">Importar una copia <b>reemplaza todos los datos del servidor</b> por los de la copia. Sirve para pasar los datos que estaban en una compu, o para volver a una copia anterior.</p>' : ''}
+      ${Nube.esAdmin() ? '<button class="btn" data-act="importar-sumar">Sumar una copia…</button><button class="btn" data-act="importar">Importar copia…</button>' : ''}</div>
+      ${Nube.esAdmin() ? '<p class="xs muted"><b>Sumar una copia</b> agrega lo que falta y actualiza lo que está más nuevo en la copia, sin borrar nada: sirve para juntar lo que se cargó en modo emergencia. <b>Importar copia</b> reemplaza todos los datos del servidor por los de la copia.</p>' : ''}
     </div></section></div>`;
   const snaps = listarSnapshots();
   if (modoLectura) return `<div class="card card-b stack"><p>Estás en <b>modo consulta</b>: se leen los datos del archivo compartido y no se pueden modificar.</p>
@@ -1936,7 +1988,7 @@ function ajustesDatos(ctx) {
     </div></section>
     <section class="card"><div class="card-h"><h2>Copias manuales</h2></div><div class="card-b stack">
       <p class="small muted">Última copia exportada: ${estado.meta.ultimoBackup ? fmtFechaHora(estado.meta.ultimoBackup) : 'nunca'}.</p>
-      <div class="row"><button class="btn" data-act="exportar">Exportar copia (.json)</button><button class="btn" data-act="importar">Importar copia…</button></div>
+      <div class="row"><button class="btn" data-act="exportar">Exportar copia (.json)</button><button class="btn" data-act="importar-sumar">Sumar una copia…</button><button class="btn" data-act="importar">Importar copia…</button></div>
     </div></section>
     <section class="card"><div class="card-h"><h2>Copias automáticas de este navegador</h2></div>
       ${snaps.length ? `<ul class="lista">${snaps.map(k => `<li><span class="flex1">${esc(k.replace(SNAP_PREFIX, '').replace(/-(\d{13})$/, (m, t) => ' ' + fmtFechaHora(new Date(Number(t)).toISOString())))}</span><button class="btn sm" data-act="restaurar" data-k="${esc(k)}">Restaurar</button></li>`).join('')}</ul>`
@@ -2566,7 +2618,10 @@ const acciones = {
   'conflicto-archivo': () => resolverConflicto('archivo'),
   'conflicto-mios': async () => { if (await confirmar({ titulo: 'Sobrescribir el archivo', html: '<p>Los cambios que se hicieron en el archivo desde la otra computadora se pierden (quedan sólo en esa compu).</p>', ok: 'Sobrescribir', peligro: true })) resolverConflicto('mios'); },
   'exportar': () => exportarJSON(),
-  'importar': () => $('#file-import').click(),
+  'importar': () => { ui.modoImportar = 'reemplazar'; $('#file-import').click(); },
+  'importar-sumar': () => { ui.modoImportar = 'sumar'; $('#file-import').click(); },
+  'emergencia-entrar': () => entrarEmergencia(),
+  'emergencia-salir': () => { location.href = location.pathname; },
   'restaurar': el => restaurarSnapshot(el.dataset.k),
   'entrar-consulta': () => entrarConsulta(),
   'permiso-consulta': () => cargarConsulta(true),
@@ -2742,7 +2797,7 @@ document.addEventListener('mouseover', e => {
   const det = $('#main [data-planilla-det]'); if (!det) return;
   det.textContent = td ? td.title : '';
 });
-$('#file-import').addEventListener('change', e => { const f = e.target.files[0]; if (f) importarJSON(f); e.target.value = ''; });
+$('#file-import').addEventListener('change', e => { const f = e.target.files[0]; if (f) importarJSON(f, ui.modoImportar || 'reemplazar'); ui.modoImportar = ''; e.target.value = ''; });
 $('#file-consulta').addEventListener('change', e => { const f = e.target.files[0]; if (f) consultaDesInput(f); e.target.value = ''; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal-root').innerHTML) cerrarModal(); });
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== rutaActual) { rutaActual = h; window.scrollTo(0, 0); render(); } });
@@ -2787,6 +2842,8 @@ const Nube = {
 
   activa() { return !!this.config; },
   preparar() {
+    const q = new URLSearchParams(location.search);
+    if (EN_EMERGENCIA || q.has('local')) return; // modo emergencia o sin servidor a pedido
     const local = ['localhost', '127.0.0.1', ''].includes(location.hostname);
     if (local && new URLSearchParams(location.search).has('emulador')) {
       this.emulador = true;
@@ -2836,7 +2893,8 @@ const Nube = {
   ingresar(email, clave) { return this.fb.signInWithEmailAndPassword(this.auth, email.trim(), clave); },
   ingresarGoogle() { return this.fb.signInWithPopup(this.auth, new this.fb.GoogleAuthProvider()); },
   recuperarClave(email) { return this.fb.sendPasswordResetEmail(this.auth, email.trim()); },
-  async salir() {
+  async salir(borrarCompu = false) {
+    if (borrarCompu) { LS.removeItem(COPIA_NUBE_KEY); LS.removeItem('licencias-personal-emergencia'); LS.removeItem(EMERGENCIA_INFO_KEY); }
     NubeDatos.desconectar();
     await this.fb.signOut(this.auth);
     // En una compu compartida no queda nada guardado: se borra la copia local de los datos
@@ -2947,6 +3005,7 @@ const NubeDatos = {
   recibido(parte) {
     this.recibidos.add(parte);
     if (!this.listo && this.recibidos.size === COLECCIONES.length + 1) { this.listo = true; this.alEstarListo(); }
+    if (this.listo) guardarCopiaEnCompu();
     this.redibujar();
   },
   // Primera carga completa: si la base está vacía se siembran artículos y feriados; si es de una versión vieja, se migra.
@@ -2994,6 +3053,7 @@ const NubeDatos = {
       const [col, id] = key.split('/');
       ops.push({ ref: f.doc(db, 'datos', col, 'registros', id), borrar: true }); this.sync.delete(key);
     }
+    guardarCopiaEnCompu();
     const g = datosGenerales(), jg = JSON.stringify(g);
     if (this.sync.get('general') !== jg) { ops.push({ ref: f.doc(db, 'datos', 'config', 'registros', 'general'), datos: JSON.parse(jg) }); this.sync.set('general', jg); }
     for (let i = 0; i < ops.length; i += 400) {
@@ -3005,6 +3065,30 @@ const NubeDatos = {
     }
   },
 };
+/* Copia de respaldo en esta compu: todo lo de la nube, a lo sumo cada 20 segundos.
+   Si un día no anda el servidor, se puede seguir trabajando con ella (modo emergencia). */
+let copiaPendiente = null;
+function guardarCopiaEnCompu() {
+  if (!NubeDatos.activos() || !NubeDatos.listo || copiaPendiente) return;
+  copiaPendiente = setTimeout(() => {
+    copiaPendiente = null;
+    if (!NubeDatos.activos() || !NubeDatos.listo || !vivos(estado.articulos).length) return;
+    try { LS.setItem(COPIA_NUBE_KEY, JSON.stringify({ fecha: ahora(), nombre: Nube.perfil?.nombre || '', rol: Nube.perfil?.rol || '', estado })); }
+    catch (e) { /* sin espacio: se intenta en el próximo cambio */ }
+  }, 20000);
+}
+function leerCopiaEnCompu() {
+  try { const c = JSON.parse(LS.getItem(COPIA_NUBE_KEY) || 'null'); return c && esEstadoValido(c.estado) ? c : null; } catch (e) { return null; }
+}
+function entrarEmergencia() {
+  const c = leerCopiaEnCompu(); if (!c) return toast('No hay una copia guardada en esta compu.');
+  // Si ya se trabajó en modo emergencia en esta compu, se sigue con eso (no se pisa lo cargado)
+  if (!LS.getItem('licencias-personal-emergencia')) {
+    LS.setItem('licencias-personal-emergencia', JSON.stringify(c.estado));
+    LS.setItem(EMERGENCIA_INFO_KEY, JSON.stringify({ fecha: c.fecha, nombre: c.nombre, rol: c.rol }));
+  }
+  location.href = location.pathname + '?emergencia';
+}
 function puedeCargarNube() { return NubeDatos.activos() && ['admin', 'carga'].includes(Nube.perfil?.rol); }
 function estadoVacio() {
   const t = ahora();
@@ -3116,7 +3200,13 @@ function vistaIngreso() {
   return `<div class="ingreso">
     <div class="ingreso-marca"><div class="logo-esrn" aria-label="ESRN Rural Virtual"><span class="sigla"><span class="es">ES</span><span class="rn">RN</span></span><small>RURAL VIRTUAL</small></div>
       <div><b>Licencias del personal</b><div class="muted small">${Nube.emulador ? 'Modo prueba (emulador)' : esc(INSTITUCION)}</div></div></div>
-    <div class="card card-b stack">${tabs}${cuerpo}</div></div>`;
+    <div class="card card-b stack">${tabs}${cuerpo}</div>${opcionEmergencia()}</div>`;
+}
+function opcionEmergencia() {
+  const c = leerCopiaEnCompu(); if (!c) return '';
+  return `<div class="card card-b stack emergencia-op"><div class="small"><b>¿No anda el servidor?</b> Podés seguir trabajando con la copia de los datos que quedó en esta compu
+    (del ${esc(fmtFechaHora(c.fecha))}${c.nombre ? ', de ' + esc(c.nombre) : ''}).</div>
+    <button class="btn" data-act="emergencia-entrar">Usar la copia de esta compu</button></div>`;
 }
 const ICONO_GOOGLE = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h6a5.1 5.1 0 0 1-2.2 3.4v2.8h3.6c2.1-2 3.2-4.8 3.2-8.2z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.4-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.7 14c-.2-.7-.4-1.4-.4-2s.1-1.4.4-2V7.1H2a11 11 0 0 0 0 9.8l3.7-2.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2 7.1L5.7 10c.9-2.7 3.4-4.6 6.3-4.6z"/></svg>';
 
@@ -3162,9 +3252,11 @@ function abrirMenuUsuario() {
   const m = abrirModal(`<div class="modal-h"><div><h2>${esc(p.nombre)}</h2><div class="modal-sub">${esc(Nube.usuario.email)}</div></div><span class="spacer"></span><button class="iconbtn" data-x="no" aria-label="Cerrar">${ico('x')}</button></div>
     <div class="modal-b"><div class="row"><span class="muted">Tipo de usuario:</span><span class="chip">${esc(ROLES[p.rol] || p.rol)}</span></div>
       ${p.rol === 'consulta' ? '<p class="small muted">Podés ver todo, pero no modificar. Si necesitás cargar licencias, pedíselo a quien administra la app.</p>' : ''}</div>
-    <div class="modal-f"><span class="spacer"></span><button class="btn" data-x="no">Cerrar</button><button class="btn danger" data-x="salir">Salir</button></div>`, { chico: true });
+      <p class="xs muted">Esta compu guarda una copia de los datos por si algún día no anda el servidor. Si es una compu compartida, usá "Salir y borrar esta compu".</p>
+    <div class="modal-f"><button class="btn sm" data-x="salir-borrar">Salir y borrar esta compu</button><span class="spacer"></span><button class="btn" data-x="no">Cerrar</button><button class="btn danger" data-x="salir">Salir</button></div>`, { chico: true });
   m.querySelectorAll('[data-x=no]').forEach(b => { b.onclick = () => cerrarModal(); });
   m.querySelector('[data-x=salir]').onclick = async () => { cerrarModal(); ingreso.campos = {}; ingreso.tab = 'entrar'; await Nube.salir(); };
+  m.querySelector('[data-x=salir-borrar]').onclick = async () => { cerrarModal(); ingreso.campos = {}; ingreso.tab = 'entrar'; await Nube.salir(true); };
 }
 
 /* ---------- Ajustes → Usuarios (sólo administra) ---------- */
@@ -3189,6 +3281,13 @@ function ajustesUsuarios() {
 }
 
 async function init() {
+  if (EN_EMERGENCIA) {
+    estado = cargarLocal(); guardarLocal();
+    const info = (() => { try { return JSON.parse(LS.getItem(EMERGENCIA_INFO_KEY) || '{}'); } catch (e) { return {}; } })();
+    if (info.rol === 'consulta') { modoLectura = true; Consulta.estado = 'emergencia'; }
+    render();
+    return;
+  }
   Nube.preparar();
   if (Nube.activa()) {
     // Con la nube, los datos vienen del servidor al iniciar sesión (no del navegador)
