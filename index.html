@@ -487,7 +487,6 @@ fieldset.roles{border:0;margin:0;padding:0;display:grid;gap:8px}
 .pill.usuario{gap:8px;padding:0 10px 0 4px}
 .pill.usuario .avatar{width:28px;height:28px;border-radius:50%;background:var(--azul);color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:700}
 code.codigo{font:600 16px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--gris-suave);border-radius:6px;padding:8px 12px;letter-spacing:.04em}
-@media (max-width:1365px){.pill.usuario .txt{display:none}.pill.usuario{width:auto;padding:0 4px}}
 /* Barra superior */
 header.top{box-shadow:none;border-bottom:1px solid var(--n-200)}
 .top-in{max-width:var(--contenido);padding:0 var(--gutter);min-height:68px;gap:24px;flex-wrap:nowrap}
@@ -507,6 +506,9 @@ nav.tabs a .ico{width:18px;height:18px}
 .pill{border-radius:var(--r-md);min-height:36px;max-width:220px}
 .pill .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 #btn-nueva{flex:none}
+/* Con usuario la barra tiene un botón más: el nombre se esconde antes (se ve al pasar el mouse) y se achican los espacios */
+@media (max-width:1599px){.pill.usuario .txt{display:none}.pill.usuario{width:auto;padding:0 4px}}
+@media (max-width:1439px){nav.tabs{gap:2px}nav.tabs a{padding:0 9px;gap:8px}.top-tools input{width:150px}}
 main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
 .banners{max-width:var(--contenido);padding:16px var(--gutter) 0}
 .page-h{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
@@ -3251,8 +3253,8 @@ function abrirMenuUsuario() {
   const p = Nube.perfil;
   const m = abrirModal(`<div class="modal-h"><div><h2>${esc(p.nombre)}</h2><div class="modal-sub">${esc(Nube.usuario.email)}</div></div><span class="spacer"></span><button class="iconbtn" data-x="no" aria-label="Cerrar">${ico('x')}</button></div>
     <div class="modal-b"><div class="row"><span class="muted">Tipo de usuario:</span><span class="chip">${esc(ROLES[p.rol] || p.rol)}</span></div>
-      ${p.rol === 'consulta' ? '<p class="small muted">Podés ver todo, pero no modificar. Si necesitás cargar licencias, pedíselo a quien administra la app.</p>' : ''}</div>
-      <p class="xs muted">Esta compu guarda una copia de los datos por si algún día no anda el servidor. Si es una compu compartida, usá "Salir y borrar esta compu".</p>
+      ${p.rol === 'consulta' ? '<p class="small muted">Podés ver todo, pero no modificar. Si necesitás cargar licencias, pedíselo a quien administra la app.</p>' : ''}
+      <p class="xs muted">Esta compu guarda una copia de los datos por si algún día no anda el servidor. Si es una compu compartida, usá "Salir y borrar esta compu".</p></div>
     <div class="modal-f"><button class="btn sm" data-x="salir-borrar">Salir y borrar esta compu</button><span class="spacer"></span><button class="btn" data-x="no">Cerrar</button><button class="btn danger" data-x="salir">Salir</button></div>`, { chico: true });
   m.querySelectorAll('[data-x=no]').forEach(b => { b.onclick = () => cerrarModal(); });
   m.querySelector('[data-x=salir]').onclick = async () => { cerrarModal(); ingreso.campos = {}; ingreso.tab = 'entrar'; await Nube.salir(); };
