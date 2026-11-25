@@ -81,7 +81,14 @@ Si el workflow falla:
 
 ### Pruebas
 
-- Reglas de seguridad: `npm install` y después `npm run test:reglas`. Corre las pruebas de `pruebas/reglas.test.mjs` contra el emulador de Firebase.
+GitHub corre todas las pruebas solo en cada PR (workflow `.github/workflows/pruebas.yml`): si algo da mal, el PR aparece con una cruz roja antes de mergear.
+
+- Todo junto: `npm install` y después `npm test` (necesita Java para el emulador). Prende el emulador de Firebase, corre las pruebas y lo apaga.
+  - `pruebas/calculos.test.mjs`: cálculos y pantallas sin servidor (20° b, feriados por régimen, ciclo lectivo, datos viejos, importar y sumar copias, anchos en compu y celular).
+  - `pruebas/nube.test.mjs`: la app con usuarios contra el emulador (registro con código, consulta sin permiso de cargar, datos compartidos al instante, sin internet, modo emergencia y sumar la copia).
+  - `pruebas/reglas.test.mjs`: reglas de seguridad de Firestore.
+- Sólo los cálculos, sin emulador: `npm run test:calculos`. Sólo las reglas: `npm run test:reglas`.
+- Si no tenés el navegador de las pruebas: `npx playwright install chromium`.
 - App con el emulador:
   1. Levantar los emuladores con `npx firebase emulators:start --only auth,firestore --project demo-licencias`.
   2. Abrir `index.html?emulador` desde `localhost` o como archivo local.
