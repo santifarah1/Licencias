@@ -25,7 +25,7 @@ Lo más probable es que Google haya suspendido el proyecto o la cuenta dueña, c
 **Cuando vuelve a andar:**
 
 1. En la compu donde se cargó en emergencia (o en el link viejo): **Exportar copia**.
-2. El administrador entra a la app normal → **Ajustes → Datos y respaldo → Sumar una copia…** y elige ese archivo.
+2. Entrá a la app normal (con un usuario que administra o carga licencias) → **Ajustes → Datos y respaldo → Sumar una copia…** y elegí ese archivo.
 3. Se agregan las licencias nuevas y los cambios, sin borrar nada de lo que había en el servidor. Si se suma dos veces la misma copia, no se duplica.
 
 **Para recuperar la cuenta:** entrá a gmail.com con la cuenta dueña. Si dice que está inhabilitada, seguí el botón para apelar y explicá que es una cuenta para una app escolar. Mientras tanto, la **segunda cuenta dueña** puede entrar a la consola de Firebase y ver si el proyecto aparece suspendido y por qué.

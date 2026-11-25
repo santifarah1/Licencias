@@ -155,3 +155,39 @@ test('Barra de arriba con usuario: entra en todos los anchos, con nombre largo, 
   assert.deepEqual(malos, []);
   sinErrores(p); await ctx.close();
 });
+
+test('Copias: quien carga puede "Sumar una copia" pero no "Importar copia"; consulta, ninguna', async () => {
+  const ctx = await contexto(b);
+  const M = await entrar(ctx, 'mama@prueba.com');
+  await esperar(M, () => vivos(estado.agentes).length > 0);
+  await M.evaluate(() => { ui.ajustesTab = 'datos'; location.hash = '#ajustes'; render(); });
+  assert.equal(await M.locator('[data-act="importar-sumar"]').count(), 1, 'carga debería ver "Sumar una copia"');
+  assert.equal(await M.locator('#main [data-act="importar"]').count(), 0, 'carga no debería ver "Importar copia"');
+  // arma una copia con una licencia nueva y la suma
+  const archivo = path.join(DIR, 'copia-carga.json');
+  const { writeFileSync } = await import('node:fs');
+  writeFileSync(archivo, await M.evaluate(() => {
+    const c = structuredClone(estado); const ag = vivos(c.agentes)[0];
+    c.licencias.push(sellar({ agenteId: ag.id, articuloId: '233-1', desde: '2026-12-01', hasta: '2026-12-01', cargos: [], tramites: {}, obs: 'sumada por carga' }));
+    return JSON.stringify(c);
+  }));
+  const antes = await contarDocs('licencias');
+  await M.click('[data-act="importar-sumar"]').catch(() => {});
+  await M.setInputFiles('#file-import', archivo);
+  await M.waitForSelector('.modal .btn.primary'); await M.click('.modal .btn.primary');
+  await esperar(M, () => estado.licencias.some(l => l.obs === 'sumada por carga') && !NubeDatos.pendientes);
+  for (let i = 0; i < 20 && (await contarDocs('licencias')) === antes; i++) await M.waitForTimeout(300);
+  assert.equal(await contarDocs('licencias'), antes + 1);
+  // aunque se fuerce, reemplazar todo no se deja
+  await M.evaluate(() => { ui.modoImportar = 'reemplazar'; });
+  await M.setInputFiles('#file-import', archivo);
+  await M.waitForTimeout(500);
+  assert.equal(await M.locator('.modal').count(), 0, 'no debería ofrecer reemplazar todo');
+  sinErrores(M); await ctx.close();
+  // consulta no ve ninguna de las dos
+  const ctxD = await contexto(b);
+  const D = await entrar(ctxD, 'dire@prueba.com');
+  await D.evaluate(() => { ui.ajustesTab = 'datos'; location.hash = '#ajustes'; render(); });
+  assert.equal(await D.locator('[data-act="importar-sumar"], #main [data-act="importar"]').count(), 0);
+  await ctxD.close();
+});
