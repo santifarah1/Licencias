@@ -1546,6 +1546,8 @@ function abrirRespaldo() {
 }
 function renderBanners() {
   const b = [];
+  // Link viejo (GitHub Pages sin ?nube): la app se mudó; sigue andando como plan B
+  if (EN_LINK_VIEJO && !Nube.activa() && !EN_EMERGENCIA) b.push(`<div class="banner warn">${ico('info')}<div class="txt"><b>La app se mudó a <a href="https://licencias-esrn.web.app">licencias-esrn.web.app</a></b>, con usuario y contraseña. Este link queda sólo como respaldo: si cargás acá, queda guardado sólo en esta compu.</div><a class="btn sm primary" href="https://licencias-esrn.web.app">Ir a la app</a></div>`);
   if (EN_EMERGENCIA) {
     const info = (() => { try { return JSON.parse(LS.getItem(EMERGENCIA_INFO_KEY) || '{}'); } catch (e) { return {}; } })();
     b.push(`<div class="banner err">${ico('alerta')}<div class="txt"><b>Modo emergencia:</b> estás usando la copia de esta compu${info.fecha ? ' del ' + esc(fmtFechaHora(info.fecha)) : ''}. ${modoLectura ? 'Sólo para consultar.' : 'Lo que cargues queda <b>sólo en esta compu</b>: al terminar cada día tocá "Exportar copia" y, cuando vuelva el servidor, quien administra la suma con "Sumar una copia".'}</div>
@@ -2827,6 +2829,8 @@ const FIREBASE_CONFIG = {
   messagingSenderId: '843734308881',
   appId: '1:843734308881:web:c277c8f36e135a02c239b0',
 };
+// El link viejo (GitHub Pages) queda como plan B: avisa que la app se mudó
+const EN_LINK_VIEJO = location.hostname === 'santifarah1.github.io';
 const NUBE_POR_DEFECTO = false; // en true cuando todos pasen a usar usuarios (etapa 4)
 // El link propio de Firebase es el sistema nuevo: ahí siempre se entra con usuario
 const EN_LINK_FIREBASE = /\.(web\.app|firebaseapp\.com)$/.test(location.hostname);
