@@ -544,6 +544,8 @@ main{max-width:var(--contenido);padding:28px var(--gutter) 48px}
   table.t:not(.cards){display:block;overflow-x:auto;white-space:nowrap}
 }
 @media (max-width:480px){
+  /* Los botones de texto largo bajan de renglón en vez de salirse de la pantalla */
+  main .btn{max-width:100%;white-space:normal;height:auto;min-height:var(--alto-ctl);padding-top:6px;padding-bottom:6px;text-align:left}
   .brand .logo-esrn small{display:none}
   .top-in{gap:6px}
   #btn-nueva{font-size:0;width:40px;padding:0;justify-content:center;gap:0}
