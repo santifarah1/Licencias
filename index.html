@@ -1139,6 +1139,8 @@ function importarJSON(file, modo = 'reemplazar') {
         html: `<p>"${esc(file.name)}" no tiene agentes, licencias ni artículos: es una copia de cuando no había nada cargado, así que no se importa.</p>
                <p class="small muted">Para pasar los datos de una compu, en esa compu tocá el indicador de arriba → <b>Exportar copia</b>, e importá ese archivo.</p>` });
     }
+    // En la nube, sumar lo puede hacer quien carga; reemplazar todo, sólo quien administra
+    if (NubeDatos.activos() && (modo === 'sumar' ? !puedeCargarNube() : !Nube.esAdmin())) return toast(modo === 'sumar' ? 'Tu usuario no puede cargar datos.' : 'Reemplazar todos los datos lo puede hacer sólo quien administra.');
     let m;
     try { m = migrar(structuredClone(d), { persistir: false }); } catch (e) { return toast(e.message); }
     if (modo === 'sumar') {
@@ -1982,8 +1984,8 @@ function ajustesDatos(ctx) {
       <p>Los datos se guardan en el servidor de la escuela: <b>${plural(vivos(estado.agentes).length, 'agente')}</b>, <b>${plural(vivos(estado.licencias).length, 'licencia')}</b> y <b>${plural(vivos(estado.notas).length, 'nota')}</b>. Todas las personas con usuario ven lo mismo, desde cualquier compu.</p>
       <p class="small muted">Todas las noches se guarda una copia automática en el Drive de la cuenta del proyecto. Además, podés bajar una copia cuando quieras.</p>
       <div class="row"><button class="btn" data-act="exportar">${ico('archivo')}Exportar copia (.json)</button>
-      ${Nube.esAdmin() ? '<button class="btn" data-act="importar-sumar">Sumar una copia…</button><button class="btn" data-act="importar">Importar copia…</button>' : ''}</div>
-      ${Nube.esAdmin() ? '<p class="xs muted"><b>Sumar una copia</b> agrega lo que falta y actualiza lo que está más nuevo en la copia, sin borrar nada: sirve para juntar lo que se cargó en modo emergencia. <b>Importar copia</b> reemplaza todos los datos del servidor por los de la copia.</p>' : ''}
+      ${puedeCargarNube() ? '<button class="btn" data-act="importar-sumar">Sumar una copia…</button>' : ''}${Nube.esAdmin() ? '<button class="btn" data-act="importar">Importar copia…</button>' : ''}</div>
+      ${puedeCargarNube() ? `<p class="xs muted"><b>Sumar una copia</b> agrega lo que falta y actualiza lo que está más nuevo en la copia, sin borrar nada: sirve para juntar lo que se cargó en modo emergencia o en el link viejo.${Nube.esAdmin() ? ' <b>Importar copia</b> reemplaza todos los datos del servidor por los de la copia.' : ' Reemplazar todos los datos con una copia lo puede hacer sólo quien administra.'}</p>` : ''}
     </div></section></div>`;
   const snaps = listarSnapshots();
   if (modoLectura) return `<div class="card card-b stack"><p>Estás en <b>modo consulta</b>: se leen los datos del archivo compartido y no se pueden modificar.</p>
