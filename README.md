@@ -1,5 +1,7 @@
 # Licencias
 
+> Si algo no anda (la página no abre, se cargó algo mal, alguien olvidó la contraseña…), mirá **[Qué hacer si…](docs/que-hacer-si.md)**.
+
 App de control de licencias del personal de la ESRN Rural Virtual. Es un solo archivo, `index.html`, sin compilación.
 
 ## Usuarios en la nube (Firebase)
