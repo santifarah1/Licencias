@@ -46,21 +46,34 @@ La seguridad la aplican las reglas del servidor (`firestore.rules`), no la pági
 
 Cada vez que se mergea algo a `main`, el workflow `.github/workflows/publicar-firebase.yml` publica la app en **https://licencias-esrn.web.app** y, de paso, publica las reglas de `firestore.rules`, así no hay que pegarlas a mano. Publica únicamente `index.html` (lo copia a una carpeta `publico/` aparte), así que nunca se suben las pruebas, las herramientas ni la configuración. GitHub Pages sigue funcionando igual.
 
-Necesita una llave guardada como secreto en GitHub. Mientras no esté cargada, el workflow no hace nada. Cómo cargarla (una sola vez, con la cuenta dueña del proyecto):
+Entra a Google **sin ninguna llave guardada**: en cada corrida GitHub le muestra a Google un pase que dura unos minutos y que Google sólo acepta si viene de este repositorio y de `main` (se llama *Workload Identity Federation*). Así no hay ningún archivo con una llave que se pueda perder o filtrar. Si en GitHub todavía está el secreto viejo `FIREBASE_SERVICE_ACCOUNT`, el workflow usa ese y avisa; al borrarlo pasa solo al modo sin llave.
 
-1. Entrá a https://console.cloud.google.com/iam-admin/serviceaccounts?project=licencias-esrn → **+ Crear cuenta de servicio**.
-2. Nombre: `github-publicar` → **Crear y continuar**.
-3. Agregá estos tres roles (escribí el nombre en el buscador) → **Continuar** → **Listo**:
-   - **Administrador de Firebase Hosting**
-   - **Administrador de reglas de Firebase**
-   - **Consumidor de Service Usage**
-4. En la lista, tocá la cuenta `github-publicar` → pestaña **Claves** → **Agregar clave → Crear clave nueva → JSON → Crear**. Se descarga un archivo `.json`.
-5. En GitHub, en el repositorio: **Settings → Secrets and variables → Actions → New repository secret**.
-   - **Name:** `FIREBASE_SERVICE_ACCOUNT`
-   - **Secret:** abrí el `.json` con el Bloc de notas, copiá **todo** y pegalo acá.
-   - **Add secret**.
-6. **Borrá el archivo `.json` descargado:** es una llave. Si se pierde, se crea otra desde el mismo lugar.
-7. En GitHub → **Actions → Publicar en Firebase → Run workflow**. Cuando termine en verde, abrí https://licencias-esrn.web.app.
+**Cuenta de servicio** (ya está hecha; esto es por si hay que rearmarla): en https://console.cloud.google.com/iam-admin/serviceaccounts?project=licencias-esrn → **+ Crear cuenta de servicio**, nombre `github-publicar`, con los roles **Administrador de Firebase Hosting**, **Administrador de reglas de Firebase** y **Consumidor de Service Usage**.
+
+**Pasar al modo sin llave** (una sola vez, con una cuenta dueña del proyecto):
+
+1. Entrá a https://console.cloud.google.com/?project=licencias-esrn y abrí **Cloud Shell** (el ícono `>_` arriba a la derecha).
+2. Pegá esto y apretá Enter. Si pide autorizar, tocá **Autorizar**:
+
+   ```bash
+   gcloud config set project licencias-esrn
+   gcloud services enable iamcredentials.googleapis.com sts.googleapis.com
+   gcloud iam workload-identity-pools create github --location=global --display-name="GitHub"
+   gcloud iam workload-identity-pools providers create-oidc licencias \
+     --location=global --workload-identity-pool=github --display-name="Licencias" \
+     --issuer-uri="https://token.actions.githubusercontent.com" \
+     --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
+     --attribute-condition="assertion.repository=='santifarah1/Licencias' && assertion.ref=='refs/heads/main'"
+   gcloud iam service-accounts add-iam-policy-binding github-publicar@licencias-esrn.iam.gserviceaccount.com \
+     --role=roles/iam.workloadIdentityUser \
+     --member="principalSet://iam.googleapis.com/projects/843734308881/locations/global/workloadIdentityPools/github/attribute.repository/santifarah1/Licencias"
+   ```
+
+3. En GitHub: **Settings → Secrets and variables → Actions** → al lado de `FIREBASE_SERVICE_ACCOUNT`, el tachito → **Remove secret**.
+4. En GitHub → **Actions → Publicar en Firebase → Run workflow**. Tiene que terminar en verde, sin el aviso amarillo de la llave vieja.
+5. Si anduvo, borrá la llave vieja en Google: en la lista de cuentas de servicio, tocá `github-publicar` → pestaña **Claves** → el tachito de la clave que aparece. Desde ahí no queda ninguna llave en ningún lado.
+
+Si el paso 4 falla, se puede volver atrás creando una clave nueva para `github-publicar` (pestaña **Claves → Agregar clave → JSON**) y cargándola otra vez como secreto `FIREBASE_SERVICE_ACCOUNT`. Antes conviene leer el error: si dice `Permission 'iam.serviceAccounts.getAccessToken' denied`, falta el último comando del paso 2. Tarda hasta 5 minutos en hacer efecto, así que puede alcanzar con esperar y volver a correrlo.
 
 Si el workflow falla:
 - Con un error de permisos: agregale a la cuenta el rol **Administrador de Firebase** y volvé a correrlo.

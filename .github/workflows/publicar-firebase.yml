@@ -1,6 +1,10 @@
 # Publica la app en Firebase Hosting (licencias-esrn.web.app) y las reglas de seguridad
-# cada vez que se mergea algo a main. Necesita el secreto FIREBASE_SERVICE_ACCOUNT
-# (ver README → "Publicación en Firebase"). Mientras no esté cargado, no hace nada.
+# cada vez que se mergea algo a main.
+#
+# Entra a Google sin ninguna llave guardada: GitHub le muestra a Google un pase que dura
+# minutos y sólo sirve para este repositorio desde main (Workload Identity Federation,
+# ver README → "Publicación en Firebase"). Si todavía está cargado el secreto viejo
+# FIREBASE_SERVICE_ACCOUNT, usa ese en su lugar; al borrarlo pasa solo al modo sin llave.
 name: Publicar en Firebase
 
 on:
@@ -10,10 +14,17 @@ on:
 
 permissions:
   contents: read
+  id-token: write # para pedir el pase de GitHub
 
 concurrency:
   group: publicar-firebase
   cancel-in-progress: false
+
+env:
+  PROYECTO: licencias-esrn
+  # No son secretos: sólo dicen a qué puerta de Google golpear y con qué cuenta
+  WIF_PROVIDER: projects/843734308881/locations/global/workloadIdentityPools/github/providers/licencias
+  WIF_CUENTA: github-publicar@licencias-esrn.iam.gserviceaccount.com
 
 jobs:
   publicar:
@@ -21,24 +32,32 @@ jobs:
     env:
       CREDENCIAL: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
     steps:
-      - name: Sin llave cargada todavía
-        if: env.CREDENCIAL == ''
-        run: echo "::notice::Falta el secreto FIREBASE_SERVICE_ACCOUNT, así que no se publica en Firebase (GitHub Pages sigue igual)."
-
       - uses: actions/checkout@v4
-        if: env.CREDENCIAL != ''
 
       - uses: actions/setup-node@v4
-        if: env.CREDENCIAL != ''
         with:
           node-version: 22
 
-      - name: Publicar la app y las reglas
+      - name: Entrar a Google sin llave
+        if: env.CREDENCIAL == ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.WIF_CUENTA }}
+
+      - name: Entrar a Google con la llave vieja
         if: env.CREDENCIAL != ''
+        run: |
+          echo "::warning::Se está usando la llave FIREBASE_SERVICE_ACCOUNT. Cuando el modo sin llave esté listo, borrá ese secreto (README → Publicación en Firebase)."
+          printf '%s' "$CREDENCIAL" > "$RUNNER_TEMP/credencial.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/credencial.json" >> "$GITHUB_ENV"
+
+      - name: Publicar la app y las reglas
         run: |
           # Se publica sólo la app: nada de pruebas, herramientas ni configuración
           rm -rf publico && mkdir publico && cp index.html publico/
-          printf '%s' "$CREDENCIAL" > "$RUNNER_TEMP/credencial.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/credencial.json"
-          npx --yes firebase-tools@15.37.0 deploy --only hosting,firestore:rules --project licencias-esrn --non-interactive
-          rm -f "$RUNNER_TEMP/credencial.json"
+          npx --yes firebase-tools@15.37.0 deploy --only hosting,firestore:rules --project "$PROYECTO" --non-interactive
+
+      - name: Borrar la llave del disco
+        if: always() && env.CREDENCIAL != ''
+        run: rm -f "$RUNNER_TEMP/credencial.json"
