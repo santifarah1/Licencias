@@ -26,6 +26,10 @@ Todo se hace con la **cuenta de Google dueña del proyecto** (la que creó `lice
 
 Listo. Desde ahora corre sola todas las noches. Para ver que siga andando, en script.google.com → el proyecto → **Ejecuciones** (el ícono de la lista) están todas las corridas.
 
+## En la segunda cuenta dueña
+
+Conviene instalarlo también con la otra cuenta dueña del proyecto: así hay copias en dos Drives y, si Google suspende una cuenta, la otra las sigue teniendo. Son los mismos pasos, entrando a script.google.com con esa cuenta. Lo más probable es que aparezca el primer error de abajo ("has not been used in project…"), que se arregla conectando el script al proyecto.
+
 ## Si da error
 
 - **`Firestore respondió 403 … has not been used in project … or it is disabled`**: hay que conectar el script al proyecto de Firebase.
