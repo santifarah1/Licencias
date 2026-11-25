@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<title>Guía de uso — Licencias ESRN Rural Virtual</title>
+<style>
+:root{
+  --verde:#5a9a1c; --verde-osc:#3f7f14; --verde-suave:#eef6e6; --azul:#22609f;
+  --tinta:#17191c; --tenue:#585e67; --borde:#dcd8cd; --papel:#f4f3ee;
+  --ok:#e2f2e8; --warn:#fff3d6; --warn-borde:#f0d39a;
+}
+@page{size:A4;margin:16mm 16mm 18mm}
+*{box-sizing:border-box}
+body{margin:0;font:10.5pt/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--tinta)}
+h1{font-size:24pt;margin:0 0 6pt;letter-spacing:-.01em}
+h2{font-size:15pt;margin:0 0 6pt;padding-top:9pt;border-top:2.5pt solid var(--verde)}
+h3{font-size:11.5pt;margin:12pt 0 4pt}
+p{margin:0 0 6pt}
+ul,ol{margin:0 0 8pt;padding-left:18pt}
+li{margin:0 0 3pt}
+section{margin:0 0 16pt}
+.tapa{border:1.5pt solid var(--verde);border-radius:10pt;background:var(--verde-suave);padding:18pt 22pt;margin-bottom:18pt}
+.tapa p{color:var(--tenue);font-size:12pt;margin-bottom:10pt}
+.indice{columns:2;column-gap:24pt;margin:0;padding-left:18pt}
+.indice li{margin:0 0 4pt;break-inside:avoid}
+.nuevo{display:inline-block;font-size:7.5pt;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--verde-osc);background:#fff;border:1pt solid var(--verde);border-radius:4pt;padding:0 4pt;vertical-align:2pt;margin-left:4pt}
+img{display:block;max-width:100%;max-height:105mm;width:auto;border:1pt solid var(--borde);border-radius:6pt;margin:6pt auto 10pt;break-inside:avoid}
+img.mitad{max-height:62mm}
+img.medio{max-height:95mm}
+img.alto{max-height:150mm}
+h2,h3{break-after:avoid}
+.caja{border-radius:7pt;padding:9pt 12pt;margin:8pt 0 10pt;background:var(--papel);break-inside:avoid}
+.caja b:first-child{display:block;margin-bottom:2pt}
+.caja.ok{background:var(--ok)}
+.caja.warn{background:var(--warn);border:1pt solid var(--warn-borde)}
+.btn{display:inline-block;font-weight:600;font-size:9pt;border:1pt solid var(--borde);border-radius:5pt;padding:0 6pt;background:#fff;white-space:nowrap}
+.btn.az{background:var(--azul);border-color:var(--azul);color:#fff}
+.btn.ve{background:var(--verde-osc);border-color:var(--verde-osc);color:#fff}
+.art{display:inline-block;font-size:8.5pt;font-weight:700;border-radius:4pt;padding:0 6pt;background:#cde1f5;color:#0f3a63}
+.tram{display:inline-block;width:15pt;height:15pt;line-height:15pt;text-align:center;font-size:5.5pt;font-weight:700;border-radius:3pt;background:#ebe8df;color:#585e67;vertical-align:-3pt}
+.tram.ok{background:#d9ebcc;color:#2a5410;font-size:9pt}
+table{width:100%;border-collapse:collapse;margin:6pt 0 10pt;font-size:9.5pt;break-inside:avoid}
+th,td{border:1pt solid var(--borde);padding:5pt 7pt;text-align:left;vertical-align:top}
+th{background:var(--papel)}
+.dot{display:inline-block;width:7pt;height:7pt;border-radius:50%;margin-right:4pt;vertical-align:0}
+.salto{break-before:page}
+.evitar{break-inside:avoid}
+.pie-final{color:var(--tenue);font-size:9pt;margin-top:12pt}
+</style>
+</head>
+<body>
+
+<div class="tapa">
+  <h1>Licencias ESRN Rural Virtual</h1>
+  <p>Guía de uso de la app con usuarios: los datos quedan en el servidor de la escuela y se ven desde cualquier compu. Versión: noviembre 2026.</p>
+  <ol class="indice">
+    <li>Antes de empezar</li>
+    <li>Crear tu usuario <span class="nuevo">nuevo</span></li>
+    <li>Entrar cada día <span class="nuevo">nuevo</span></li>
+    <li>La barra de arriba</li>
+    <li>La pantalla de Inicio</li>
+    <li>Cargar un agente</li>
+    <li>Cargar una licencia</li>
+    <li>Consultar a un agente</li>
+    <li>Notas del día</li>
+    <li>Reportes y nómina del personal</li>
+    <li>Días de clase (ciclo lectivo)</li>
+    <li>Feriados, artículos y topes</li>
+    <li>Usuarios (para quien administra) <span class="nuevo">nuevo</span></li>
+    <li>Respaldo de los datos</li>
+    <li>Si no anda el servidor <span class="nuevo">nuevo</span></li>
+    <li>Si algo no anda</li>
+  </ol>
+</div>
+
+<section>
+  <h2>1. Antes de empezar</h2>
+  <ul>
+    <li>La app se abre en <b>licencias-esrn.web.app</b>. Guardala en <b>Favoritos</b> (la estrellita al lado de la dirección). En la pestaña del navegador la reconocés por el logo de la escuela (<b style="color:#5e9b1c">ES</b>/<b style="color:#3181d3">RN</b>).</li>
+    <li>Funciona en <b>Google Chrome</b>, <b>Microsoft Edge</b> y en el celular.</li>
+    <li>Los datos ya <b>no están en un archivo ni en la compu</b>: están en el servidor de la escuela. Cada persona entra con su usuario y todos ven lo mismo, al instante. Lo que carga una persona le aparece a las demás sin recargar la página.</li>
+    <li>Hay tres tipos de usuario:
+      <ul>
+        <li><b>Administra:</b> carga todo y, además, maneja los usuarios y las copias.</li>
+        <li><b>Carga licencias:</b> carga y corrige agentes, licencias y notas.</li>
+        <li><b>Solo consulta:</b> ve todo pero no puede modificar nada. Es para la directora y el vicedirector.</li>
+      </ul></li>
+  </ul>
+  <div class="caja"><b>El link viejo</b>(santifarah1.github.io/Licencias) queda sólo como respaldo. Si lo abrís, arriba aparece un aviso amarillo con un botón para ir a la app nueva. Lo que se cargue ahí queda guardado sólo en esa compu.</div>
+</section>
+
+<section>
+  <h2>2. Crear tu usuario (una sola vez)</h2>
+  <p>Para crear tu cuenta necesitás el <b>código de la escuela</b>, que te pasa quien administra la app (lo ve en Ajustes › Usuarios, punto 13).</p>
+  <ol>
+    <li>Abrí la app y tocá la pestaña <b>Crear cuenta</b>.</li>
+    <li>Completá tu nombre y apellido, tu mail y una contraseña de al menos 6 caracteres.</li>
+    <li>Elegí qué vas a hacer: <b>Cargo licencias</b> o <b>Solo consulto</b>.</li>
+    <li>Escribí el <b>código de la escuela</b>. No importa si va en mayúsculas o minúsculas.</li>
+    <li>Tocá <span class="btn az">Crear cuenta</span>.</li>
+  </ol>
+  <img class="medio" src="img/02-registro.png" alt="Crear cuenta">
+  <div class="caja"><b>Con Google</b>también se puede: tocá <b>Continuar con Google</b>, elegí tu cuenta de Gmail y después la app te pide qué vas a hacer y el código. Así no tenés que recordar otra contraseña.</div>
+  <div class="caja warn"><b>Si dice que el código no es correcto,</b>revisá que esté completo, con los guiones, o pedí el código de nuevo. Puede que quien administra lo haya cambiado.</div>
+</section>
+
+<section class="evitar">
+  <h2>3. Entrar cada día</h2>
+  <p>Escribí tu mail y tu contraseña y tocá <span class="btn az">Ingresar</span> (o <b>Continuar con Google</b>, si creaste la cuenta así). En tu compu la sesión queda abierta: la mayoría de los días la app se abre directamente, sin pedir nada.</p>
+  <img class="mitad" src="img/01-ingresar.png" alt="Pantalla de ingreso">
+  <p><b>¿Te olvidaste la contraseña?</b> Escribí tu mail y tocá <b>Olvidé mi contraseña</b>. Te llega un mail para elegir una nueva (si no aparece, mirá en spam).</p>
+</section>
+
+<section>
+  <h2>4. La barra de arriba</h2>
+  <p>Arriba están las secciones (<b>Inicio, Agentes, Reportes, Ajustes</b>), tu usuario, el indicador de guardado, el buscador y el botón verde <span class="btn ve">+ Licencia</span>:</p>
+  <img src="img/03-barra.png" alt="Barra de arriba">
+  <table>
+    <tr><th style="width:42%">El indicador dice…</th><th>Qué significa</th></tr>
+    <tr><td><span class="dot" style="background:#3f7f14"></span>Guardado en la nube</td><td>Todo bien: lo que cargaste ya está en el servidor.</td></tr>
+    <tr><td><span class="dot" style="background:#8a8f98"></span>Guardando…</td><td>Lo está subiendo. Tarda un segundo.</td></tr>
+    <tr><td><span class="dot" style="background:#c98200"></span>Sin conexión</td><td>No hay internet. Podés seguir cargando: queda en la compu y se sube solo cuando vuelve la conexión.</td></tr>
+    <tr><td><span class="dot" style="background:#a8200d"></span>No se pudo guardar</td><td>El servidor no aceptó el cambio. Recargá la página y, si sigue, avisale a quien administra.</td></tr>
+    <tr><td><span class="dot" style="background:#3f7f14"></span>Datos al día</td><td>Lo ven los usuarios de consulta: están viendo lo último que se cargó.</td></tr>
+  </table>
+  <p>En pantallas más chicas, el indicador y tu usuario muestran sólo el punto de color y la inicial. Pasando el mouse por encima se lee el texto.</p>
+  <h3>Tu usuario y cómo salir</h3>
+  <p>Tocando tu inicial se abre tu usuario, con tu tipo de usuario y los botones para salir:</p>
+  <img class="mitad" src="img/04-menu-usuario.png" alt="Menú del usuario">
+  <ul>
+    <li><span class="btn">Salir</span> cierra la sesión. La compu se queda con una copia de los datos, por si algún día no anda el servidor (punto 15).</li>
+    <li><span class="btn">Salir y borrar esta compu</span> cierra la sesión y borra todo de esa compu. Usalo en una compu que no es tuya o que comparten varias personas.</li>
+  </ul>
+  <div class="caja warn"><b>Sin internet, no salgas.</b>Si cerrás la sesión mientras dice "Sin conexión: se sube al volver", lo que todavía no se subió se pierde.</div>
+</section>
+
+<section class="salto">
+  <h2>5. La pantalla de Inicio</h2>
+  <p>Es lo que reemplaza al planificador semanal. De un vistazo muestra:</p>
+  <img class="alto" src="img/05-inicio.png" alt="Pantalla de Inicio">
+  <ul>
+    <li><b>Las tres tarjetas de arriba:</b> cuántos agentes tienen licencia en la semana, cuántas licencias tienen trámites sin completar (se marca en amarillo si hay alguna) y cuántas notas hay para ese día.</li>
+    <li><b>Notas del día:</b> lo que quieras anotar para ese día (punto 9).</li>
+    <li><b>Trámites pendientes:</b> licencias a las que les falta algún paso. Cada una muestra tres cuadraditos: <span class="tram">SOL</span> solicitud, <span class="tram">SAG</span> cargado en SAGE y <span class="tram">UG</span> elevado a UG. Cuando un paso está hecho, el cuadradito se pone verde con un tilde <span class="tram ok">✓</span>. Si la solicitud ya se venció, aparece en rojo.</li>
+    <li><b>La semana</b> de lunes a viernes, con los feriados, las licencias y las notas de cada día. El día de hoy va marcado en verde.</li>
+  </ul>
+  <p>Con las flechas <b>‹ ›</b> te movés de día (o de semana) y con <span class="btn">Hoy</span> volvés al día de hoy.</p>
+  <div class="caja"><b>El aviso amarillo de "copia de los datos"</b>aparece si pasaron 7 días o más sin que nadie baje una copia. Tocá <span class="btn az">Exportar copia</span> y guardá el archivo en la compu o en un pendrive (punto 14). Cuando alguien la baja, el aviso desaparece para todos.</div>
+</section>
+
+<section>
+  <h2>6. Cargar un agente</h2>
+  <ol>
+    <li>Andá a <b>Agentes</b> y tocá <span class="btn">+ Nuevo agente</span>.</li>
+    <li>Completá apellido, nombre y <b>régimen</b>: <b>Docentes (Res. 233/98)</b> o <b>Personal PSA (Ley 3487)</b>. Es importante, porque cada régimen tiene sus artículos y algunos feriados son sólo de un régimen (punto 12).</li>
+    <li>Completá los datos de la planilla: DNI, CUIL, fecha de nacimiento, domicilio, teléfono, mail, legajo personal, legajo de junta y título. Si no tenés alguno, dejalo vacío y lo completás después.</li>
+    <li>En <b>Cargos</b> poné cada cargo o cátedra con horas, curso, ID de cargo, carácter, resolución, alta y baja. Si tiene más de un cargo, tocá <span class="btn">+ Agregar cargo</span>.</li>
+    <li>En cada cargo, en <b>Días y horario de trabajo</b>, tildá los días que trabaja en cada turno (<b>mañana</b>, <b>tarde</b> o <b>vespertino/noche</b>) y, si querés, la hora de entrada y de salida. Si un día trabaja a la mañana y a la tarde, tildalo en los dos turnos. Con eso, en su planilla quedan pintados de amarillo los días que le toca trabajar.</li>
+    <li>Tocá <span class="btn az">Guardar agente</span>.</li>
+  </ol>
+  <img class="alto" src="img/06-nuevo-agente.png" alt="Formulario de nuevo agente">
+  <div class="caja"><b>Si alguien deja de trabajar en la escuela,</b>no lo borres: en "Editar datos" marcá <b>"Dado de baja"</b>. Así desaparece de la lista pero conserva todo su historial.</div>
+</section>
+
+<section>
+  <h2>7. Cargar una licencia</h2>
+  <ol>
+    <li>Tocá el botón verde <span class="btn ve">+ Licencia</span> (está siempre arriba).</li>
+    <li>En <b>Agente</b> se abre la lista. Escribí parte del apellido o el DNI para achicarla y elegilo con un clic (o con las flechas y <b>Enter</b>).</li>
+  </ol>
+  <img class="medio" src="img/07-elegir-agente.png" alt="Lista para elegir agente">
+  <ol start="3">
+    <li>Elegí el <b>Artículo</b>. Primero aparecen los que ese agente usó últimamente. Abajo se muestra un recuadro verde con lo que dice la resolución sobre ese artículo.</li>
+    <li>Poné la fecha <b>Desde</b> y después una de dos: la <b>cantidad de días</b> o la fecha <b>Hasta</b>. La otra se calcula sola, descontando fines de semana y feriados cuando el artículo cuenta días hábiles.</li>
+    <li>Mirá el <b>recuadro gris</b> que aparece debajo de las fechas: dice cuántos días son, qué días no se cuentan, cuántos de esos días le tocaba trabajar y cuántos le quedan del tope.</li>
+    <li>Tildá los <b>trámites</b> que ya están hechos. Los que falten quedan como pendientes en Inicio.</li>
+    <li>Tocá <span class="btn az">Guardar</span>. Si tenés que cargar otra seguida, usá <span class="btn">Guardar y cargar otra</span>.</li>
+  </ol>
+  <img class="medio" src="img/08-nueva-licencia.png" alt="Carga de una licencia">
+  <div class="caja warn"><b>Los avisos en amarillo no te frenan: te avisan.</b>Por ejemplo, si con esta licencia se pasa del tope anual, si se superpone con otra o si el artículo admite menos días. Leelos y, si está bien así, guardá igual. Los avisos en <b>rojo</b> sí hay que corregirlos (por ejemplo, una fecha "hasta" anterior a la "desde").</div>
+  <div class="caja"><b>Las licencias cargadas a futuro</b>cuentan para el tope desde el momento en que las cargás. Por ejemplo: si un docente ya tomó 5 días del art. 20° b y tiene 1 más cargado para la semana que viene, la app dice que usó 6 (5 + 1 programado) y que no le quedan días.</div>
+  <h3>Otra forma más rápida</h3>
+  <p>En la planilla anual de un agente (punto 8), tocá directamente un <b>día vacío</b>: se abre la carga de licencia ya con ese agente y esa fecha.</p>
+  <h3>Corregir o borrar una licencia</h3>
+  <p>Tocá la licencia (en la planilla, en la lista de licencias del agente o en Trámites pendientes) y se abre para editarla. Abajo a la izquierda está <span class="btn">Borrar</span>. Si te equivocás al borrar, abajo a la derecha aparece <b>"Deshacer"</b> durante unos segundos.</p>
+</section>
+
+<section class="salto">
+  <h2>8. Consultar a un agente ("licencias a la fecha de…")</h2>
+  <p>Arriba, en <b>"Buscar agente…"</b>, escribí el apellido y elegilo de la lista. Se abre su ficha completa:</p>
+  <img class="alto" src="img/09-ficha.png" alt="Ficha del agente">
+  <ul>
+    <li><b>Las cuatro tarjetas de arriba:</b> días hábiles que faltó en el año, cuántas licencias tiene, <b>días de clase trabajados</b> (punto 11) y cuántos artículos tiene cerca del tope (75% o más).</li>
+    <li><b>Las pestañas:</b>
+      <ul>
+        <li><b>Planilla anual:</b> igual a la planilla amarilla. Cada día con licencia muestra el número de artículo con un color según el tipo. Los días que trabaja van en amarillo claro, los fines de semana en gris y los feriados con F (feriado), A (asueto) o N (no laborable). <b>Pasando el mouse por un día, el detalle aparece debajo de la grilla.</b></li>
+        <li><b>Por artículo:</b> días usados, tope y cuántos le quedan de cada artículo.</li>
+        <li><b>Licencias:</b> la lista con fechas, días y los cuadraditos del trámite.</li>
+        <li><b>Datos y horario:</b> DNI, legajos, cargos, días y horario de trabajo.</li>
+      </ul></li>
+    <li><b>Resumen a la fecha:</b> cambiando esa fecha ves cómo estaba a cualquier día del año.</li>
+    <li><span class="btn">Imprimir planilla</span> imprime la ficha con el formato de la planilla amarilla, más el resumen.</li>
+  </ul>
+  <img src="img/10-ficha-articulos.png" alt="Pestaña Por artículo">
+</section>
+
+<section class="evitar">
+  <p>En <b>Agentes</b> tenés la lista de todos: régimen, DNI, ID de cargo, cargos, los días que faltó y el detalle por artículo (por ejemplo <span class="art">1°</span> 16 quiere decir 16 días por artículo 1°). Arriba están el buscador y los filtros <b>Todos / Docentes / PSA</b>. Tocando el título de una columna se ordena.</p>
+  <img src="img/11-agentes.png" alt="Lista de agentes">
+</section>
+
+<section>
+  <h2>9. Notas del día</h2>
+  <p>Para anotar lo que antes iba en el planificador: en <b>Inicio</b>, tocá <span class="btn">+ Nota</span> en "Notas del día" o debajo de cualquier día de la semana. Escribí la nota y tocá <span class="btn az">Guardar nota</span>. Para corregirla o borrarla, tocala. Las notas también las ven todos los usuarios.</p>
+  <img class="mitad" src="img/12-nota.png" alt="Nueva nota">
+</section>
+
+<section>
+  <h2>10. Reportes y nómina del personal</h2>
+  <p>En <b>Reportes</b> hay dos pestañas.</p>
+  <h3>Licencias</h3>
+  <p>Elegís un período (o tocás "Este mes", "Mes anterior" o "Este año") y, si querés, un régimen o un artículo. Muestra cuántas licencias y cuántos días hábiles faltó cada agente en el período, y, si está cargado el ciclo lectivo, <b>cuántos días de clase faltó y cuántos trabajó</b>. Más abajo está el listado de todas las licencias del período.</p>
+  <img src="img/13-reportes.png" alt="Reportes de licencias">
+  <h3>Nómina del personal</h3>
+  <p>El padrón de todo el personal con <b>CUIL, legajo personal, legajo de junta, ID de cargo, materia y fecha de nacimiento</b>. Se puede filtrar por Docentes o PSA e incluir a los dados de baja.</p>
+  <img src="img/14-nomina.png" alt="Nómina del personal">
+  <p>En las dos, <span class="btn">Descargar Excel (CSV)</span> lo baja para abrir en Excel (en la nómina, una fila por cargo) y <span class="btn">Imprimir</span> lo imprime.</p>
+</section>
+
+<section class="salto">
+  <h2>11. Días de clase (ciclo lectivo)</h2>
+  <p>Sirve para saber, por ejemplo, que hubo <b>194 días de clase</b> y que un docente trabajó 161 y faltó 17. Para que la app lo calcule, hay que cargar cuándo empiezan y terminan las clases:</p>
+  <ol>
+    <li>Andá a <b>Ajustes</b> → pestaña <b>Feriados y asuetos</b>.</li>
+    <li>En el recuadro <b>"Ciclo lectivo"</b>, poné el <b>Inicio de clases</b> y el <b>Fin de clases</b> de ese año.</li>
+    <li>Abajo aparece cuántos días hábiles de clase hay.</li>
+  </ol>
+  <img src="img/15-ajustes-calendario.png" alt="Ciclo lectivo en Ajustes">
+  <p>Una vez cargado, se ve en la tarjeta <b>"Días de clase trabajados"</b> de la ficha del agente, en la pestaña <b>Por artículo</b> y en las columnas <b>"Faltó"</b> y <b>"Trabajó"</b> de Reportes.</p>
+  <div class="caja"><b>Para tener en cuenta:</b>los días que todavía no pasaron no cuentan como trabajados. Las licencias que caen fuera del ciclo (por ejemplo, la licencia anual de enero) no cuentan como faltas. Hay que cargar el ciclo de cada año: el de 2027 se carga pasando de año con las flechas del calendario.</div>
+</section>
+
+<section>
+  <h2>12. Feriados, artículos y topes (Ajustes)</h2>
+  <h3>Feriados y asuetos, por régimen</h3>
+  <p>Ya están cargados los de 2026 y 2027. Cada uno tiene una columna <b>"Para quién"</b>: <b>Todos</b>, <b>Sólo docentes</b> o <b>Sólo PSA</b>. Por ejemplo, el <b>11/09, Día del Maestro</b>, es asueto <b>sólo para docentes</b>: a un docente no le cuenta como día hábil, pero al personal PSA sí, porque ese día trabaja.</p>
+  <img src="img/15b-para-quien.png" alt="Columna Para quién">
+  <p>Para agregar un asueto o un día sin clases nuevo, poné arriba la fecha, el tipo, para quién es y la descripción, y tocá <span class="btn az">Agregar</span>. Deja de contarse como día hábil en las licencias de ese régimen.</p>
+  <h3>Artículos y topes</h3>
+  <ul>
+    <li>Para cada artículo podés cambiar el nombre corto, si cuenta días hábiles o corridos, el tope anual, el máximo por mes, el máximo por licencia y los trámites que pide. Los cálculos se actualizan solos. Los marcados <b>"Revisar"</b> son los que conviene confirmar con la normativa.</li>
+    <li><b>Art. 20°:</b> está dividido en <b>20° a</b> (clima o catástrofe, sin tope) y <b>20° b</b> (razones particulares, 6 por año y 2 por mes).</li>
+    <li><b>Gremiales (Res. 146/94):</b> <b>G22</b> (delegado de escuela, crédito horario) y <b>G26</b> (delegado a plenarios, encuentros o congresos de UnTER, sin goce de haberes). Llevan la "G" para no confundirlos con los art. 22° y 26° de la Res. 233/98.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>13. Usuarios (para quien administra)</h2>
+  <p>Quien administra ve en <b>Ajustes</b> una pestaña más, <b>Usuarios</b>:</p>
+  <img src="img/16-usuarios.png" alt="Usuarios y código de la escuela">
+  <ul>
+    <li><b>Código de la escuela:</b> es el que hay que pasarle a cada persona para que cree su cuenta. Con <span class="btn">Copiar</span> lo copiás para mandarlo por mensaje. Si se lo pasaste a alguien que no debía tenerlo, tocá <span class="btn">Generar uno nuevo</span>: el viejo deja de servir para crear cuentas, pero los que ya tienen cuenta siguen entrando.</li>
+    <li><b>Tipo:</b> se cambia con la lista de cada persona, por ejemplo de "Solo consulta" a "Carga licencias".</li>
+    <li><span class="btn">Dar de baja</span>: desde ese momento esa persona no puede ver ni cargar nada, aunque tenga la sesión abierta. Se puede reactivar cuando quieras.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>14. Respaldo de los datos</h2>
+  <p>Los datos están en el servidor, así que no se pierden si se rompe una compu. Igual hay tres redes de seguridad:</p>
+  <ul>
+    <li><b>Copia automática todas las noches</b>, en el Google Drive de la cuenta dueña del proyecto (carpeta <b>Copias Licencias ESRN</b>). Se guardan las últimas 60.</li>
+    <li><b>Copia en cada compu:</b> mientras usás la app, tu compu guarda sola una copia, por si algún día no anda el servidor (punto 15).</li>
+    <li><b>Exportar copia:</b> baja un archivo con todos los datos. Conviene hacerlo una vez por semana y guardarlo en un pendrive. La app te lo recuerda con el aviso amarillo del Inicio.</li>
+  </ul>
+  <p>Quien administra tiene, en <b>Ajustes › Datos y respaldo</b>, dos maneras de usar una copia:</p>
+  <img src="img/17-respaldo.png" alt="Datos y respaldo">
+  <table>
+    <tr><th style="width:30%">Botón</th><th>Qué hace</th></tr>
+    <tr><td><b>Sumar una copia…</b></td><td>Agrega lo que la copia tiene de nuevo y actualiza lo que cambió, <b>sin borrar nada</b>. Es la que se usa para juntar lo que se cargó en modo emergencia o en el link viejo. Si se suma dos veces la misma copia, no se duplica nada.</td></tr>
+    <tr><td><b>Importar copia…</b></td><td><b>Reemplaza todo</b> por lo que tiene la copia. Es para volver atrás si algo se rompió mucho, con la copia de la noche anterior al problema. Lo que se cargó después se pierde.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>15. Si no anda el servidor</h2>
+  <p>Si algún día la app no puede conectarse con el servidor, en la pantalla de ingreso aparece un recuadro amarillo con <b>"Usar la copia de esta compu"</b>:</p>
+  <img class="medio" src="img/18-ingreso-emergencia.png" alt="Opción de emergencia en el ingreso">
+  <p>Tocándolo entrás en <b>modo emergencia</b>: ves los datos tal como estaban la última vez que usaste la app en esa compu, y podés seguir cargando. Arriba aparece un aviso rojo:</p>
+  <img src="img/19-emergencia.png" alt="Modo emergencia">
+  <ol>
+    <li>Cargá como siempre. Lo que cargues queda guardado <b>sólo en esa compu</b>.</li>
+    <li>Al terminar cada día, tocá <span class="btn">Exportar copia</span> y guardá el archivo.</li>
+    <li>Cuando el servidor vuelve, tocá <span class="btn">Volver al ingreso</span> y entrá normal. Pasale el archivo a quien administra, que lo junta con <b>Ajustes › Datos y respaldo › Sumar una copia…</b> (punto 14).</li>
+  </ol>
+  <div class="caja"><b>Si la página ni siquiera abre,</b>usá el link viejo (santifarah1.github.io/Licencias) y cargá ahí. Después se hace lo mismo: Exportar copia y Sumar una copia.</div>
+</section>
+
+<section>
+  <h2>16. Si algo no anda</h2>
+  <table>
+    <tr><th style="width:38%">Pasa esto…</th><th>Hacé esto</th></tr>
+    <tr><td>Dice "El código de la escuela no es correcto"</td><td>Revisá que esté completo, con los guiones. Si sigue, pedile el código a quien administra: puede que lo haya cambiado.</td></tr>
+    <tr><td>Dice que tu acceso está dado de baja</td><td>Avisale a quien administra para que te reactive.</td></tr>
+    <tr><td>El indicador dice "Sin conexión"</td><td>Seguí cargando: se sube solo cuando vuelve internet. No cierres la sesión mientras tanto.</td></tr>
+    <tr><td>No ves lo que cargó otra persona</td><td>Normalmente aparece al instante. Si no, recargá la página con <b>F5</b>.</td></tr>
+    <tr><td>Borré algo sin querer</td><td>Tocá "Deshacer" enseguida. Si ya pasó el momento, quien administra puede recuperarlo de la copia de la noche anterior.</td></tr>
+    <tr><td>No encuentro a un agente</td><td>Fijate que en Agentes no esté filtrado por "Docentes" o "PSA", o tildá "Mostrar dados de baja".</td></tr>
+    <tr><td>No veo los días de clase</td><td>Falta cargar el ciclo lectivo de ese año (punto 11).</td></tr>
+    <tr><td>La app se ve como antes después de un cambio</td><td>Recargá la página con <b>Ctrl + F5</b>. Los datos no se tocan.</td></tr>
+    <tr><td>Un número no coincide con lo que calculo yo</td><td>Abrí la licencia y mirá el recuadro gris: dice qué días contó y cuáles no. Si sigue sin coincidir, sacale una foto a la pantalla y mandásela a Santi.</td></tr>
+  </table>
+  <p class="pie-final">Licencias ESRN Rural Virtual · guía para la app con usuarios · noviembre 2026</p>
+</section>
+
+</body>
+</html>
