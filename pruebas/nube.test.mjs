@@ -136,3 +136,22 @@ test('Emergencia: con el servidor caído se sigue con la copia de la compu, y el
   sinErrores(A);
   await ctxA.close(); await ctxM.close();
 });
+
+test('Barra de arriba con usuario: entra en todos los anchos, con nombre largo, sin cortar "+ Licencia"', async () => {
+  await crearCuenta('largo@prueba.com', 'Maximiliano Fernández Administrador', 'admin');
+  const ctx = await contexto(b);
+  const p = await entrar(ctx, 'largo@prueba.com');
+  // letra ancha a propósito, para tener margen con cualquier compu
+  await p.addStyleTag({ content: '*{font-family:"DejaVu Sans",sans-serif!important}' });
+  const malos = [];
+  for (const w of [1920, 1600, 1536, 1440, 1366, 1280, 1100, 1024, 900, 820, 600, 390, 360]) {
+    await p.setViewportSize({ width: w, height: 800 });
+    for (const v of ['inicio', 'agentes', 'reportes', 'ajustes']) {
+      const r = await p.evaluate(v => { location.hash = '#' + v; render();
+        return { sw: document.documentElement.scrollWidth, der: document.querySelector('#btn-nueva').getBoundingClientRect().right }; }, v);
+      if (r.sw > w || r.der > w) malos.push(`${v} a ${w}px (ancho ${r.sw}, botón hasta ${Math.round(r.der)})`);
+    }
+  }
+  assert.deepEqual(malos, []);
+  sinErrores(p); await ctx.close();
+});
